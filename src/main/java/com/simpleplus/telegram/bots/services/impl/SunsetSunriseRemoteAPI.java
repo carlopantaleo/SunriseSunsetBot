@@ -23,6 +23,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
 
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {
         String result = callRemoteService(coordinates);
+        System.out.println(result); // Debug
         return parseResult(result);
     }
 

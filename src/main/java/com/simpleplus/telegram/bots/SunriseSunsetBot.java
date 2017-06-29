@@ -9,6 +9,7 @@ import com.simpleplus.telegram.bots.helpers.UserState;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -33,42 +34,34 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
-        if (!(update.hasMessage() && update.getMessage().hasText()))
+        if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
             return;
 
         final long chatId = update.getMessage().getChatId();
 
         // Se la chat è nuova faccio varie inizializzazioni
-        if (!isChatNew(chatId)) {
+        if (isChatNew(chatId)) {
             gestNewChat(chatId);
             return;
         }
 
         // Altrimenti procedo con gli step
         switch (userStateMap.get(chatId).getStep()) {
-            case TO_ENTER_LATITUDE: {
+            case TO_ENTER_LOCATION: {
                 try {
-                    setLatitude(chatId, update.getMessage().getText());
-                    setNextStep(chatId);
+                    if (update.getMessage().hasLocation()) {
+                        setLocation(chatId, update.getMessage().getLocation());
+                        try {
+                            installNotifier(chatId);
+                            setStep(chatId, Step.RUNNING);
+                        } catch (ServiceException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        reply(chatId, "You aren't sending me a location. Please try again!");
+                    }
                 } catch (NumberFormatException e) {
                     reply(chatId, "Invalid numeric format. A valid format is 12.4523556");
-                }
-            }
-            break;
-
-            case TO_ENTER_LONGITUDE: {
-                try {
-                    setLongitude(chatId, update.getMessage().getText());
-                    SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-                    reply(chatId,
-                            "Sunset at " + times.getSunsetTime().toString() + ", " +
-                                    "sunrise at " + times.getSunriseTime().toString());
-                    setNextStep(chatId);
-                } catch (NumberFormatException e) {
-                    reply(chatId, "Invalid numeric format. A valid format is 12.4523556");
-                } catch (ServiceException e) {
-                    reply(chatId, "Oops, something went wrong... " + e.getMessage());
-                    e.printStackTrace();
                 }
             }
             break;
@@ -76,10 +69,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             // Solo debug!
             case RUNNING: {
                 try {
-                    SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-                    reply(chatId,
-                            "Sunset at " + times.getSunsetTime().toString() + ", " +
-                                    "sunrise at " + times.getSunriseTime().toString());
+                    installNotifier(chatId);
                     setNextStep(chatId);
                 } catch (NumberFormatException e) {
                     reply(chatId, "Invalid numeric format. A valid format is 12.4523556");
@@ -90,6 +80,23 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             }
             break;
         }
+    }
+
+    private void installNotifier(long chatId) throws ServiceException {
+        SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
+        reply(chatId,
+                "Sunset at " + times.getSunsetTime().toString() + ", " +
+                        "sunrise at " + times.getSunriseTime().toString());
+    }
+
+    private void setLocation(long chatId, Location location) {
+        UserState userState = userStateMap.get(chatId);
+        userState.setCoordinates(new Coordinates(
+                new BigDecimal(location.getLatitude()),
+                new BigDecimal(location.getLongitude())));
+        saveState();
+
+        reply(chatId, "Perfect! I'm going to calculate today's sunset and sunrise time.");
     }
 
     private SunsetSunriseTimes calculateSunriseAndSunset(long chatId) throws ServiceException {
@@ -102,42 +109,28 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
         switch (userState.getStep()) {
             case NEW_CHAT:
-                userState.setStep(Step.TO_ENTER_LATITUDE);
+                userState.setStep(Step.TO_ENTER_LOCATION);
                 break;
-            case TO_ENTER_LATITUDE:
-                userState.setStep(Step.TO_ENTER_LONGITUDE);
-                break;
-            case TO_ENTER_LONGITUDE:
+            case TO_ENTER_LOCATION:
                 userState.setStep(Step.RUNNING);
                 break;
         }
         saveState();
     }
 
-    private void setLongitude(long chatId, String text) {
+    private void setStep(long chatId, Step step) {
         UserState userState = userStateMap.get(chatId);
-        userState.setCoordinates(new Coordinates(userState.getCoordinates().getLatitude(), new BigDecimal(text)));
-        saveState();
-
-        reply(chatId, "Perfect! I'm going to calculate today's sunset and sunrise time.");
-    }
-
-    private void setLatitude(long chatId, String text) {
-        UserState userState = userStateMap.get(chatId);
-        userState.setCoordinates(new Coordinates(new BigDecimal(text), BigDecimal.ZERO));
-        saveState();
-
-        reply(chatId, "Good! Now enter your longitude.");
+        userState.setStep(step);
     }
 
     private boolean isChatNew(long chatId) {
-        return userStateMap.containsKey(chatId);
+        return !userStateMap.containsKey(chatId);
     }
 
     private void gestNewChat(long chatId) {
-        reply(chatId, "Welcome! Please enter your latitude (eg. 12.4523556)");
+        reply(chatId, "Welcome! Please send me your location, or enter your latitude (eg. 12.4523556)");
 
-        userStateMap.put(chatId, new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LATITUDE));
+        userStateMap.put(chatId, new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION));
         saveState();
     }
 
