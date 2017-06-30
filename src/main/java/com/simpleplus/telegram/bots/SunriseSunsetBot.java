@@ -53,7 +53,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                         setLocation(chatId, update.getMessage().getLocation());
                         try {
                             installNotifier(chatId);
-                            setStep(chatId, Step.RUNNING);
+                            setNextStep(chatId);
                         } catch (ServiceException e) {
                             e.printStackTrace();
                         }
