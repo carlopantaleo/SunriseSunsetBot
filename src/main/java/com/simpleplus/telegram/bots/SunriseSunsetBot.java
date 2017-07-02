@@ -15,7 +15,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -91,9 +90,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     private void setLocation(long chatId, Location location) {
         UserState userState = userStateMap.get(chatId);
-        userState.setCoordinates(new Coordinates(
-                new BigDecimal(location.getLatitude()),
-                new BigDecimal(location.getLongitude())));
+        userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
         saveState();
 
         reply(chatId, "Perfect! I'm going to calculate today's sunset and sunrise time.");

@@ -2,27 +2,26 @@ package com.simpleplus.telegram.bots.helpers;
 
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 public class Coordinates implements Serializable {
-    private final BigDecimal latitude;
-    private final BigDecimal longitude;
+    private final float latitude;
+    private final float longitude;
 
-    public Coordinates(BigDecimal latitude, BigDecimal longitude) {
+    public Coordinates(float latitude, float longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
     public Coordinates() {
-        this.latitude = BigDecimal.ZERO;
-        this.longitude = BigDecimal.ZERO;
+        this.latitude = 0;
+        this.longitude = 0;
     }
 
-    public BigDecimal getLongitude() {
+    public float getLongitude() {
         return longitude;
     }
 
-    public BigDecimal getLatitude() {
+    public float getLatitude() {
         return latitude;
     }
 }
