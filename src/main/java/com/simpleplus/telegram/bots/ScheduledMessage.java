@@ -6,26 +6,25 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.util.TimerTask;
 
-public class AlertTimerTask extends TimerTask {
+public class ScheduledMessage extends TimerTask {
 
     private final Long chatID;
     private final String message;
     private final TelegramLongPollingBot bot;
 
-    public AlertTimerTask(Long chatID, String message, TelegramLongPollingBot bot) {
+    public ScheduledMessage(Long chatID, String message, TelegramLongPollingBot bot) {
         this.chatID = chatID;
         this.message = message;
         this.bot = bot;
     }
 
-
     @Override
     public void run() {
-        SendMessage messageToSend = new SendMessage() // Create a SendMessage object with mandatory fields
+        SendMessage messageToSend = new SendMessage()
                 .setChatId(chatID)
                 .setText(message);
         try {
-            bot.sendMessage(messageToSend); // Call method to send the message
+            bot.sendMessage(messageToSend);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

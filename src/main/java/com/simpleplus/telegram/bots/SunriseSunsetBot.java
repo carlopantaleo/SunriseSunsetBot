@@ -15,6 +15,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -22,11 +26,14 @@ import java.util.Timer;
 
 public class SunriseSunsetBot extends TelegramLongPollingBot {
 
-    private Timer botTimer = new Timer();
+    private static final String SUNRISE_MESSAGE = "The sun is rising!";
+    private static final String SUNSET_MESSAGE = "Sunset has begun!";
+
     private Map<Long, UserState> userStateMap = new HashMap<Long, UserState>();
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private final String savedStateFile = "filename.txt"; // TODO: move in properties
     private SunsetSunriseService sunsetSunriseService = new SunsetSunriseRemoteAPI();
+    private Timer schedule = new Timer();
 
     public SunriseSunsetBot() {
         loadState();
@@ -84,8 +91,21 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
         reply(chatId,
-                "Sunset at " + times.getSunsetTime().toString() + ", " +
-                        "sunrise at " + times.getSunriseTime().toString());
+                "Sunset at " + times.getUTCSunsetTime().toString() + ", " +
+                        "sunrise at " + times.getUTCSunriseTime().toString());
+
+        // TODO: schedulare solo se non è già passato
+        schedule.schedule(new ScheduledMessage(chatId, SUNRISE_MESSAGE, this),
+                times.getSunriseTime());
+        schedule.schedule(new ScheduledMessage(chatId, SUNSET_MESSAGE, this),
+                times.getSunsetTime());
+
+        //Debug
+        schedule.schedule(new ScheduledMessage(chatId, SUNRISE_MESSAGE, this),
+                Date.from(LocalTime.now().plusSeconds(10)
+                        .atDate(LocalDate.now())
+                        .atZone(ZoneId.systemDefault()).toInstant()));
+
     }
 
     private void setLocation(long chatId, Location location) {
@@ -125,7 +145,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     }
 
     private void gestNewChat(long chatId) {
-        reply(chatId, "Welcome! Please send me your location, or enter your latitude (eg. 12.4523556)");
+        reply(chatId, "Welcome! Please send me your location.");
 
         userStateMap.put(chatId, new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION));
         saveState();
