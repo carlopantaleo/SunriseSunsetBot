@@ -15,13 +15,8 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
 
 /* Lista della spesa
     - Creare un task che ogni giorno installi tutti i notifier del giorno.
@@ -37,7 +32,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private final String savedStateFile = "filename.txt"; // TODO: move in properties
     private SunsetSunriseService sunsetSunriseService = new SunsetSunriseRemoteAPI();
-    private Timer schedule = new Timer();
+    private BotScheduler scheduler = new BotScheduler(this);
 
     public SunriseSunsetBot() {
         loadState();
@@ -96,26 +91,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     private void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-        scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
-        scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
+        scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
+        scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
     }
 
-    private void scheduleMessage(long chatId, Date time, String message) {
-        try {
-            // Schedule message only if time >= now
-            if (time.compareTo(Date.from(LocalTime.now()
-                    .atDate(LocalDate.now())
-                    .atZone(ZoneOffset.systemDefault())
-                    .toInstant())) >= 0) {
-                schedule.schedule(new ScheduledMessage(chatId, message, this), time);
-            }
-            System.out.println("Message scheduled at " + time.toString());
-        } catch (IllegalStateException e) {
-            //TODO: handle this exception
-            e.printStackTrace();
-        }
-
-    }
 
     private void setLocation(long chatId, Location location) {
         UserState userState = userStateMap.get(chatId);
