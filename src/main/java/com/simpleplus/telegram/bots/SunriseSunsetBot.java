@@ -23,7 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 
-
+/* Lista della spesa
+    - Creare un task che ogni giorno installi tutti i notifier del giorno.
+    - Lavorare sul PersistenceManager
+    - Inserire un sistema di logging furbo
+ */
 public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     private static final String SUNRISE_MESSAGE = "The sun is rising!";
