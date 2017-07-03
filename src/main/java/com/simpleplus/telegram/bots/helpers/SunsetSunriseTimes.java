@@ -3,13 +3,12 @@ package com.simpleplus.telegram.bots.helpers;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 public class SunsetSunriseTimes {
     private final LocalTime sunsetTime;
     private final LocalTime sunriseTime;
-    ZoneId timeZone = ZoneId.systemDefault(); // TODO: internazionalizzare
 
     public SunsetSunriseTimes(LocalTime sunsetTime, LocalTime sunriseTime) {
         this.sunsetTime = sunsetTime;
@@ -34,7 +33,7 @@ public class SunsetSunriseTimes {
 
     private Date getGlobalTime(LocalTime localTime) {
         Instant instant = localTime.atDate(LocalDate.now()).
-                atZone(timeZone).toInstant();
+                atZone(ZoneOffset.UTC).toInstant();
         return Date.from(instant);
     }
 }

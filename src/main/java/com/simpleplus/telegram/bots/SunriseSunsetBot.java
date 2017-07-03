@@ -17,7 +17,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +37,20 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     public SunriseSunsetBot() {
         loadState();
+        installAllNotifiers();
+    }
+
+    private void installAllNotifiers() {
+        for (Map.Entry<Long, UserState> userState : userStateMap.entrySet()) {
+            if (userState.getValue().getStep() == Step.RUNNING) {
+                try {
+                    installNotifier(userState.getKey());
+                } catch (ServiceException e) {
+                    //TODO: handle this exception
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void onUpdateReceived(Update update) {
@@ -60,7 +74,9 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                         try {
                             installNotifier(chatId);
                             setNextStep(chatId);
+                            reply(chatId, "You will be notified at sunset and sunrise.");
                         } catch (ServiceException e) {
+                            //TODO: handle this exception
                             e.printStackTrace();
                         }
                     } else {
@@ -71,40 +87,29 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                 }
             }
             break;
-
-            // Solo debug!
-            case RUNNING: {
-                try {
-                    installNotifier(chatId);
-                    setNextStep(chatId);
-                } catch (NumberFormatException e) {
-                    reply(chatId, "Invalid numeric format. A valid format is 12.4523556");
-                } catch (ServiceException e) {
-                    reply(chatId, "Oops, something went wrong... " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-            break;
         }
     }
 
     private void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-        reply(chatId,
-                "Sunset at " + times.getUTCSunsetTime().toString() + ", " +
-                        "sunrise at " + times.getUTCSunriseTime().toString());
+        scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
+        scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
+    }
 
-        // TODO: schedulare solo se non è già passato
-        schedule.schedule(new ScheduledMessage(chatId, SUNRISE_MESSAGE, this),
-                times.getSunriseTime());
-        schedule.schedule(new ScheduledMessage(chatId, SUNSET_MESSAGE, this),
-                times.getSunsetTime());
-
-        //Debug
-        schedule.schedule(new ScheduledMessage(chatId, SUNRISE_MESSAGE, this),
-                Date.from(LocalTime.now().plusSeconds(10)
-                        .atDate(LocalDate.now())
-                        .atZone(ZoneId.systemDefault()).toInstant()));
+    private void scheduleMessage(long chatId, Date time, String message) {
+        try {
+            // Schedule message only if time >= now
+            if (time.compareTo(Date.from(LocalTime.now()
+                    .atDate(LocalDate.now())
+                    .atZone(ZoneOffset.systemDefault())
+                    .toInstant())) >= 0) {
+                schedule.schedule(new ScheduledMessage(chatId, message, this), time);
+            }
+            System.out.println("Message scheduled at " + time.toString());
+        } catch (IllegalStateException e) {
+            //TODO: handle this exception
+            e.printStackTrace();
+        }
 
     }
 
@@ -112,8 +117,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         UserState userState = userStateMap.get(chatId);
         userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
         saveState();
-
-        reply(chatId, "Perfect! I'm going to calculate today's sunset and sunrise time.");
     }
 
     private SunsetSunriseTimes calculateSunriseAndSunset(long chatId) throws ServiceException {
