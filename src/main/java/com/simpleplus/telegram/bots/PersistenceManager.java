@@ -1,21 +1,20 @@
 package com.simpleplus.telegram.bots;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.apache.log4j.Logger;
+
+import java.sql.*;
 
 public class PersistenceManager {
-    private Connection connection;
+    private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
 
+    private Connection connection;
 
     public PersistenceManager(String database) {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + database);
             init();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("SQLException during construction.", e);
             throw new Error("Critical error: unable to init database.");
         }
     }
@@ -26,7 +25,7 @@ public class PersistenceManager {
                 connection.close();
             }
         } catch (SQLException e) {
-            System.err.println(e);
+            LOG.error("SQLException during shutdown.", e);
         }
     }
 
@@ -42,7 +41,7 @@ public class PersistenceManager {
                 }
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            LOG.error("SQLException during init.", e);
         }
     }
 

@@ -4,6 +4,7 @@ import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.helpers.Coordinates;
 import com.simpleplus.telegram.bots.helpers.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,7 +12,6 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalTime;
@@ -20,10 +20,11 @@ import java.time.format.DateTimeParseException;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
     private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f";
+    private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
 
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {
         String result = callRemoteService(coordinates);
-        System.out.println(result); // Debug
+        LOG.debug(result);
         return parseResult(result);
     }
 
@@ -49,7 +50,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
             sunset = LocalTime.parse(civilTwilightEnd, DateTimeFormatter.ofPattern("h:m:s a"));
             sunrise = LocalTime.parse(civilTwilightBegin, DateTimeFormatter.ofPattern("h:m:s a"));
         } catch (DateTimeParseException e) {
-            e.printStackTrace();
+            LOG.error("DateTimeParseException", e);
             throw new ServiceException("Internal service error (DateTimeParseException)");
         }
 
@@ -80,7 +81,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
 
             conn.disconnect();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOG.error("MalformedURLException", e);
         } catch (IOException e) {
             throw new ServiceException("IO Error");
         }

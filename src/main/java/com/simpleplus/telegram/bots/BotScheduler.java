@@ -1,5 +1,6 @@
 package com.simpleplus.telegram.bots;
 
+import org.apache.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.Timer;
 public class BotScheduler {
     private Timer schedule = new Timer();
     private TelegramLongPollingBot bot;
+    private static final Logger LOG = Logger.getLogger(BotScheduler.class);
 
     public BotScheduler(TelegramLongPollingBot bot) {
         this.bot = bot;
@@ -24,8 +26,10 @@ public class BotScheduler {
                     .atZone(ZoneOffset.systemDefault())
                     .toInstant())) >= 0) {
                 schedule.schedule(new ScheduledMessage(chatId, message, bot), time);
+                LOG.info("Message scheduled at " + time.toString());
+            } else {
+                LOG.info("Message NOT scheduled at " + time.toString());
             }
-            System.out.println("Message scheduled at " + time.toString());
         } catch (IllegalStateException e) {
             //TODO: handle this exception
             e.printStackTrace();

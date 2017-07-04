@@ -8,6 +8,7 @@ import com.simpleplus.telegram.bots.helpers.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.helpers.UserState;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
+import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Update;
@@ -27,6 +28,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     private static final String SUNRISE_MESSAGE = "The sun is rising!";
     private static final String SUNSET_MESSAGE = "Sunset has begun!";
+    private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
+
 
     private Map<Long, UserState> userStateMap = new HashMap<Long, UserState>();
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
@@ -156,7 +159,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             oo.writeObject(userStateMap);
             oo.close();
         } catch (IOException e) {
-            System.out.printf("Unable to save to file [%s]\n", savedStateFile);
+            LOG.error("Unable to save to file [" + savedStateFile + "]", e);
         }
     }
 
@@ -167,9 +170,9 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             userStateMap = (Map<Long, UserState>) oi.readObject();
             oi.close();
         } catch (IOException e) {
-            System.out.printf("Unable to load file [%s]\n", savedStateFile);
+            LOG.error("Unable to load file [" + savedStateFile + "]", e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("ClassNotFoundException - ", e);
         }
     }
 
