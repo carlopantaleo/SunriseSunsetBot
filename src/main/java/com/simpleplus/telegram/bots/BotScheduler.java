@@ -32,7 +32,7 @@ public class BotScheduler {
             }
         } catch (IllegalStateException e) {
             //TODO: handle this exception
-            e.printStackTrace();
+            LOG.error("IllegalStateException during scheduleMessage.", e);
         }
 
     }

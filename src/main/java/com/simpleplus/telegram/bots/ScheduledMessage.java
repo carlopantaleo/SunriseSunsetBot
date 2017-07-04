@@ -26,7 +26,7 @@ public class ScheduledMessage extends TimerTask {
         try {
             bot.sendMessage(messageToSend);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            // TODO gestire la rimozione della chat
         }
     }
 

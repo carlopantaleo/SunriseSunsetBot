@@ -49,7 +49,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                     installNotifier(userState.getKey());
                 } catch (ServiceException e) {
                     //TODO: handle this exception
-                    e.printStackTrace();
+                    LOG.error("ServiceException during installAllNotifiers.", e);
                 }
             }
         }
@@ -78,8 +78,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                             setNextStep(chatId);
                             reply(chatId, "You will be notified at sunset and sunrise.");
                         } catch (ServiceException e) {
-                            //TODO: handle this exception
-                            e.printStackTrace();
+                            LOG.error("ServiceException during onUpdateReceived.", e);
                         }
                     } else {
                         reply(chatId, "You aren't sending me a location. Please try again!");
@@ -148,7 +147,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         try {
             sendMessage(messageToSend);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            //TODO gestire la rimozione della chat
+            LOG.error("TelegramApiException during reply.", e);
         }
     }
 
