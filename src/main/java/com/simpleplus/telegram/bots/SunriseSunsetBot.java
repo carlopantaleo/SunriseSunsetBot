@@ -70,21 +70,17 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         // Altrimenti procedo con gli step
         switch (userStateMap.get(chatId).getStep()) {
             case TO_ENTER_LOCATION: {
-                try {
-                    if (update.getMessage().hasLocation()) {
-                        setLocation(chatId, update.getMessage().getLocation());
-                        try {
-                            installNotifier(chatId);
-                            setNextStep(chatId);
-                            reply(chatId, "You will be notified at sunset and sunrise.");
-                        } catch (ServiceException e) {
-                            LOG.error("ServiceException during onUpdateReceived.", e);
-                        }
-                    } else {
-                        reply(chatId, "You aren't sending me a location. Please try again!");
+                if (update.getMessage().hasLocation()) {
+                    setLocation(chatId, update.getMessage().getLocation());
+                    try {
+                        installNotifier(chatId);
+                        setNextStep(chatId);
+                        reply(chatId, "You will be notified at sunset and sunrise.");
+                    } catch (ServiceException e) {
+                        LOG.error("ServiceException during onUpdateReceived.", e);
                     }
-                } catch (NumberFormatException e) {
-                    reply(chatId, "Invalid numeric format. A valid format is 12.4523556");
+                } else {
+                    reply(chatId, "You aren't sending me a location. Please try again!");
                 }
             }
             break;
