@@ -117,7 +117,7 @@ public class PersistenceManager {
 
     private void createTables() throws SQLException {
         Statement statement = connection.createStatement();
-        statement.executeQuery(
+        statement.execute(
                 "CREATE TABLE user_state (" +
                         "chatid PRIMARY KEY," +
                         "latitude," +

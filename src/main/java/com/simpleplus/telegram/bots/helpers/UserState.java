@@ -31,4 +31,23 @@ public class UserState implements Serializable {
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserState userState = (UserState) o;
+
+        if (coordinates != null ? !coordinates.equals(userState.coordinates) : userState.coordinates != null)
+            return false;
+        return step == userState.step;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = coordinates != null ? coordinates.hashCode() : 0;
+        result = 31 * result + (step != null ? step.hashCode() : 0);
+        return result;
+    }
 }
