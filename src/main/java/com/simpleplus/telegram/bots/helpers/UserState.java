@@ -7,6 +7,15 @@ public class UserState implements Serializable {
     private Coordinates coordinates;
     private Step step;
 
+    public UserState(Coordinates coordinates, Step step) {
+        this.coordinates = coordinates;
+        this.step = step;
+    }
+
+    public UserState() {
+        this(null, null);
+    }
+
     public Step getStep() {
         return step;
     }
@@ -21,10 +30,5 @@ public class UserState implements Serializable {
 
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
-    }
-
-    public UserState(Coordinates coordinates, Step step) {
-        this.coordinates = coordinates;
-        this.step = step;
     }
 }
