@@ -111,7 +111,7 @@ public class PersistenceManager {
                 "UPDATE user_state SET " +
                         "latitude = ?, " +
                         "longitude = ?, " +
-                        "step = ?) " +
+                        "step = ? " +
                         "WHERE chatid = ?");
     }
 
