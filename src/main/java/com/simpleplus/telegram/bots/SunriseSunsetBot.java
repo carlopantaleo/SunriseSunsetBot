@@ -16,6 +16,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,21 +32,39 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     private static final String SUNRISE_MESSAGE = "The sun is rising!";
     private static final String SUNSET_MESSAGE = "Sunset has begun!";
+    private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
 
+    private final String savedStateFile = "filename.txt"; // TODO: dismiss in favour of PersistenceManager
 
+    /**
+     * The map where states for each user are stored. Once the bot is constructed, it must contain all states which
+     * were previously saved to disk.
+     */
     private Map<Long, UserState> userStateMap = new HashMap<Long, UserState>();
-    private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
-    private final String savedStateFile = "filename.txt"; // TODO: move in properties
+
+    /**
+     * The service which provides sunset and sunrise times.
+     */
     private SunsetSunriseService sunsetSunriseService = new SunsetSunriseRemoteAPI();
+
+    /**
+     * The scheduler which can be used to schedule messages and generic events.
+     */
     private BotScheduler scheduler = new BotScheduler(this);
 
     public SunriseSunsetBot() {
         loadState();
         installAllNotifiers();
+        scheduler.schedule(new ScheduledNotifiersInstaller(this),
+                Date.from(LocalTime.of(0, 0) // Midnight
+                        .atDate(LocalDate.now().plusDays(1)) // Tomorrow
+                        .atZone(ZoneOffset.UTC) // At UTC
+                        .toInstant()),
+                60*60*24); // Every 24 hours
     }
 
-    private void installAllNotifiers() {
+    void installAllNotifiers() {
         for (Map.Entry<Long, UserState> userState : userStateMap.entrySet()) {
             if (userState.getValue().getStep() == Step.RUNNING) {
                 try {
@@ -89,8 +111,18 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
     private void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-        scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
-        scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
+
+        try {
+            scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
+        } catch (IllegalStateException e) {
+            LOG.info("IllegalStateException while scheduling message for Sunrise Time.", e);
+        }
+
+        try {
+            scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
+        } catch (IllegalStateException e) {
+            LOG.info("IllegalStateException while scheduling message for Sunset Time.", e);
+        }
     }
 
 

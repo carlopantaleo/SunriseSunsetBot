@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class BotScheduler {
     private Timer schedule = new Timer();
@@ -34,7 +35,11 @@ public class BotScheduler {
             //TODO: handle this exception
             LOG.error("IllegalStateException during scheduleMessage.", e);
         }
+    }
 
+    public void schedule(TimerTask task, Date firstTime, long period) {
+        schedule.schedule(task, firstTime, period);
+        LOG.info("Task scheduled at " + firstTime.toString() + " every " + Long.toString(period) + " seconds.");
     }
 
 }
