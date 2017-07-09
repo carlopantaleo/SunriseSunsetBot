@@ -31,11 +31,12 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
 
 
-    private Map<Long, UserState> userStateMap = new HashMap<Long, UserState>();
+    private Map<Long, UserState> userStateMap = new HashMap<>();
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private final String savedStateFile = "filename.txt"; // TODO: move in properties
     private SunsetSunriseService sunsetSunriseService = new SunsetSunriseRemoteAPI();
     private BotScheduler scheduler = new BotScheduler(this);
+    private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot");
 
     public SunriseSunsetBot() {
         loadState();

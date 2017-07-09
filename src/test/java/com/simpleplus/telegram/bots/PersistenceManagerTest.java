@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Map;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -44,5 +45,17 @@ public class PersistenceManagerTest {
         assertTrue(gotUserState.equals(userState));
 
         assertNull(persistenceManager.getUserState(1));
+    }
+
+    @Test
+    public void getAllUserStatesWork() throws Exception {
+        UserState userState = new UserState(new Coordinates(1.1F, 2.2F), Step.NEW_CHAT);
+        persistenceManager.setUserState(99, userState);
+        userState = new UserState(new Coordinates(1.2F, 2.3F), Step.RUNNING);
+        persistenceManager.setUserState(98, userState);
+
+        Map<Long, UserState> result = persistenceManager.getUserStatesMap();
+        assertTrue(!result.isEmpty());
+        assertTrue(result.size() != 1);
     }
 }

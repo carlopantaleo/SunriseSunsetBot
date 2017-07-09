@@ -6,12 +6,15 @@ import com.simpleplus.telegram.bots.helpers.UserState;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PersistenceManager {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
     private PreparedStatement getUserStateStatement;
     private PreparedStatement insertUserStateStatement;
     private PreparedStatement updateUserStateStatement;
+    private PreparedStatement getAllUserStatesStatement;
 
     private Connection connection;
 
@@ -43,7 +46,7 @@ public class PersistenceManager {
             rs = getUserStateStatement.executeQuery();
 
             UserState userState = new UserState();
-            while (rs.next()) {
+            if (rs.next()) {
                 userState.setCoordinates(new Coordinates(
                         rs.getFloat("latitude"),
                         rs.getFloat("longitude")));
@@ -55,6 +58,27 @@ public class PersistenceManager {
         }
 
         return null;
+    }
+
+    public Map<Long, UserState> getUserStatesMap() {
+        Map<Long, UserState> result = new HashMap<>();
+        ResultSet rs;
+        try {
+            rs = getAllUserStatesStatement.executeQuery();
+
+            while (rs.next()) {
+                UserState userState = new UserState();
+                userState.setCoordinates(new Coordinates(
+                        rs.getFloat("latitude"),
+                        rs.getFloat("longitude")));
+                userState.setStep(Step.valueOf(rs.getString("step")));
+                result.put(rs.getLong("chatid"), userState);
+            }
+        } catch (SQLException | IllegalArgumentException e) {
+            LOG.error("Exception while fetching user states.", e);
+        }
+
+        return result;
     }
 
     public void setUserState(long chatId, UserState userState) {
@@ -102,6 +126,10 @@ public class PersistenceManager {
                 "SELECT chatid, latitude, longitude, step " +
                         "FROM user_state " +
                         "WHERE chatid = ?");
+
+        getAllUserStatesStatement = connection.prepareStatement(
+                "SELECT chatid, latitude, longitude, step " +
+                        "FROM user_state ");
 
         insertUserStateStatement = connection.prepareStatement(
                 "INSERT INTO user_state (chatid, latitude, longitude, step) " +
