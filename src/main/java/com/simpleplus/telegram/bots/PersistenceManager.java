@@ -110,7 +110,7 @@ public class PersistenceManager {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(
                     "SELECT COUNT(*) FROM (SELECT name FROM sqlite_master " +
-                            "WHERE type IN ('table','view') AND name = 'USER_STATE')");
+                            "WHERE type IN ('table','view') AND name = 'user_state')");
             while (rs.next()) {
                 if (rs.getInt(1) != 1) {
                     createTables();
