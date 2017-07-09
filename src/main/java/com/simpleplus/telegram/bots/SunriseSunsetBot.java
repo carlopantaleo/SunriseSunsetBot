@@ -15,14 +15,11 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 /* Lista della spesa
-    - Creare un task che ogni giorno installi tutti i notifier del giorno.
-    - Lavorare sul PersistenceManager
-    - Inserire un sistema di logging furbo
+    - Gestire bene le eccezioni e avvisare l'utente.
  */
 public class SunriseSunsetBot extends TelegramLongPollingBot {
 
@@ -98,7 +95,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private void setLocation(long chatId, Location location) {
         UserState userState = userStateMap.get(chatId);
         userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
-        saveState();
+        saveGlobalState();
     }
 
     private SunsetSunriseTimes calculateSunriseAndSunset(long chatId) throws ServiceException {
@@ -117,7 +114,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                 userState.setStep(Step.RUNNING);
                 break;
         }
-        saveState();
+        saveGlobalState();
     }
 
     private void setStep(long chatId, Step step) {
@@ -133,7 +130,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         reply(chatId, "Welcome! Please send me your location.");
 
         userStateMap.put(chatId, new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION));
-        saveState();
+        saveGlobalState();
     }
 
     private void reply(long chatId, String message) {
@@ -149,28 +146,14 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         }
     }
 
-    private void saveState() {
-        try {
-            OutputStream os = new FileOutputStream(savedStateFile);
-            ObjectOutput oo = new ObjectOutputStream(os);
-            oo.writeObject(userStateMap);
-            oo.close();
-        } catch (IOException e) {
-            LOG.error("Unable to save to file [" + savedStateFile + "]", e);
+    private void saveGlobalState() {
+        for (Map.Entry<Long, UserState> entry : userStateMap.entrySet()) {
+            persistenceManager.setUserState(entry.getKey(), entry.getValue());
         }
     }
 
     private void loadState() {
-        try {
-            InputStream is = new FileInputStream(savedStateFile);
-            ObjectInput oi = new ObjectInputStream(is);
-            userStateMap = (Map<Long, UserState>) oi.readObject();
-            oi.close();
-        } catch (IOException e) {
-            LOG.error("Unable to load file [" + savedStateFile + "]", e);
-        } catch (ClassNotFoundException e) {
-            LOG.error("ClassNotFoundException - ", e);
-        }
+        userStateMap = persistenceManager.getUserStatesMap();
     }
 
 
