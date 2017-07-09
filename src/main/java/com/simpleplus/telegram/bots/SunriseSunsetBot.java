@@ -15,7 +15,6 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -48,7 +47,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
      * The scheduler which can be used to schedule messages and generic events.
      */
     private BotScheduler scheduler = new BotScheduler(this);
-    private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot");
+    private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
 
     public SunriseSunsetBot() {
         loadState();
