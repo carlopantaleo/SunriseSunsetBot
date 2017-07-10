@@ -82,10 +82,13 @@ public class PersistenceManager {
     }
 
     public void setUserState(long chatId, UserState userState) {
-        ResultSet rs;
         try {
             getUserStateStatement.setLong(1, chatId);
-            rs = getUserStateStatement.executeQuery();
+        } catch (SQLException e) {
+            LOG.error("Unable to set chatId.", e);
+        }
+
+        try (ResultSet rs = getUserStateStatement.executeQuery()) {
 
             if (rs.next()) {
                 updateUserStateStatement.setFloat(1, userState.getCoordinates().getLatitude());
@@ -106,11 +109,11 @@ public class PersistenceManager {
     }
 
     private void init() {
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(
-                    "SELECT COUNT(*) FROM (SELECT name FROM sqlite_master " +
-                            "WHERE type IN ('table','view') AND name = 'user_state')");
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(
+                     "SELECT COUNT(*) FROM (SELECT name FROM sqlite_master " +
+                             "WHERE type IN ('table','view') AND name = 'user_state')")
+        ) {
             if (rs.next() && rs.getInt(1) != 1) {
                 createTables();
             }
@@ -145,13 +148,13 @@ public class PersistenceManager {
     }
 
     private void createTables() throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute(
-                "CREATE TABLE user_state (" +
-                        "chatid PRIMARY KEY," +
-                        "latitude," +
-                        "longitude," +
-                        "step NOT NULL)");
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(
+                    "CREATE TABLE user_state (" +
+                            "chatid PRIMARY KEY," +
+                            "latitude," +
+                            "longitude," +
+                            "step NOT NULL)");
+        }
     }
-
 }
