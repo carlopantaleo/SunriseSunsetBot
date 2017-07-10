@@ -111,11 +111,12 @@ public class PersistenceManager {
             ResultSet rs = statement.executeQuery(
                     "SELECT COUNT(*) FROM (SELECT name FROM sqlite_master " +
                             "WHERE type IN ('table','view') AND name = 'user_state')");
-            while (rs.next()) {
-                if (rs.getInt(1) != 1) {
-                    createTables();
-                }
+            if (rs.next() && rs.getInt(1) != 1) {
+                createTables();
             }
+
+            // Vacuum SQLite
+            statement.execute("VACUUM");
         } catch (SQLException e) {
             LOG.error("SQLException during init.", e);
         }
