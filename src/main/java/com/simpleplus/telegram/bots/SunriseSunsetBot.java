@@ -57,7 +57,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                         .atDate(LocalDate.now().plusDays(1)) // Tomorrow
                         .atZone(ZoneOffset.UTC) // At UTC
                         .toInstant()),
-                60*60*24); // Every 24 hours
+                60 * 60 * 24); // Every 24 hours
+
+        // Add shutdown hook to gracefully close db connection
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.info("Shutting down...");
+            persistenceManager.shutdown();
+        }));
     }
 
     void installAllNotifiers() {
