@@ -27,9 +27,9 @@ public class BotScheduler {
                     .atZone(ZoneOffset.systemDefault())
                     .toInstant())) >= 0) {
                 schedule.schedule(new ScheduledMessage(chatId, message, bot), time);
-                LOG.info("Message scheduled at " + time.toString());
+                LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
             } else {
-                LOG.info("Message NOT scheduled at " + time.toString());
+                LOG.info("Message for chatId[" + Long.toString(chatId) + "] NOT scheduled at [" + time.toString() + "]");
             }
         } catch (IllegalStateException e) {
             //TODO: handle this exception
@@ -39,7 +39,8 @@ public class BotScheduler {
 
     public void schedule(TimerTask task, Date firstTime, long period) {
         schedule.schedule(task, firstTime, period);
-        LOG.info("Task scheduled at " + firstTime.toString() + " every " + Long.toString(period) + " seconds.");
+        LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
+                "every [" + Long.toString(period) + "] seconds.");
     }
 
 }

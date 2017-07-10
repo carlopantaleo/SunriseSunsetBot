@@ -12,4 +12,9 @@ public class ScheduledNotifiersInstaller extends TimerTask {
     public void run() {
         bot.installAllNotifiers();
     }
+
+    @Override
+    public String toString() {
+        return "ScheduledNotifiersInstaller";
+    }
 }
