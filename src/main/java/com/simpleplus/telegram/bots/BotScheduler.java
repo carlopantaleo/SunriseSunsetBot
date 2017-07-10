@@ -40,7 +40,7 @@ public class BotScheduler {
     public void schedule(TimerTask task, Date firstTime, long period) {
         schedule.schedule(task, firstTime, period);
         LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
-                "every [" + Long.toString(period) + "] seconds.");
+                "every [" + Long.toString(period / 1000) + "] seconds.");
     }
 
 }
