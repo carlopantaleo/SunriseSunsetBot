@@ -21,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /* Lista della spesa
     - Gestire bene le eccezioni e avvisare l'utente.
@@ -69,11 +70,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     void installAllNotifiers() {
         for (Map.Entry<Long, UserState> userState : userStateMap.entrySet()) {
             if (userState.getValue().getStep() == Step.RUNNING) {
+                Long chatId = userState.getKey();
                 try {
-                    installNotifier(userState.getKey());
+                    installNotifier(chatId);
                 } catch (ServiceException e) {
-                    //TODO: handle this exception
-                    LOG.error("ServiceException during installAllNotifiers.", e);
+                    replyAndLogError(chatId, "ServiceException during installAllNotifiers.", e);
                 }
             }
         }
@@ -101,7 +102,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
                         setNextStep(chatId);
                         reply(chatId, "You will be notified at sunset and sunrise.");
                     } catch (ServiceException e) {
-                        LOG.error("ServiceException during onUpdateReceived.", e);
+                        replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
                     }
                 } else {
                     reply(chatId, "You aren't sending me a location. Please try again!");
@@ -117,13 +118,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         try {
             scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
         } catch (IllegalStateException e) {
-            LOG.info("IllegalStateException while scheduling message for Sunrise Time.", e);
+            replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunrise Time.", e);
         }
 
         try {
             scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
         } catch (IllegalStateException e) {
-            LOG.info("IllegalStateException while scheduling message for Sunset Time.", e);
+            replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunset Time.", e);
         }
     }
 
@@ -180,6 +181,12 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             //TODO gestire la rimozione della chat
             LOG.error("TelegramApiException during reply.", e);
         }
+    }
+
+    private void replyAndLogError(long chatId, String message, Throwable e) {
+        String errorUUID = UUID.randomUUID().toString();
+        LOG.error(message + " (" + errorUUID + ")", e);
+        reply(chatId, "Oops, something went wrong. Please report this ID to support: " + errorUUID);
     }
 
     private void saveGlobalState() {
