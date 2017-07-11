@@ -14,19 +14,27 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
-    private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f";
+    private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
 
-    public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {
-        String result = callRemoteService(coordinates);
+    @Override
+    public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
+        String result = callRemoteService(coordinates, localDate);
         LOG.debug(result);
         return parseResult(result);
     }
+
+    @Override
+    public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {
+        return getSunsetSunriseTimes(coordinates, LocalDate.now());
+    }
+
 
     private SunsetSunriseTimes parseResult(String result) throws ServiceException {
         JSONObject obj = new JSONObject(result);
@@ -57,11 +65,14 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
         return new SunsetSunriseTimes(sunset, sunrise);
     }
 
-    private String callRemoteService(Coordinates coordinates) throws ServiceException {
+    private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
         String result = "";
         
         try {
-            URL url = new URL(String.format(baseUrl, coordinates.getLatitude(), coordinates.getLongitude()));
+            URL url = new URL(String.format(baseUrl,
+                    coordinates.getLatitude(),
+                    coordinates.getLongitude(),
+                    localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
