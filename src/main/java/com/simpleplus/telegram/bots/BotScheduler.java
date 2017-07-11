@@ -18,32 +18,45 @@ public class BotScheduler {
         this.bot = bot;
     }
 
-    public void scheduleMessage(long chatId, Date time, String message) {
+    public ScheduleResult scheduleMessage(long chatId, Date time, String message) {
         try {
             // Schedule message only if time >= now
             if (time.after(Date.from(Instant.now()))) {
                 schedule.schedule(new ScheduledMessage(chatId, message, bot), time);
                 LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
+                return ScheduleResult.SCHEDULED;
             } else {
-                LOG.info("Message for chatId[" + Long.toString(chatId) + "] NOT scheduled at [" + time.toString() + "]");
+                LOG.info("Message for chatId[" + Long.toString(chatId) + "] " +
+                        "NOT scheduled at [" + time.toString() + "] (date is before now)");
+                return ScheduleResult.NOT_SCHEDULED;
             }
         } catch (IllegalStateException e) {
-            //TODO: handle this exception
             LOG.error("IllegalStateException during scheduleMessage.", e);
+            return ScheduleResult.NOT_SCHEDULED;
         }
     }
 
-    public void schedule(TimerTask task, Date firstTime, long period) {
+    public ScheduleResult schedule(TimerTask task, Date firstTime, long period) {
         // If firstTime is already passed, add period until firstTime gets in the future
         while (firstTime.before(Date.from(Instant.now()))) {
             firstTime = DateUtils.addMilliseconds(firstTime, (int) period);
         }
 
-        schedule.schedule(task, firstTime, period);
-        LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
-                "every [" + Long.toString(period / 1000) + "] seconds.");
+        try {
+            schedule.schedule(task, firstTime, period);
+            LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
+                    "every [" + Long.toString(period / 1000) + "] seconds.");
+        } catch (IllegalStateException e) {
+            LOG.error("IllegalStateException during schedule.", e);
+            return ScheduleResult.NOT_SCHEDULED;
+        }
+
+        return ScheduleResult.SCHEDULED;
     }
 
-
+    public enum ScheduleResult {
+        SCHEDULED,
+        NOT_SCHEDULED
+    }
 
 }
