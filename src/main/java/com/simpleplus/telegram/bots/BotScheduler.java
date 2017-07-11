@@ -1,11 +1,10 @@
 package com.simpleplus.telegram.bots;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,10 +21,7 @@ public class BotScheduler {
     public void scheduleMessage(long chatId, Date time, String message) {
         try {
             // Schedule message only if time >= now
-            if (time.compareTo(Date.from(LocalTime.now()
-                    .atDate(LocalDate.now())
-                    .atZone(ZoneOffset.systemDefault())
-                    .toInstant())) >= 0) {
+            if (time.after(Date.from(Instant.now()))) {
                 schedule.schedule(new ScheduledMessage(chatId, message, bot), time);
                 LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
             } else {
@@ -38,9 +34,16 @@ public class BotScheduler {
     }
 
     public void schedule(TimerTask task, Date firstTime, long period) {
+        // If firstTime is already passed, add period until firstTime gets in the future
+        while (firstTime.before(Date.from(Instant.now()))) {
+            firstTime = DateUtils.addMilliseconds(firstTime, (int) period);
+        }
+
         schedule.schedule(task, firstTime, period);
         LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
                 "every [" + Long.toString(period / 1000) + "] seconds.");
     }
+
+
 
 }
