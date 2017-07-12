@@ -53,6 +53,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
 
     public SunriseSunsetBot() {
+        LOG.info("Starting up...");
         loadState();
         installAllNotifiers();
         scheduler.schedule(new ScheduledNotifiersInstaller(this),
@@ -233,6 +234,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
         try {
             sendMessage(messageToSend);
+            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "].");
         } catch (TelegramApiException e) {
             //TODO gestire la rimozione della chat
             LOG.error("TelegramApiException during reply.", e);
