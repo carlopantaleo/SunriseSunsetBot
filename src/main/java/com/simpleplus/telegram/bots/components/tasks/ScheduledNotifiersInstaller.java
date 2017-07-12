@@ -1,18 +1,18 @@
 package com.simpleplus.telegram.bots.components.tasks;
 
-import com.simpleplus.telegram.bots.SunriseSunsetBot;
+import com.simpleplus.telegram.bots.components.Notifier;
 
 import java.util.TimerTask;
 
 public class ScheduledNotifiersInstaller extends TimerTask {
-    private SunriseSunsetBot bot;
+    private Notifier notifier;
 
-    public ScheduledNotifiersInstaller(SunriseSunsetBot bot) {
-        this.bot = bot;
+    public ScheduledNotifiersInstaller(Notifier notifier) {
+        this.notifier = notifier;
     }
 
     public void run() {
-        bot.installAllNotifiers();
+        notifier.installAllNotifiers();
     }
 
     @Override
