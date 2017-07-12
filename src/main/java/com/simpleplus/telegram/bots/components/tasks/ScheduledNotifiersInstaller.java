@@ -1,4 +1,6 @@
-package com.simpleplus.telegram.bots;
+package com.simpleplus.telegram.bots.components.tasks;
+
+import com.simpleplus.telegram.bots.SunriseSunsetBot;
 
 import java.util.TimerTask;
 

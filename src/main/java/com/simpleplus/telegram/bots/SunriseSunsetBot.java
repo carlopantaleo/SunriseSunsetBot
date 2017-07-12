@@ -1,6 +1,9 @@
 package com.simpleplus.telegram.bots;
 
 
+import com.simpleplus.telegram.bots.components.BotScheduler;
+import com.simpleplus.telegram.bots.components.PersistenceManager;
+import com.simpleplus.telegram.bots.components.tasks.ScheduledNotifiersInstaller;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
@@ -70,7 +73,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         }));
     }
 
-    void installAllNotifiers() {
+    public void installAllNotifiers() {
         for (Map.Entry<Long, UserState> userState : userStateMap.entrySet()) {
             if (userState.getValue().getStep() == Step.RUNNING) {
                 Long chatId = userState.getKey();

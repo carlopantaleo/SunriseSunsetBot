@@ -1,5 +1,6 @@
-package com.simpleplus.telegram.bots;
+package com.simpleplus.telegram.bots.components;
 
+import com.simpleplus.telegram.bots.components.tasks.ScheduledMessage;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;

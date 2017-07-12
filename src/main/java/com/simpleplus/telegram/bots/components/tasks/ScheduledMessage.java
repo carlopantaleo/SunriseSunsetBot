@@ -1,4 +1,4 @@
-package com.simpleplus.telegram.bots;
+package com.simpleplus.telegram.bots.components.tasks;
 
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;

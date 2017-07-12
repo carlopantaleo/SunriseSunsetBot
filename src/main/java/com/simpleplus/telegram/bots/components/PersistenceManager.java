@@ -1,4 +1,4 @@
-package com.simpleplus.telegram.bots;
+package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;

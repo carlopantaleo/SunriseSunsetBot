@@ -1,6 +1,7 @@
 package com.simpleplus.telegram.bots;
 
 
+import com.simpleplus.telegram.bots.components.PersistenceManager;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
