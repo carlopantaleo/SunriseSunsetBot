@@ -30,7 +30,6 @@ public class Notifier {
     public Notifier(SunriseSunsetBot bot) {
         this.bot = bot;
         this.scheduler = new BotScheduler(bot);
-        scheduleDailyAllNotifiersInstaller();
     }
 
 
@@ -113,6 +112,15 @@ public class Notifier {
         }
     }
 
+    public void scheduleDailyAllNotifiersInstaller() {
+        scheduler.schedule(new ScheduledNotifiersInstaller(this),
+                Date.from(LocalTime.of(0, 0) // Midnight
+                        .atDate(LocalDate.now().plusDays(1)) // Tomorrow
+                        .atZone(ZoneOffset.UTC) // At UTC
+                        .toInstant()),
+                60 * 60 * 24 * 1000); // Every 24 hours
+    }
+
     private SunsetSunriseTimes calculateSunriseAndSunset(long chatId, LocalDate date) throws ServiceException {
         Coordinates coordinates = bot.getUserStateMap().get(chatId).getCoordinates();
         return sunsetSunriseService.getSunsetSunriseTimes(coordinates, date);
@@ -120,15 +128,6 @@ public class Notifier {
 
     private SunsetSunriseTimes calculateSunriseAndSunset(long chatId) throws ServiceException {
         return calculateSunriseAndSunset(chatId, LocalDate.now());
-    }
-
-    private void scheduleDailyAllNotifiersInstaller() {
-        scheduler.schedule(new ScheduledNotifiersInstaller(this),
-                Date.from(LocalTime.of(0, 0) // Midnight
-                        .atDate(LocalDate.now().plusDays(1)) // Tomorrow
-                        .atZone(ZoneOffset.UTC) // At UTC
-                        .toInstant()),
-                60 * 60 * 24 * 1000); // Every 24 hours
     }
 
 

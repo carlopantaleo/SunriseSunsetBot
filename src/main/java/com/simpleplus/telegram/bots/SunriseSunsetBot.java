@@ -34,6 +34,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         LOG.info("Starting up...");
         loadState();
         notifier.installAllNotifiers();
+        notifier.scheduleDailyAllNotifiersInstaller();
 
         // Add shutdown hook to gracefully close db connection
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
