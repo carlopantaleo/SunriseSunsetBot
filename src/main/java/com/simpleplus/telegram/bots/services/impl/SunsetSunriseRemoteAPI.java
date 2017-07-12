@@ -1,8 +1,8 @@
 package com.simpleplus.telegram.bots.services.impl;
 
+import com.simpleplus.telegram.bots.datamodel.Coordinates;
+import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import com.simpleplus.telegram.bots.helpers.Coordinates;
-import com.simpleplus.telegram.bots.helpers.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import org.apache.log4j.Logger;
 import org.json.JSONException;

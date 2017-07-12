@@ -1,11 +1,11 @@
 package com.simpleplus.telegram.bots;
 
 
+import com.simpleplus.telegram.bots.datamodel.Coordinates;
+import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
+import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import com.simpleplus.telegram.bots.helpers.Coordinates;
-import com.simpleplus.telegram.bots.helpers.Step;
-import com.simpleplus.telegram.bots.helpers.SunsetSunriseTimes;
-import com.simpleplus.telegram.bots.helpers.UserState;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.apache.commons.lang3.time.DateUtils;

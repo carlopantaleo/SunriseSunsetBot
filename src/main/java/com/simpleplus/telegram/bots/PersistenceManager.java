@@ -1,8 +1,8 @@
 package com.simpleplus.telegram.bots;
 
-import com.simpleplus.telegram.bots.helpers.Coordinates;
-import com.simpleplus.telegram.bots.helpers.Step;
-import com.simpleplus.telegram.bots.helpers.UserState;
+import com.simpleplus.telegram.bots.datamodel.Coordinates;
+import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 
 import java.sql.*;

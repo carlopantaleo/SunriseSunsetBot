@@ -1,4 +1,4 @@
-package com.simpleplus.telegram.bots.helpers;
+package com.simpleplus.telegram.bots.datamodel;
 
 import java.time.Instant;
 import java.time.LocalDate;

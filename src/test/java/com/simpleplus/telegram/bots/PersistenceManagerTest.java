@@ -1,9 +1,9 @@
 package com.simpleplus.telegram.bots;
 
 
-import com.simpleplus.telegram.bots.helpers.Coordinates;
-import com.simpleplus.telegram.bots.helpers.Step;
-import com.simpleplus.telegram.bots.helpers.UserState;
+import com.simpleplus.telegram.bots.datamodel.Coordinates;
+import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
