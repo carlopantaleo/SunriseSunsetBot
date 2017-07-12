@@ -7,8 +7,6 @@ import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import com.simpleplus.telegram.bots.services.SunsetSunriseService;
-import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Location;
@@ -28,21 +26,7 @@ import java.util.UUID;
 public class SunriseSunsetBot extends TelegramLongPollingBot {
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
-
-    /**
-     * The map where states for each user are stored. Once the bot is constructed, it must contain all states which
-     * were previously saved to disk.
-     */
     private Map<Long, UserState> userStateMap = new HashMap<>();
-
-    /**
-     * The service which provides sunset and sunrise times.
-     */
-    private SunsetSunriseService sunsetSunriseService = new SunsetSunriseRemoteAPI();
-
-    /**
-     * The scheduler which can be used to schedule messages and generic events.
-     */
     private Notifier notifier = new Notifier(this);
 
     private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
