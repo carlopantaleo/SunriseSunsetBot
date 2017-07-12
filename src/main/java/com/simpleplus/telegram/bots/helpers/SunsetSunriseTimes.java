@@ -24,14 +24,19 @@ public class SunsetSunriseTimes {
     }
 
     public Date getSunsetTime() {
-        return getGlobalTime(sunsetTime);
+        return getZonedTime(sunsetTime);
     }
 
     public Date getSunriseTime() {
-        return getGlobalTime(sunriseTime);
+        return getZonedTime(sunriseTime);
     }
 
-    private Date getGlobalTime(LocalTime localTime) {
+    /**
+     * Returns a {@link Date} zoned date-time from a {@link LocalTime}.
+     * @param localTime the non-zoned time. It is implicitly assumed to be UTC.
+     * @return
+     */
+    private Date getZonedTime(LocalTime localTime) {
         Instant instant = localTime.atDate(LocalDate.now()).
                 atZone(ZoneOffset.UTC).toInstant();
         return Date.from(instant);
