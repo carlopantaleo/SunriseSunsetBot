@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /* Lista della spesa
-    - Gestire bene le eccezioni e avvisare l'utente.
+    - Ci sono ancora eccezioni da gestire
+    - Implementare un po' di comandi
  */
 public class SunriseSunsetBot extends TelegramLongPollingBot {
 

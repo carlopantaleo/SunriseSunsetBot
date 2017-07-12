@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,7 +22,7 @@ public class BotScheduler {
     public ScheduleResult scheduleMessage(long chatId, Date time, String message) {
         try {
             // Schedule message only if time >= now
-            if (time.after(Date.from(Instant.now()))) {
+            if (time.after(Date.from(Instant.now().atZone(ZoneId.systemDefault()).toInstant()))) {
                 schedule.schedule(new ScheduledMessage(chatId, message, bot), time);
                 LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
                 return ScheduleResult.SCHEDULED;
@@ -38,7 +39,7 @@ public class BotScheduler {
 
     public ScheduleResult schedule(TimerTask task, Date firstTime, long period) {
         // If firstTime is already passed, add period until firstTime gets in the future
-        while (firstTime.before(Date.from(Instant.now()))) {
+        while (firstTime.before(Date.from(Instant.now().atZone(ZoneId.systemDefault()).toInstant()))) {
             firstTime = DateUtils.addMilliseconds(firstTime, (int) period);
         }
 
