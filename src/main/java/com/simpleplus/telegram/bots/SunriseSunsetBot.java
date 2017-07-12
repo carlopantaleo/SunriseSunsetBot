@@ -123,8 +123,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             sendMessage(messageToSend);
             LOG.info("Sent message to chatId[" + Long.toString(chatId) + "].");
         } catch (TelegramApiException e) {
-            //TODO gestire la rimozione della chat
-            LOG.error("TelegramApiException during reply.", e);
+            UserState userState = userStateMap.get(chatId);
+            userState.setStep(Step.EXPIRED);
+            persistenceManager.setUserState(chatId, userState);
+            LOG.error("TelegramApiException during reply. Chat flagged as expired.", e);
         }
     }
 
