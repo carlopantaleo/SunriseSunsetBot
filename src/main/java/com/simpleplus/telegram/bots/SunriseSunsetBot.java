@@ -74,44 +74,36 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             if (userState.getValue().getStep() == Step.RUNNING) {
                 Long chatId = userState.getKey();
                 try {
-                    installNotifier(chatId);
+                    tryToInstallNotifier(chatId, 5);
                 } catch (ServiceException e) {
-                    replyAndLogError(chatId, "ServiceException during installAllNotifiers.", e);
+                    replyAndLogError(chatId, "ServiceException during installAllNotifiers", e);
                 }
             }
         }
     }
 
-    public void onUpdateReceived(Update update) {
-        if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
-            return;
-
-        final long chatId = update.getMessage().getChatId();
-
-        // Se la chat è nuova faccio varie inizializzazioni
-        if (isChatNew(chatId)) {
-            gestNewChat(chatId);
-            return;
-        }
-
-        // Altrimenti procedo con gli step
-        switch (userStateMap.get(chatId).getStep()) {
-            case TO_ENTER_LOCATION: {
-                if (update.getMessage().hasLocation()) {
-                    setLocation(chatId, update.getMessage().getLocation());
-                    try {
-                        installNotifier(chatId);
-                        setNextStep(chatId);
-                        reply(chatId, "You will be notified at sunset and sunrise.");
-                    } catch (ServiceException e) {
-                        replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
-                    }
-                } else {
-                    reply(chatId, "You aren't sending me a location. Please try again!");
+    /**
+     * Tries {@code numberOfTimes} times to install a notifier, otherwise throws ServiceException.
+     *
+     * @param chatId the chat ID.
+     * @param numberOfTimes number of retries.
+     */
+    private void tryToInstallNotifier(Long chatId, int numberOfTimes) throws ServiceException {
+        for (int i = 0; i < numberOfTimes; i++) {
+            try {
+                installNotifier(chatId);
+                return;
+            } catch (ServiceException e) {
+                LOG.warn("ServiceException during tryToInstallNotifier (attempt " +
+                        Integer.toString(i) + ")... Sleeping 5 seconds.", e);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e1) {
+                    LOG.error("InterruptedException while sleeping in tryToInstallNotifier.", e1);
                 }
             }
-            break;
         }
+        throw new ServiceException("Cannot install notifier: service not available.");
     }
 
     private void installNotifier(long chatId) throws ServiceException {
@@ -153,6 +145,38 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
             }
         } catch (IllegalStateException e) {
             replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunset Time.", e);
+        }
+    }
+
+    public void onUpdateReceived(Update update) {
+        if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
+            return;
+
+        final long chatId = update.getMessage().getChatId();
+
+        // Se la chat è nuova faccio varie inizializzazioni
+        if (isChatNew(chatId)) {
+            gestNewChat(chatId);
+            return;
+        }
+
+        // Altrimenti procedo con gli step
+        switch (userStateMap.get(chatId).getStep()) {
+            case TO_ENTER_LOCATION: {
+                if (update.getMessage().hasLocation()) {
+                    setLocation(chatId, update.getMessage().getLocation());
+                    try {
+                        installNotifier(chatId);
+                        setNextStep(chatId);
+                        reply(chatId, "You will be notified at sunset and sunrise.");
+                    } catch (ServiceException e) {
+                        replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
+                    }
+                } else {
+                    reply(chatId, "You aren't sending me a location. Please try again!");
+                }
+            }
+            break;
         }
     }
 
