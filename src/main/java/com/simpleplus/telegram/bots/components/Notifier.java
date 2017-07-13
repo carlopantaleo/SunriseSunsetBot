@@ -70,6 +70,7 @@ public class Notifier {
         throw new ServiceException("Cannot install notifier: service not available.");
     }
 
+    //TODO: unit test! Questo metodo è troppo spaghettoso...
     public void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
         SunsetSunriseTimes timesTomorrow = null; // Deferred initialisation: a call to a REST service is expensive
