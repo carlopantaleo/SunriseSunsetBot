@@ -1,9 +1,9 @@
 package com.simpleplus.telegram.bots.components;
 
+import com.simpleplus.telegram.bots.SunriseSunsetBot;
 import com.simpleplus.telegram.bots.components.tasks.ScheduledMessage;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -13,10 +13,10 @@ import java.util.TimerTask;
 
 public class BotScheduler {
     private Timer schedule = new Timer();
-    private TelegramLongPollingBot bot;
+    private SunriseSunsetBot bot;
     private static final Logger LOG = Logger.getLogger(BotScheduler.class);
 
-    public BotScheduler(TelegramLongPollingBot bot) {
+    public BotScheduler(SunriseSunsetBot bot) {
         this.bot = bot;
     }
 
