@@ -86,7 +86,7 @@ public class Notifier {
                         chatId, DateUtils.addDays(timesTomorrow.getSunriseTime(), 1), SUNRISE_MESSAGE);
 
                 if (result == BotScheduler.ScheduleResult.NOT_SCHEDULED) {
-                    LOG.error("Sunrise message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
+                    LOG.warn("Sunrise message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
                 }
             }
         } catch (IllegalStateException e) {
@@ -105,7 +105,7 @@ public class Notifier {
                 result = scheduler.scheduleMessage(
                         chatId, DateUtils.addDays(timesTomorrow.getSunsetTime(), 1), SUNSET_MESSAGE);
                 if (result == BotScheduler.ScheduleResult.NOT_SCHEDULED) {
-                    LOG.error("Sunset message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
+                    LOG.warn("Sunset message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
                 }
             }
         } catch (IllegalStateException e) {
