@@ -115,7 +115,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         saveGlobalState();
     }
 
-    private void reply(long chatId, String message) {
+    public void reply(long chatId, String message) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(chatId);
         messageToSend.setText(message);
