@@ -63,7 +63,7 @@ public class BotScheduler {
         }
 
         try {
-            schedule.schedule(task, firstTime, period);
+            schedule.scheduleAtFixedRate(task, firstTime, period);
             LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
                     "every [" + Long.toString(period / 1000) + "] seconds.");
         } catch (IllegalStateException e) {
