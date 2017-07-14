@@ -38,11 +38,11 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
 
     private SunsetSunriseTimes parseResult(String result) throws ServiceException {
         JSONObject obj = new JSONObject(result);
-        String status, civilTwilightEnd, civilTwilightBegin;
+        String status, sunsetBegin, civilTwilightBegin;
 
         try {
             status = obj.getString("status");
-            civilTwilightEnd = obj.getJSONObject("results").getString("civil_twilight_end");
+            sunsetBegin = obj.getJSONObject("results").getString("sunset");
             civilTwilightBegin = obj.getJSONObject("results").getString("civil_twilight_begin");
         } catch (JSONException e) {
             throw new ServiceException("Internal service error (JSONException)");
@@ -55,7 +55,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
         LocalTime sunset;
         LocalTime sunrise;
         try {
-            sunset = LocalTime.parse(civilTwilightEnd, DateTimeFormatter.ofPattern("h:m:s a"));
+            sunset = LocalTime.parse(sunsetBegin, DateTimeFormatter.ofPattern("h:m:s a"));
             sunrise = LocalTime.parse(civilTwilightBegin, DateTimeFormatter.ofPattern("h:m:s a"));
         } catch (DateTimeParseException e) {
             LOG.error("DateTimeParseException", e);
