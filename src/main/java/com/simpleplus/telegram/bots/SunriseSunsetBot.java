@@ -13,6 +13,7 @@ import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.generics.BotSession;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
     private Map<Long, UserState> userStateMap = new HashMap<>();
     private Notifier notifier = new Notifier(this);
+    private BotSession botSession;
 
     private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
     public SunriseSunsetBot() {
@@ -40,7 +42,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Shutting down...");
             persistenceManager.shutdown();
+            botSession.stop();
         }));
+    }
+
+    private synchronized void restart() {
+        botSession.stop();
+        botSession.start();
     }
 
     public Map<Long, UserState> getUserStateMap() {
@@ -156,5 +164,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return "416777734:AAF5r6MdiQcsr1XKtiiUg69AGBp7JBG_IlQ";
+    }
+
+    public BotSession getBotSession() {
+        return botSession;
+    }
+
+    public void setBotSession(BotSession botSession) {
+        this.botSession = botSession;
     }
 }
