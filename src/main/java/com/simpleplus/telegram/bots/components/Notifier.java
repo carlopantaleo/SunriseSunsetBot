@@ -1,8 +1,5 @@
 package com.simpleplus.telegram.bots.components;
 
-import com.simpleplus.telegram.bots.BotBean;
-import com.simpleplus.telegram.bots.BotContext;
-import com.simpleplus.telegram.bots.SunriseSunsetBot;
 import com.simpleplus.telegram.bots.components.tasks.ScheduledNotifiersInstaller;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;

@@ -1,4 +1,4 @@
-package com.simpleplus.telegram.bots;
+package com.simpleplus.telegram.bots.components;
 
 public interface BotBean {
     default void init() {

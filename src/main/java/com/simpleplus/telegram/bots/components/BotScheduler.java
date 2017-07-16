@@ -2,9 +2,6 @@ package com.simpleplus.telegram.bots.components;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.simpleplus.telegram.bots.BotBean;
-import com.simpleplus.telegram.bots.BotContext;
-import com.simpleplus.telegram.bots.SunriseSunsetBot;
 import com.simpleplus.telegram.bots.components.tasks.ScheduledMessage;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;

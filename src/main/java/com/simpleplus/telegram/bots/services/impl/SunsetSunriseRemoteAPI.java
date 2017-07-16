@@ -1,6 +1,6 @@
 package com.simpleplus.telegram.bots.services.impl;
 
-import com.simpleplus.telegram.bots.BotBean;
+import com.simpleplus.telegram.bots.components.BotBean;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;

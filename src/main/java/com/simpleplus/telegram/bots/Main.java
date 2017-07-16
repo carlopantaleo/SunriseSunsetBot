@@ -1,7 +1,9 @@
 package com.simpleplus.telegram.bots;
 
+import com.simpleplus.telegram.bots.components.BotContext;
 import com.simpleplus.telegram.bots.components.BotScheduler;
 import com.simpleplus.telegram.bots.components.Notifier;
+import com.simpleplus.telegram.bots.components.SunriseSunsetBot;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
