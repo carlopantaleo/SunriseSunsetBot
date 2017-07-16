@@ -32,6 +32,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     private BotSession botSession;
 
     private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
+
     public SunriseSunsetBot() {
         LOG.info("Starting up...");
         loadState();
@@ -69,6 +70,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
 
         // Altrimenti procedo con gli step
         switch (userStateMap.get(chatId).getStep()) {
+            case TO_REENTER_LOCATION: {
+                gestToEnterCoordinates(chatId, false);
+            }
+            break;
+
             case TO_ENTER_LOCATION: {
                 if (update.getMessage().hasLocation()) {
                     setLocation(chatId, update.getMessage().getLocation());
@@ -117,7 +123,12 @@ public class SunriseSunsetBot extends TelegramLongPollingBot {
     }
 
     private void gestNewChat(long chatId) {
-        reply(chatId, "Welcome! Please send me your location.");
+        gestToEnterCoordinates(chatId, true);
+    }
+
+    private void gestToEnterCoordinates(long chatId, boolean isChatNew) {
+        String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.";
+        reply(chatId, message);
 
         userStateMap.put(chatId, new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION));
         saveGlobalState();
