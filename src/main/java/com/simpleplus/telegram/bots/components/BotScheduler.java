@@ -26,9 +26,6 @@ public class BotScheduler implements BotBean {
     @Override
     public void init() {
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
-        if (this.bot == null) {
-            throw new Error("Dependency from SunriseSunsetBot not satisfied.");
-        }
     }
 
     public ScheduleResult scheduleMessage(long chatId, Date time, String message) {

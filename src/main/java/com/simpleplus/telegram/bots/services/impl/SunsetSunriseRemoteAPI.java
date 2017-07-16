@@ -25,17 +25,11 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
         String result = callRemoteService(coordinates, localDate);
         LOG.debug(result);
         return parseResult(result);
     }
-
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {

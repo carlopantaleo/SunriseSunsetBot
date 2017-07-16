@@ -30,11 +30,11 @@ public class Main {
 
     private static void initDefaultBotContext() {
         BotContext context = new BotContext();
+        BotContext.setDefaultContext(context);
         context.addBean("SunriseSunsetBot", new SunriseSunsetBot());
         context.addBean("SunsetSunriseService", new SunsetSunriseRemoteAPI());
         context.addBean("Scheduler", new BotScheduler());
         context.addBean("Notifier", new Notifier());
         context.initContext();
-        BotContext.setDefaultContext(context);
     }
 }
