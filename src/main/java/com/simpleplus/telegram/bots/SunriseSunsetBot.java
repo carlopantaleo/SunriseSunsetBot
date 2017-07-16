@@ -24,16 +24,20 @@ import java.util.UUID;
     - Implementare un po' di comandi
     - Introdurre logiche di amministrazione
  */
-public class SunriseSunsetBot extends TelegramLongPollingBot {
+public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
     private Map<Long, UserState> userStateMap = new HashMap<>();
-    private Notifier notifier = new Notifier(this);
+    private Notifier notifier;
     private BotSession botSession;
 
     private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
 
-    public SunriseSunsetBot() {
+    public void init() {
+        notifier = (Notifier) BotContext.getDefaultContext().getBean("Notifier");
+    }
+
+    public void start() {
         LOG.info("Starting up...");
         loadState();
         notifier.installAllNotifiers();

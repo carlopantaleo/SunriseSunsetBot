@@ -1,5 +1,7 @@
 package com.simpleplus.telegram.bots.components;
 
+import com.simpleplus.telegram.bots.BotBean;
+import com.simpleplus.telegram.bots.BotContext;
 import com.simpleplus.telegram.bots.SunriseSunsetBot;
 import com.simpleplus.telegram.bots.components.tasks.ScheduledNotifiersInstaller;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
@@ -8,7 +10,6 @@ import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
-import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
@@ -18,20 +19,21 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 
-public class Notifier {
+public class Notifier implements BotBean {
     private static final String SUNRISE_MESSAGE = "The sun is rising!";
     private static final String SUNSET_MESSAGE = "Sunset has begun!";
     private static final Logger LOG = Logger.getLogger(Notifier.class);
 
     private SunriseSunsetBot bot;
-    private SunsetSunriseService sunsetSunriseService = new SunsetSunriseRemoteAPI();
+    private SunsetSunriseService sunsetSunriseService;
     private BotScheduler scheduler;
 
-    public Notifier(SunriseSunsetBot bot) {
-        this.bot = bot;
-        this.scheduler = new BotScheduler(bot);
+    public void init() {
+        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
+        this.scheduler = (BotScheduler) BotContext.getDefaultContext().getBean("Scheduler");
+        this.sunsetSunriseService =
+                (SunsetSunriseService) BotContext.getDefaultContext().getBean("SunsetSunriseService");
     }
-
 
     public void installAllNotifiers() {
         for (Map.Entry<Long, UserState> userState : bot.getUserStateMap().entrySet()) {

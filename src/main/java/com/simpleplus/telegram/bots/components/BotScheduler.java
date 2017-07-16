@@ -2,6 +2,8 @@ package com.simpleplus.telegram.bots.components;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.simpleplus.telegram.bots.BotBean;
+import com.simpleplus.telegram.bots.BotContext;
 import com.simpleplus.telegram.bots.SunriseSunsetBot;
 import com.simpleplus.telegram.bots.components.tasks.ScheduledMessage;
 import org.apache.commons.lang3.time.DateUtils;
@@ -14,15 +16,19 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BotScheduler {
+public class BotScheduler implements BotBean {
     private static final Logger LOG = Logger.getLogger(BotScheduler.class);
 
     private Timer schedule = new Timer();
     private SunriseSunsetBot bot;
     private ListMultimap<Long, Date> scheduledMessages = ArrayListMultimap.create();
 
-    public BotScheduler(SunriseSunsetBot bot) {
-        this.bot = bot;
+    @Override
+    public void init() {
+        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
+        if (this.bot == null) {
+            throw new Error("Dependency from SunriseSunsetBot not satisfied.");
+        }
     }
 
     public ScheduleResult scheduleMessage(long chatId, Date time, String message) {

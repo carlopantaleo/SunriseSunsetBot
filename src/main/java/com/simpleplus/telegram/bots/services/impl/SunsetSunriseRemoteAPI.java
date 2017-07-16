@@ -1,5 +1,6 @@
 package com.simpleplus.telegram.bots.services.impl;
 
+import com.simpleplus.telegram.bots.BotBean;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
@@ -19,9 +20,14 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
+public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
+
+    @Override
+    public void init() {
+
+    }
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
@@ -30,11 +36,11 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
         return parseResult(result);
     }
 
+
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {
         return getSunsetSunriseTimes(coordinates, LocalDate.now());
     }
-
 
     private SunsetSunriseTimes parseResult(String result) throws ServiceException {
         JSONObject obj = new JSONObject(result);
@@ -67,7 +73,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
 
     private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
         String result = "";
-        
+
         try {
             URL url = new URL(String.format(baseUrl,
                     coordinates.getLatitude(),
@@ -96,7 +102,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService {
         } catch (IOException e) {
             throw new ServiceException("IO Error");
         }
-        
+
         return result;
     }
 }
