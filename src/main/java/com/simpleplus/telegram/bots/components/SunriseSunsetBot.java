@@ -13,8 +13,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.BotSession;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /* Lista della spesa
@@ -25,7 +23,6 @@ import java.util.UUID;
 public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
-    private Map<Long, UserState> userStateMap = new HashMap<>();
     private Notifier notifier;
     private BotSession botSession;
     private PersistenceManager persistenceManager;
@@ -37,7 +34,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
 
     public void start() {
         LOG.info("Starting up...");
-        loadState();
         notifier.installAllNotifiers();
         notifier.scheduleDailyAllNotifiersInstaller();
 
@@ -54,10 +50,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         botSession.start();
     }
 
-    public Map<Long, UserState> getUserStateMap() {
-        return userStateMap;
-    }
-
     public void onUpdateReceived(Update update) {
         if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
             return;
@@ -71,7 +63,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         }
 
         // Altrimenti procedo con gli step
-        switch (userStateMap.get(chatId).getStep()) {
+        switch (persistenceManager.getUserState(chatId).getStep()) {
             case TO_REENTER_LOCATION: {
                 gestToEnterCoordinates(chatId, false);
             }
@@ -96,13 +88,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     private void setLocation(long chatId, Location location) {
-        UserState userState = userStateMap.get(chatId);
+        UserState userState = persistenceManager.getUserState(chatId);
         userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
         persistenceManager.setUserState(chatId, userState);
     }
 
     private void setNextStep(long chatId) {
-        UserState userState = userStateMap.get(chatId);
+        UserState userState = persistenceManager.getUserState(chatId);
 
         switch (userState.getStep()) {
             case NEW_CHAT:
@@ -117,12 +109,12 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     private void setStep(long chatId, Step step) {
-        UserState userState = userStateMap.get(chatId);
+        UserState userState = persistenceManager.getUserState(chatId);
         userState.setStep(step);
     }
 
     private boolean isChatNew(long chatId) {
-        return !userStateMap.containsKey(chatId);
+        return persistenceManager.getUserState(chatId) != null;
     }
 
     private void gestNewChat(long chatId) {
@@ -134,7 +126,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         reply(chatId, message);
 
         UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION);
-        userStateMap.put(chatId, userState);
         persistenceManager.setUserState(chatId, userState);
     }
 
@@ -147,7 +138,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             sendMessage(messageToSend);
             LOG.info("Sent message to chatId[" + Long.toString(chatId) + "].");
         } catch (TelegramApiException e) {
-            UserState userState = userStateMap.get(chatId);
+            UserState userState = persistenceManager.getUserState(chatId);
             userState.setStep(Step.EXPIRED);
             persistenceManager.setUserState(chatId, userState);
             LOG.error("TelegramApiException during reply. Chat flagged as expired.", e);
@@ -160,10 +151,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         reply(chatId, "Oops, something went wrong. You may not be notified at sunrise or sunset this time. " +
                 "But don't worry, we are already working on it!\n" +
                 "Problem ID: " + errorUUID);
-    }
-
-    private void loadState() {
-        userStateMap = persistenceManager.getUserStatesMap();
     }
 
     public String getBotUsername() {

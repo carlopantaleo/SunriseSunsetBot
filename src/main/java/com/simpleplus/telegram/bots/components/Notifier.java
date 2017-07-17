@@ -24,16 +24,19 @@ public class Notifier implements BotBean {
     private SunriseSunsetBot bot;
     private SunsetSunriseService sunsetSunriseService;
     private BotScheduler scheduler;
+    private PersistenceManager persistenceManager;
 
     public void init() {
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
         this.scheduler = (BotScheduler) BotContext.getDefaultContext().getBean("Scheduler");
         this.sunsetSunriseService =
                 (SunsetSunriseService) BotContext.getDefaultContext().getBean("SunsetSunriseService");
+        this.persistenceManager =
+                (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
     }
 
     public void installAllNotifiers() {
-        for (Map.Entry<Long, UserState> userState : bot.getUserStateMap().entrySet()) {
+        for (Map.Entry<Long, UserState> userState : persistenceManager.getUserStatesMap().entrySet()) {
             if (userState.getValue().getStep() == Step.RUNNING) {
                 Long chatId = userState.getKey();
                 try {
@@ -122,7 +125,7 @@ public class Notifier implements BotBean {
     }
 
     private SunsetSunriseTimes calculateSunriseAndSunset(long chatId, LocalDate date) throws ServiceException {
-        Coordinates coordinates = bot.getUserStateMap().get(chatId).getCoordinates();
+        Coordinates coordinates = persistenceManager.getUserState(chatId).getCoordinates();
         return sunsetSunriseService.getSunsetSunriseTimes(coordinates, date);
     }
 
