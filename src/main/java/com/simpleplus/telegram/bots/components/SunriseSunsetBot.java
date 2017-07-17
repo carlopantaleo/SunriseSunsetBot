@@ -4,6 +4,7 @@ package com.simpleplus.telegram.bots.components;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
+import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -25,11 +26,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private BotSession botSession;
     private PersistenceManager persistenceManager;
     private MessageHandler messageHandler;
+    private CommandHandler commandHandler;
 
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean("Notifier");
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
         messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean("MessageHandler");
+        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean("CommandHandler");
     }
 
     public void start() {
@@ -54,7 +57,54 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
             return;
 
+        if (commandHandler.isCommand(update)) {
+            //TODO: gest command
+            return;
+        }
+
         messageHandler.handleMessage(update);
+    }
+
+    private void setLocation(long chatId, Location location) {
+        UserState userState = persistenceManager.getUserState(chatId);
+        userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
+        persistenceManager.setUserState(chatId, userState);
+    }
+
+    private void setNextStep(long chatId) {
+        UserState userState = persistenceManager.getUserState(chatId);
+
+        switch (userState.getStep()) {
+            case NEW_CHAT:
+                userState.setStep(Step.TO_ENTER_LOCATION);
+                break;
+            case TO_ENTER_LOCATION:
+                userState.setStep(Step.RUNNING);
+                break;
+        }
+
+        persistenceManager.setUserState(chatId, userState);
+    }
+
+    private void setStep(long chatId, Step step) {
+        UserState userState = persistenceManager.getUserState(chatId);
+        userState.setStep(step);
+    }
+
+    private boolean isChatNew(long chatId) {
+        return persistenceManager.getUserState(chatId) != null;
+    }
+
+    private void gestNewChat(long chatId) {
+        gestToEnterCoordinates(chatId, true);
+    }
+
+    private void gestToEnterCoordinates(long chatId, boolean isChatNew) {
+        String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.";
+        reply(chatId, message);
+
+        UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION);
+        persistenceManager.setUserState(chatId, userState);
     }
 
     public void reply(long chatId, String message) {

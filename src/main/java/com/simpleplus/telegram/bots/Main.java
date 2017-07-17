@@ -36,6 +36,7 @@ public class Main {
         context.addBean("Notifier", new Notifier());
         context.addBean("PersistenceManager", new PersistenceManager("sunrise-sunset-bot.db"));
         context.addBean("MessageHandler", new MessageHandler());
+        context.addBean("CommandHandler", new CommandHandler());
         context.initContext();
     }
 }
