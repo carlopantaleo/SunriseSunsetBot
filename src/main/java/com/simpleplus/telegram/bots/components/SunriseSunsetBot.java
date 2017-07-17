@@ -57,11 +57,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             return;
 
         if (commandHandler.isCommand(update)) {
-            //TODO: gest command
-            return;
+            commandHandler.handleCommand(update);
+        } else {
+            messageHandler.handleMessage(update);
         }
-
-        messageHandler.handleMessage(update);
     }
 
     public void reply(long chatId, String message) {
