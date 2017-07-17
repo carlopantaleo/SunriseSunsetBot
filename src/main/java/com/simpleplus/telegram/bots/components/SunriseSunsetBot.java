@@ -26,10 +26,12 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private Notifier notifier;
     private BotSession botSession;
     private PersistenceManager persistenceManager;
+    private CommandHandler commandHandler;
 
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean("Notifier");
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
+        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean("CommandHandler");
     }
 
     public void start() {
@@ -59,6 +61,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         // Se la chat è nuova faccio varie inizializzazioni
         if (isChatNew(chatId)) {
             gestNewChat(chatId);
+            return;
+        }
+
+        if (commandHandler.isCommand(update)) {
+            //TODO: gest command
             return;
         }
 
