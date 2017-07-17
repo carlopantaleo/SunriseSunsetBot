@@ -28,11 +28,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private Map<Long, UserState> userStateMap = new HashMap<>();
     private Notifier notifier;
     private BotSession botSession;
-
-    private PersistenceManager persistenceManager = new PersistenceManager("sunrise-sunset-bot.db");
+    private PersistenceManager persistenceManager;
 
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean("Notifier");
+        persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
     }
 
     public void start() {

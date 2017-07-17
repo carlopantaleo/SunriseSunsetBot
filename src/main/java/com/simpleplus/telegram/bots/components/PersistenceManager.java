@@ -9,24 +9,30 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PersistenceManager {
+public class PersistenceManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
+
     private PreparedStatement getUserStateStatement;
     private PreparedStatement insertUserStateStatement;
     private PreparedStatement updateUserStateStatement;
     private PreparedStatement getAllUserStatesStatement;
-
     private Connection connection;
+    private String database;
 
     public PersistenceManager(String database) {
+        this.database = database;
+    }
+
+    public void init() {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + database);
-            init();
+            doStartup();
             prepareStatements();
         } catch (SQLException e) {
             LOG.error("SQLException during construction.", e);
             throw new Error("Critical error: unable to init database.");
         }
+
     }
 
     public void shutdown() {
@@ -108,7 +114,7 @@ public class PersistenceManager {
         }
     }
 
-    private void init() {
+    private void doStartup() {
         try (Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(
                      "SELECT COUNT(*) FROM (SELECT name FROM sqlite_master " +
