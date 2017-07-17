@@ -27,7 +27,7 @@ public class Main {
         }
     }
 
-    private static void initDefaultBotContext() {
+    public static void initDefaultBotContext() {
         BotContext context = new BotContext();
         BotContext.setDefaultContext(context);
         context.addBean("SunriseSunsetBot", new SunriseSunsetBot());

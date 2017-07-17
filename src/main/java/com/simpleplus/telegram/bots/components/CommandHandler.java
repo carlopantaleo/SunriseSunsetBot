@@ -1,14 +1,20 @@
 package com.simpleplus.telegram.bots.components;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.telegram.telegrambots.api.objects.Update;
 
 public class CommandHandler implements BotBean {
     private SunriseSunsetBot bot;
     private MessageHandler messageHandler;
+    private PersistenceManager persistenceManager;
 
     public void init() {
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
         this.messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean("MessageHandler");
+        this.persistenceManager =
+                (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
     }
 
     public boolean isCommand(Update update) {
@@ -16,14 +22,23 @@ public class CommandHandler implements BotBean {
     }
 
     public void handleCommand(Update update) {
+        long chatId = update.getMessage().getChatId();
+
         switch (getCommand(update)) {
-            //TODO
+            case REENTER_LOCATION: {
+                UserState userState = persistenceManager.getUserState(chatId);
+                userState.setStep(Step.TO_REENTER_LOCATION);
+                persistenceManager.setUserState(chatId, userState);
+                messageHandler.handleMessage(update);
+            }
+            break;
         }
     }
 
-    private Command getCommand(Update update) {
+    @VisibleForTesting
+    Command getCommand(Update update) {
         String text = update.getMessage().getText();
-        String command = text.substring(text.indexOf("/")).split(" ")[0];
+        String command = text.substring(text.indexOf("/")+1).split(" ")[0];
 
         switch (command) {
             case "change-location":
@@ -33,7 +48,8 @@ public class CommandHandler implements BotBean {
         }
     }
 
-    private enum Command {
+    @VisibleForTesting
+    enum Command {
         REENTER_LOCATION
     }
 }
