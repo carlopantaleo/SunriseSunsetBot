@@ -98,7 +98,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private void setLocation(long chatId, Location location) {
         UserState userState = userStateMap.get(chatId);
         userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
-        saveGlobalState();
+        persistenceManager.setUserState(chatId, userState);
     }
 
     private void setNextStep(long chatId) {
@@ -112,7 +112,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 userState.setStep(Step.RUNNING);
                 break;
         }
-        saveGlobalState();
+
+        persistenceManager.setUserState(chatId, userState);
     }
 
     private void setStep(long chatId, Step step) {
@@ -132,8 +133,9 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.";
         reply(chatId, message);
 
-        userStateMap.put(chatId, new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION));
-        saveGlobalState();
+        UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION);
+        userStateMap.put(chatId, userState);
+        persistenceManager.setUserState(chatId, userState);
     }
 
     public void reply(long chatId, String message) {
@@ -158,12 +160,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         reply(chatId, "Oops, something went wrong. You may not be notified at sunrise or sunset this time. " +
                 "But don't worry, we are already working on it!\n" +
                 "Problem ID: " + errorUUID);
-    }
-
-    private void saveGlobalState() {
-        for (Map.Entry<Long, UserState> entry : userStateMap.entrySet()) {
-            persistenceManager.setUserState(entry.getKey(), entry.getValue());
-        }
     }
 
     private void loadState() {
