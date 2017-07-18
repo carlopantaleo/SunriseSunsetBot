@@ -72,7 +72,7 @@ public class MessageHandler implements BotBean {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.";
         bot.reply(chatId, message);
 
-        UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION);
+        UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION, false);
         persistenceManager.setUserState(chatId, userState);
     }
 

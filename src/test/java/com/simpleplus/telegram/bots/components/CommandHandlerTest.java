@@ -25,4 +25,14 @@ public class CommandHandlerTest {
         Update update = mapper.readValue(jsonInString, Update.class);
         assertEquals(CommandHandler.Command.REENTER_LOCATION, commandHandler.getCommand(update));
     }
+
+    @Test
+    public void getCommandArgumentsWorks() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = "{\"message\" : {\"text\" : \"/change-location arg1\"}}";
+
+        Update update = mapper.readValue(jsonInString, Update.class);
+        assertEquals("arg1", commandHandler.getCommandArguments(update));
+    }
+
 }

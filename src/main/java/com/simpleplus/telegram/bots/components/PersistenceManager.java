@@ -29,7 +29,7 @@ public class PersistenceManager implements BotBean {
             doStartup();
             prepareStatements();
         } catch (SQLException e) {
-            LOG.error("SQLException during construction.", e);
+            LOG.fatal("SQLException during construction.", e);
             throw new Error("Critical error: unable to init database.");
         }
 
@@ -57,6 +57,7 @@ public class PersistenceManager implements BotBean {
                         rs.getFloat("latitude"),
                         rs.getFloat("longitude")));
                 userState.setStep(Step.valueOf(rs.getString("step")));
+                userState.setAdmin(rs.getBoolean("isadmin"));
                 return userState;
             }
         } catch (SQLException | IllegalArgumentException e) {
@@ -78,6 +79,7 @@ public class PersistenceManager implements BotBean {
                         rs.getFloat("latitude"),
                         rs.getFloat("longitude")));
                 userState.setStep(Step.valueOf(rs.getString("step")));
+                userState.setAdmin(rs.getBoolean("isadmin"));
                 result.put(rs.getLong("chatid"), userState);
             }
         } catch (SQLException | IllegalArgumentException e) {
@@ -100,13 +102,15 @@ public class PersistenceManager implements BotBean {
                 updateUserStateStatement.setFloat(1, userState.getCoordinates().getLatitude());
                 updateUserStateStatement.setFloat(2, userState.getCoordinates().getLongitude());
                 updateUserStateStatement.setString(3, userState.getStep().toString());
-                updateUserStateStatement.setLong(4, chatId);
+                updateUserStateStatement.setBoolean(4, userState.isAdmin());
+                updateUserStateStatement.setLong(5, chatId);
                 updateUserStateStatement.executeUpdate();
             } else {
                 insertUserStateStatement.setLong(1, chatId);
                 insertUserStateStatement.setFloat(2, userState.getCoordinates().getLatitude());
                 insertUserStateStatement.setFloat(3, userState.getCoordinates().getLongitude());
                 insertUserStateStatement.setString(4, userState.getStep().toString());
+                insertUserStateStatement.setBoolean(5, userState.isAdmin());
                 insertUserStateStatement.execute();
             }
         } catch (SQLException e) {
@@ -133,23 +137,24 @@ public class PersistenceManager implements BotBean {
 
     private void prepareStatements() throws SQLException {
         getUserStateStatement = connection.prepareStatement(
-                "SELECT chatid, latitude, longitude, step " +
+                "SELECT chatid, latitude, longitude, step, isadmin " +
                         "FROM user_state " +
                         "WHERE chatid = ?");
 
         getAllUserStatesStatement = connection.prepareStatement(
-                "SELECT chatid, latitude, longitude, step " +
+                "SELECT chatid, latitude, longitude, step, isadmin " +
                         "FROM user_state ");
 
         insertUserStateStatement = connection.prepareStatement(
-                "INSERT INTO user_state (chatid, latitude, longitude, step) " +
-                        "VALUES (?, ?, ?, ?)");
+                "INSERT INTO user_state (chatid, latitude, longitude, step, isadmin) " +
+                        "VALUES (?, ?, ?, ?, ?)");
 
         updateUserStateStatement = connection.prepareStatement(
                 "UPDATE user_state SET " +
                         "latitude = ?, " +
                         "longitude = ?, " +
-                        "step = ? " +
+                        "step = ?, " +
+                        "isadmin = ? " +
                         "WHERE chatid = ?");
     }
 
@@ -160,7 +165,8 @@ public class PersistenceManager implements BotBean {
                             "chatid PRIMARY KEY," +
                             "latitude," +
                             "longitude," +
-                            "step NOT NULL)");
+                            "step NOT NULL," +
+                            "isadmin BOOLEAN NOT NULL DEFAULT ('false'))");
         }
     }
 }

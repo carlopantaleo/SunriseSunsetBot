@@ -6,14 +6,16 @@ import java.io.Serializable;
 public class UserState implements Serializable {
     private Coordinates coordinates;
     private Step step;
+    private boolean isAdmin;
 
-    public UserState(Coordinates coordinates, Step step) {
+    public UserState(Coordinates coordinates, Step step, boolean isAdmin) {
         this.coordinates = coordinates;
         this.step = step;
+        this.isAdmin = isAdmin;
     }
 
     public UserState() {
-        this(null, null);
+        this(null, null, false);
     }
 
     public Step getStep() {
@@ -32,6 +34,14 @@ public class UserState implements Serializable {
         this.coordinates = coordinates;
     }
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -39,6 +49,7 @@ public class UserState implements Serializable {
 
         UserState userState = (UserState) o;
 
+        if (isAdmin != userState.isAdmin) return false;
         if (coordinates != null ? !coordinates.equals(userState.coordinates) : userState.coordinates != null)
             return false;
         return step == userState.step;

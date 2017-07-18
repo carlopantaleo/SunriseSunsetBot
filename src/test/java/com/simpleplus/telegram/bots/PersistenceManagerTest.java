@@ -35,7 +35,7 @@ public class PersistenceManagerTest {
 
     @Test
     public void setAndGetWork() throws Exception {
-        UserState userState = new UserState(new Coordinates(1.1F, 2.2F), Step.NEW_CHAT);
+        UserState userState = new UserState(new Coordinates(1.1F, 2.2F), Step.NEW_CHAT, false);
         persistenceManager.setUserState(99, userState);
 
         UserState gotUserState = persistenceManager.getUserState(99);
@@ -51,9 +51,9 @@ public class PersistenceManagerTest {
 
     @Test
     public void getAllUserStatesWork() throws Exception {
-        UserState userState = new UserState(new Coordinates(1.1F, 2.2F), Step.NEW_CHAT);
+        UserState userState = new UserState(new Coordinates(1.1F, 2.2F), Step.NEW_CHAT, false);
         persistenceManager.setUserState(99, userState);
-        userState = new UserState(new Coordinates(1.2F, 2.3F), Step.RUNNING);
+        userState = new UserState(new Coordinates(1.2F, 2.3F), Step.RUNNING, false);
         persistenceManager.setUserState(98, userState);
 
         Map<Long, UserState> result = persistenceManager.getUserStatesMap();
