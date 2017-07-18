@@ -74,7 +74,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
 
         try {
             sendMessage(messageToSend);
-            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "].");
+            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + message);
         } catch (TelegramApiException e) {
             UserState userState = persistenceManager.getUserState(chatId);
             userState.setStep(Step.EXPIRED);
