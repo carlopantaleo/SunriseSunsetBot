@@ -28,10 +28,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private CommandHandler commandHandler;
 
     public void init() {
-        notifier = (Notifier) BotContext.getDefaultContext().getBean("Notifier");
-        persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
-        messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean("MessageHandler");
-        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean("CommandHandler");
+        notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
+        persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
+        messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean(MessageHandler.class);
+        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean(CommandHandler.class);
     }
 
     public void start() {

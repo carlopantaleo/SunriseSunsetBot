@@ -16,7 +16,7 @@ public class Main {
 
         TelegramBotsApi botsApi = new TelegramBotsApi();
         SunriseSunsetBot sunriseSunsetBot =
-                (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
+                (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
 
         try {
             BotSession session = botsApi.registerBot(sunriseSunsetBot);
@@ -27,17 +27,18 @@ public class Main {
         }
     }
 
-    public static void initDefaultBotContext() {
+    private static void initDefaultBotContext() {
         BotContext context = new BotContext();
         BotContext.setDefaultContext(context);
-        context.addBean("SunriseSunsetBot", new SunriseSunsetBot());
-        context.addBean("SunsetSunriseService", new SunsetSunriseRemoteAPI());
-        context.addBean("Scheduler", new BotScheduler());
-        context.addBean("Notifier", new Notifier());
-        context.addBean("PersistenceManager", new PersistenceManager("sunrise-sunset-bot.db"));
-        context.addBean("MessageHandler", new MessageHandler());
-        context.addBean("CommandHandler", new CommandHandler());
-        context.addBean("AdminCommandHandler", new AdminCommandHandler());
+        context.addBean(SunriseSunsetBot.class);
+        context.addBean(SunsetSunriseRemoteAPI.class);
+        context.addBean(BotScheduler.class);
+        context.addBean(Notifier.class);
+        context.addBean(PersistenceManager.class, "sunrise-sunset-bot.db");
+        context.addBean(MessageHandler.class);
+        context.addBean(MessageHandler.class);
+        context.addBean(CommandHandler.class);
+        context.addBean(AdminCommandHandler.class);
         context.initContext();
     }
 }
