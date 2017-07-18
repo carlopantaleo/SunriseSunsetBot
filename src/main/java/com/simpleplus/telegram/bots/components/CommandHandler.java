@@ -52,6 +52,7 @@ public class CommandHandler implements BotBean {
                     UserState userState = persistenceManager.getUserState(chatId);
                     userState.setAdmin(true);
                     persistenceManager.setUserState(chatId, userState);
+                    bot.reply(chatId, "Administration commands are now available.");
                     LOG.info("Set admin chat for chatId[" + Long.toString(chatId) + "]");
                 } else {
                     LOG.warn("ChatId[" + Long.toString(chatId) + "] is issuing the /set-administrator command without " +
