@@ -85,9 +85,9 @@ public class CommandHandler implements BotBean {
         }
 
         switch (command) {
-            case "change-location":
+            case "change_location":
                 return Command.REENTER_LOCATION;
-            case "set-administrator":
+            case "set_administrator":
                 return Command.SET_ADMINISTRATOR;
             case "admin":
                 return Command.ADMIN_COMMAND;
