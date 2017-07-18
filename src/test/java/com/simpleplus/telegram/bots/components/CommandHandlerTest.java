@@ -20,19 +20,35 @@ public class CommandHandlerTest {
     @Test
     public void getCommandWorks() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = "{\"message\" : {\"text\" : \"/change-location\"}}";
 
+        String jsonInString = "{\"message\" : {\"text\" : \"/change-location\"}}";
         Update update = mapper.readValue(jsonInString, Update.class);
+        assertEquals(CommandHandler.Command.REENTER_LOCATION, commandHandler.getCommand(update));
+
+        jsonInString = "{\"message\" : {\"text\" : \"/change-location args\"}}";
+        update = mapper.readValue(jsonInString, Update.class);
         assertEquals(CommandHandler.Command.REENTER_LOCATION, commandHandler.getCommand(update));
     }
 
     @Test
     public void getCommandArgumentsWorks() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = "{\"message\" : {\"text\" : \"/change-location arg1\"}}";
 
+        String jsonInString = "{\"message\" : {\"text\" : \"/change-location arg1\"}}";
         Update update = mapper.readValue(jsonInString, Update.class);
         assertEquals("arg1", commandHandler.getCommandArguments(update));
+
+        jsonInString = "{\"message\" : {\"text\" : \"/change-location\"}}";
+        update = mapper.readValue(jsonInString, Update.class);
+        assertEquals("", commandHandler.getCommandArguments(update));
+
+        jsonInString = "{\"message\" : {\"text\" : \"/change-location \"}}";
+        update = mapper.readValue(jsonInString, Update.class);
+        assertEquals("", commandHandler.getCommandArguments(update));
+
+        jsonInString = "{\"message\" : {\"text\" : \"/change-location arg1 arg2\"}}";
+        update = mapper.readValue(jsonInString, Update.class);
+        assertEquals("arg1 arg2", commandHandler.getCommandArguments(update));
     }
 
 }
