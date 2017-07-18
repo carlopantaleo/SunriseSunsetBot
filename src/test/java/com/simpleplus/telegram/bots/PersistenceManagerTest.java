@@ -29,6 +29,7 @@ public class PersistenceManagerTest {
 
         if (persistenceManager == null) {
             persistenceManager = new PersistenceManager(TEST_DB);
+            persistenceManager.init();
         }
     }
 

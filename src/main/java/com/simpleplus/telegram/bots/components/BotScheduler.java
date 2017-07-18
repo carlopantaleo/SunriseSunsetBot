@@ -22,7 +22,7 @@ public class BotScheduler implements BotBean {
 
     @Override
     public void init() {
-        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
+        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
     }
 
     public ScheduleResult scheduleMessage(long chatId, Date time, String message) {

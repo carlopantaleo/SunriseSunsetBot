@@ -16,9 +16,9 @@ public class MessageHandler implements BotBean {
 
     @Override
     public void init() {
-        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
-        persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
-        notifier = (Notifier) BotContext.getDefaultContext().getBean("Notifier");
+        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
+        persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
+        notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
     }
 
     public void handleMessage(Update update) {

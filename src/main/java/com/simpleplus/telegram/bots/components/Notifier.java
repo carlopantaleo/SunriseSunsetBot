@@ -7,6 +7,7 @@ import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
+import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
@@ -27,12 +28,12 @@ public class Notifier implements BotBean {
     private PersistenceManager persistenceManager;
 
     public void init() {
-        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
-        this.scheduler = (BotScheduler) BotContext.getDefaultContext().getBean("Scheduler");
+        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
+        this.scheduler = (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
         this.sunsetSunriseService =
-                (SunsetSunriseService) BotContext.getDefaultContext().getBean("SunsetSunriseService");
+                (SunsetSunriseService) BotContext.getDefaultContext().getBean(SunsetSunriseRemoteAPI.class);
         this.persistenceManager =
-                (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
+                (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
     }
 
     public void installAllNotifiers() {
