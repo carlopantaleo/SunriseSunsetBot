@@ -76,7 +76,7 @@ public class CommandHandler implements BotBean {
     @VisibleForTesting
     Command getCommand(Update update) {
         String text = update.getMessage().getText();
-        Pattern pattern = Pattern.compile("\\/([-a-z]*) ?.*");
+        Pattern pattern = Pattern.compile("\\/([_a-z]*) ?.*");
         Matcher matcher = pattern.matcher(text);
         String command = "";
 
@@ -100,7 +100,7 @@ public class CommandHandler implements BotBean {
     @VisibleForTesting
     String getCommandArguments(Update update) {
         String text = update.getMessage().getText();
-        Pattern pattern = Pattern.compile("\\/[-a-z]* ?(.*)");
+        Pattern pattern = Pattern.compile("\\/[_a-z]* ?(.*)");
         Matcher matcher = pattern.matcher(text);
 
         return matcher.find() ? matcher.group(1) : "";
