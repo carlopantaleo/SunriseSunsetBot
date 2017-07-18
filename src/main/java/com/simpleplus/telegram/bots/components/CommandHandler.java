@@ -70,6 +70,10 @@ public class CommandHandler implements BotBean {
                 }
             }
             break;
+
+            case UNKNOWN_COMMAND: {
+                bot.reply(chatId, "I don't know how to handle this command.");
+            }
         }
     }
 
@@ -93,7 +97,7 @@ public class CommandHandler implements BotBean {
                 return Command.ADMIN_COMMAND;
 
             default:
-                return null;
+                return Command.UNKNOWN_COMMAND;
         }
     }
 
@@ -110,6 +114,7 @@ public class CommandHandler implements BotBean {
     enum Command {
         REENTER_LOCATION,
         SET_ADMINISTRATOR,
-        ADMIN_COMMAND
+        ADMIN_COMMAND,
+        UNKNOWN_COMMAND
     }
 }
