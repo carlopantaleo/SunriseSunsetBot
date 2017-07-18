@@ -1,7 +1,6 @@
 package com.simpleplus.telegram.bots.components;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.oracle.tools.packager.Log;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
@@ -43,7 +42,7 @@ public class CommandHandler implements BotBean {
                 userState.setStep(Step.TO_REENTER_LOCATION);
                 persistenceManager.setUserState(chatId, userState);
                 messageHandler.handleMessage(update);
-                Log.info("ChatId[" + Long.toString(chatId) + "] has asked to /change-location.");
+                LOG.info("ChatId[" + Long.toString(chatId) + "] has asked to /change-location.");
             }
             break;
 

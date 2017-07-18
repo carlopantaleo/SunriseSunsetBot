@@ -1,9 +1,7 @@
 package com.simpleplus.telegram.bots.datamodel;
 
 
-import java.io.Serializable;
-
-public class UserState implements Serializable {
+public class UserState {
     private Coordinates coordinates;
     private Step step;
     private boolean isAdmin;
