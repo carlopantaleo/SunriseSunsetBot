@@ -20,12 +20,12 @@ public class CommandHandler implements BotBean {
 
     @Override
     public void init() {
-        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean("SunriseSunsetBot");
-        this.messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean("MessageHandler");
+        this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
+        this.messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean(MessageHandler.class);
         this.persistenceManager =
-                (PersistenceManager) BotContext.getDefaultContext().getBean("PersistenceManager");
+                (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         this.adminCommandHandler =
-                (AdminCommandHandler) BotContext.getDefaultContext().getBean("AdminCommandHandler");
+                (AdminCommandHandler) BotContext.getDefaultContext().getBean(AdminCommandHandler.class);
 
     }
 
@@ -59,6 +59,17 @@ public class CommandHandler implements BotBean {
                 }
             }
             break;
+
+            case ADMIN_COMMAND: {
+                if (adminCommandHandler.isAdminChat(chatId)) {
+                    adminCommandHandler.handleCommand(update);
+                } else {
+                    bot.reply(chatId,
+                            "You are issuing a admin command on a non-admin chat: operation not permitted!");
+                    LOG.warn("ChatId[" + Long.toString(chatId) + "] is issuing a /admin command on a non-admin chat.");
+                }
+            }
+            break;
         }
     }
 
@@ -78,6 +89,9 @@ public class CommandHandler implements BotBean {
                 return Command.REENTER_LOCATION;
             case "set-administrator":
                 return Command.SET_ADMINISTRATOR;
+            case "admin":
+                return Command.ADMIN_COMMAND;
+
             default:
                 return null;
         }
@@ -95,6 +109,7 @@ public class CommandHandler implements BotBean {
     @VisibleForTesting
     enum Command {
         REENTER_LOCATION,
-        SET_ADMINISTRATOR
+        SET_ADMINISTRATOR,
+        ADMIN_COMMAND
     }
 }

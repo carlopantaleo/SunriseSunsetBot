@@ -14,7 +14,7 @@ public class CommandHandlerTest {
     @Before
     public void init() {
         Main.initDefaultBotContext();
-        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean("CommandHandler");
+        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean(CommandHandler.class);
     }
 
     @Test
