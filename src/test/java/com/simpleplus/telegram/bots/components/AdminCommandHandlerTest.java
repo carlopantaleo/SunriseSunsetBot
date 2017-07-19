@@ -4,6 +4,8 @@ import com.simpleplus.telegram.bots.Main;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 public class AdminCommandHandlerTest {
@@ -22,7 +24,16 @@ public class AdminCommandHandlerTest {
 
         broadcastMessage = adminCommandHandler.getBroadcastMessage("podcast bla bla bla.");
         assertEquals("", broadcastMessage);
+    }
 
+    @Test
+    public void getCommandOptionsWorks() throws Exception {
+        String commandArgs = "chatid=12345 blabla broadcast=false test";
+
+        Map<String, String> commandOptions = adminCommandHandler.getCommandOptions(commandArgs);
+        assertEquals("12345", commandOptions.get("chatid"));
+        assertEquals("false", commandOptions.get("broadcast"));
+        assertEquals(2, commandOptions.size());
     }
 
 }

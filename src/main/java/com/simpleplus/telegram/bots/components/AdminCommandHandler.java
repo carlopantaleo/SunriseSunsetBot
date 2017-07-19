@@ -6,6 +6,8 @@ import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.objects.Update;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,15 +35,23 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
 
     @Override
     public void handleCommand(Update update) {
-        String chatArgs = getCommandArguments(update);
+        String commandArgs = getCommandArguments(update);
 
-        switch (chatArgs.split(" ")[0]) {
+        switch (commandArgs.split(" ")[0]) {
             case "broadcast": {
-                String message = getBroadcastMessage(chatArgs);
+                String message = getBroadcastMessage(commandArgs);
                 broadcast(message);
             }
             break;
         }
+    }
+
+    @VisibleForTesting
+    String getSendMessage(String commandArgs) {
+        Pattern pattern = Pattern.compile("send .* (.*)"); //TODO pattern! non è quello finale!
+        Matcher matcher = pattern.matcher(commandArgs);
+
+        return matcher.find() ? matcher.group(1) : "";
     }
 
     private void broadcast(String message) {
@@ -61,12 +71,22 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
     }
 
     @VisibleForTesting
-    String getBroadcastMessage(String chatArgs) {
+    String getBroadcastMessage(String commandArgs) {
         Pattern pattern = Pattern.compile("broadcast (.*)");
-        Matcher matcher = pattern.matcher(chatArgs);
+        Matcher matcher = pattern.matcher(commandArgs);
 
         return matcher.find() ? matcher.group(1) : "";
+    }
 
+    @VisibleForTesting
+    Map<String, String> getCommandOptions(String commandArgs) {
+        String[] tokens = commandArgs.split(" ");
+        Map<String, String> options = new HashMap<>();
+
+        // Get only options and map to a Map
+        return Arrays.stream(tokens)
+                .filter(s -> s.contains("="))
+                .collect(Collectors.toMap(s -> s.split("=")[0], t -> t.split("=")[1]));
     }
 
     public boolean isAdminChat(long chatId) {
