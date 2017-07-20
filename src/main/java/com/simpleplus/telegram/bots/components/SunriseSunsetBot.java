@@ -86,8 +86,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     public void replyAndLogError(long chatId, String message, Throwable e) {
         String errorUUID = UUID.randomUUID().toString();
         LOG.error(message + " (" + errorUUID + ")", e);
-        reply(chatId, "Oops, something went wrong. You may not be notified at sunrise or sunset this time. " +
-                "But don't worry, we are already working on it!\n" +
+        reply(chatId, "Oops, something went wrong. But don't worry, we are already working on it!\n" +
                 "Problem ID: " + errorUUID);
     }
 
