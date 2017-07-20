@@ -27,6 +27,15 @@ public class AdminCommandHandlerTest {
     }
 
     @Test
+    public void getSendMessageWorks() throws Exception {
+        String broadcastMessage = adminCommandHandler.getSendMessage("send chatid=12345 send message.");
+        assertEquals("send message.", broadcastMessage);
+
+        broadcastMessage = adminCommandHandler.getSendMessage("send chatid=a12345 send message.");
+        assertEquals("", broadcastMessage);
+    }
+
+    @Test
     public void getCommandOptionsWorks() throws Exception {
         String commandArgs = "chatid=12345 blabla broadcast=false test";
 

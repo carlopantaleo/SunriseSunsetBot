@@ -43,12 +43,39 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
                 broadcast(message);
             }
             break;
+
+            case "send": {
+                send(commandArgs, update.getMessage().getChatId());
+            }
+            break;
+        }
+    }
+
+    private void send(String commandArgs, long adminChatId) {
+        long chatIdToSendTo;
+        try {
+            chatIdToSendTo = Long.parseLong(getCommandOptions(commandArgs).get("chatid"));
+        } catch (NumberFormatException e) {
+            chatIdToSendTo = 0;
+        }
+
+        if (chatIdToSendTo == 0) {
+            bot.reply(adminChatId, "Missing 'chatid' option.");
+            return;
+        }
+
+        UserState userState = persistenceManager.getUserState(chatIdToSendTo);
+
+        if (userState != null && userState.getStep() != Step.EXPIRED) {
+            bot.reply(chatIdToSendTo, getSendMessage(commandArgs));
+        } else {
+            bot.reply(adminChatId, String.format("ChatId %d is invalid!", chatIdToSendTo));
         }
     }
 
     @VisibleForTesting
     String getSendMessage(String commandArgs) {
-        Pattern pattern = Pattern.compile("send .* (.*)"); //TODO pattern! non è quello finale!
+        Pattern pattern = Pattern.compile("send chatid=[0-9]* (.*)");
         Matcher matcher = pattern.matcher(commandArgs);
 
         return matcher.find() ? matcher.group(1) : "";
