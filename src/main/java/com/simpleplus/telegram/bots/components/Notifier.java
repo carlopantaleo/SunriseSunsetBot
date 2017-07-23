@@ -105,7 +105,7 @@ public class Notifier implements BotBean {
 
             // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                timesTomorrow = timesTomorrow != null ?
+                timesTomorrow = timesTomorrow == null ?
                         calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1)) :
                         timesTomorrow;
                 result = scheduler.scheduleMessage(
