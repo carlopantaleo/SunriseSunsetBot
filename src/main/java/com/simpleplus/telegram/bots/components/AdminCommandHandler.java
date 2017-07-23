@@ -33,6 +33,14 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
                 getCommandArguments(update).equals(bot.getBotToken());
     }
 
+    /**
+     * This method can be used to broadcast a message to the bot administrators.
+     * @param message the message to be broadcasted.
+     */
+    public void broadcastToAdmins(String message) {
+        broadcast(message, true);
+    }
+
     @Override
     public void handleCommand(Update update) {
         String commandArgs = getCommandArguments(update);
