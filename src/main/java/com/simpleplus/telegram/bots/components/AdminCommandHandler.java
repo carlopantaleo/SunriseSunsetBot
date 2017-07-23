@@ -81,13 +81,13 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
         return matcher.find() ? matcher.group(1) : "";
     }
 
-    private void broadcast(String message) {
-        // Get all chats with step != expired
+    private void broadcast(String message, boolean onlyToAdmins) {
         Map<Long, UserState> userStatesMap =
                 persistenceManager.getUserStatesMap()
                         .entrySet()
                         .stream()
-                        .filter(e -> e.getValue().getStep() != Step.EXPIRED)
+                        .filter(e -> e.getValue().getStep() != Step.EXPIRED) // Get all chats with step != expired
+                        .filter(e -> (e.getValue().isAdmin() && onlyToAdmins) || !onlyToAdmins) // If onlyToAdmins, get only admin chats
                         .collect(Collectors.toMap(s -> s.getKey(), p -> p.getValue()));
 
         LOG.info("Broadcasting message to " + Integer.toString(userStatesMap.size()) + " users.");
@@ -95,6 +95,10 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
         for (Map.Entry<Long, UserState> entry : userStatesMap.entrySet()) {
             bot.reply(entry.getKey(), message);
         }
+    }
+
+    private void broadcast(String message) {
+        broadcast(message, false);
     }
 
     @VisibleForTesting
