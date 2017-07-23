@@ -17,6 +17,9 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 
+import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_SCHEDULED;
+import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_TO_SCHEDULE;
+
 public class Notifier implements BotBean {
     private static final String SUNRISE_MESSAGE = "The sun is rising!";
     private static final String SUNSET_MESSAGE = "Sunset has begun!";
@@ -83,12 +86,12 @@ public class Notifier implements BotBean {
                     scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
 
             // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
-            if (result == BotScheduler.ScheduleResult.NOT_SCHEDULED) {
+            if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 timesTomorrow = calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
                 result = scheduler.scheduleMessage(
                         chatId, DateUtils.addDays(timesTomorrow.getSunriseTime(), 1), SUNRISE_MESSAGE);
 
-                if (result == BotScheduler.ScheduleResult.NOT_SCHEDULED) {
+                if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                     LOG.warn("Sunrise message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
                 }
             }
@@ -101,13 +104,13 @@ public class Notifier implements BotBean {
                     scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
 
             // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
-            if (result == BotScheduler.ScheduleResult.NOT_SCHEDULED) {
+            if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 timesTomorrow = timesTomorrow != null ?
                         calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1)) :
                         timesTomorrow;
                 result = scheduler.scheduleMessage(
                         chatId, DateUtils.addDays(timesTomorrow.getSunsetTime(), 1), SUNSET_MESSAGE);
-                if (result == BotScheduler.ScheduleResult.NOT_SCHEDULED) {
+                if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                     LOG.warn("Sunset message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
                 }
             }

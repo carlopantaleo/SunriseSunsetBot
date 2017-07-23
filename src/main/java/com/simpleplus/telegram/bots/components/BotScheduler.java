@@ -8,10 +8,8 @@ import org.apache.log4j.Logger;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BotScheduler implements BotBean {
     private static final Logger LOG = Logger.getLogger(BotScheduler.class);
@@ -77,7 +75,14 @@ public class BotScheduler implements BotBean {
     public enum ScheduleResult {
         SCHEDULED,
         NOT_SCHEDULED,
-        NOT_TO_SCHEDULE
+        NOT_TO_SCHEDULE;
+
+        public boolean in(ScheduleResult... result) {
+            return !Arrays.stream(result)
+                    .filter(this::equals)
+                    .collect(Collectors.toList())
+                    .isEmpty();
+        }
     }
 
 }
