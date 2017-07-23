@@ -60,6 +60,14 @@ public class CommandHandler implements BotBean {
             }
             break;
 
+            case SEND_TO_ADMINISTRATORS: {
+                adminCommandHandler.broadcastToAdmins(String.format("Support request from chatId %d. Message: %s",
+                        chatId,
+                        getCommandArguments(update)));
+                bot.reply(chatId, "Message to support sent. We will get in touch with you shortly.");
+            }
+            break;
+
             case ADMIN_COMMAND: {
                 if (adminCommandHandler.isAdminChat(chatId)) {
                     adminCommandHandler.handleCommand(update);
@@ -95,6 +103,8 @@ public class CommandHandler implements BotBean {
                 return Command.SET_ADMINISTRATOR;
             case "admin":
                 return Command.ADMIN_COMMAND;
+            case "support":
+                return Command.SEND_TO_ADMINISTRATORS;
 
             default:
                 return Command.UNKNOWN_COMMAND;
@@ -114,6 +124,7 @@ public class CommandHandler implements BotBean {
     enum Command {
         REENTER_LOCATION,
         SET_ADMINISTRATOR,
+        SEND_TO_ADMINISTRATORS,
         ADMIN_COMMAND,
         UNKNOWN_COMMAND
     }
