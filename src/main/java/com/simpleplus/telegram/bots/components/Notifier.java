@@ -88,11 +88,13 @@ public class Notifier implements BotBean {
             // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 timesTomorrow = calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
+                Date sunriseDatetimeTomorrow = DateUtils.addDays(timesTomorrow.getSunriseTime(), 1);
                 result = scheduler.scheduleMessage(
-                        chatId, DateUtils.addDays(timesTomorrow.getSunriseTime(), 1), SUNRISE_MESSAGE);
+                        chatId, sunriseDatetimeTomorrow, SUNRISE_MESSAGE);
 
                 if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                    LOG.warn("Sunrise message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
+                    LOG.warn(String.format("Sunrise message not scheduled even for time [%s]",
+                            sunriseDatetimeTomorrow.toString()));
                 }
             }
         } catch (IllegalStateException e) {
@@ -108,10 +110,12 @@ public class Notifier implements BotBean {
                 timesTomorrow = timesTomorrow == null ?
                         calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1)) :
                         timesTomorrow;
+                Date sunsetDatetimeTomorrow = DateUtils.addDays(timesTomorrow.getSunsetTime(), 1);
                 result = scheduler.scheduleMessage(
-                        chatId, DateUtils.addDays(timesTomorrow.getSunsetTime(), 1), SUNSET_MESSAGE);
+                        chatId, sunsetDatetimeTomorrow, SUNSET_MESSAGE);
                 if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                    LOG.warn("Sunset message not scheduled even for time [" + timesTomorrow.getSunriseTime() + "]");
+                    LOG.warn(String.format("Sunset message not scheduled even for time [%s]",
+                            sunsetDatetimeTomorrow.toString()));
                 }
             }
         } catch (IllegalStateException e) {
