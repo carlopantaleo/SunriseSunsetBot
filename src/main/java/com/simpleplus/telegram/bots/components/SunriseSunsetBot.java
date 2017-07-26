@@ -26,12 +26,14 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private PersistenceManager persistenceManager;
     private MessageHandler messageHandler;
     private CommandHandler commandHandler;
+    private PropertiesManager propertiesManager;
 
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean(MessageHandler.class);
         commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean(CommandHandler.class);
+        propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
     }
 
     public void start() {
@@ -91,12 +93,12 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     public String getBotUsername() {
-        return "SunriseSunset_bot";
+        return propertiesManager.getBotName();
     }
 
     @Override
     public String getBotToken() {
-        return "416777734:AAF5r6MdiQcsr1XKtiiUg69AGBp7JBG_IlQ";
+        return propertiesManager.getBotToken();
     }
 
     public BotSession getBotSession() {

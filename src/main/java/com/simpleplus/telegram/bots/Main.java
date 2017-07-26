@@ -12,6 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
         ApiContextInitializer.init();
+        PropertiesManager.setArgv(args);
         initDefaultBotContext();
 
         TelegramBotsApi botsApi = new TelegramBotsApi();
@@ -39,6 +40,7 @@ public class Main {
         context.addBean(MessageHandler.class);
         context.addBean(CommandHandler.class);
         context.addBean(AdminCommandHandler.class);
+        context.addBean(PropertiesManager.class);
         context.initContext();
     }
 }
