@@ -8,6 +8,7 @@ import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
+import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
@@ -76,51 +77,48 @@ public class Notifier implements BotBean {
         throw new ServiceException("Cannot install notifier: service not available.");
     }
 
-    //TODO: unit test! Questo metodo è troppo spaghettoso...
     public void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-        SunsetSunriseTimes timesTomorrow = null; // Deferred initialisation: a call to a REST service is expensive
+        SunsetSunriseTimes timesTomorrow = null; // Deferred initialization: a call to a REST service is expensive
 
         try {
-            BotScheduler.ScheduleResult result =
-                    scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE);
-
-            // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
-            if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                timesTomorrow = calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
-                Date sunriseDatetimeTomorrow = DateUtils.addDays(timesTomorrow.getSunriseTime(), 1);
-                result = scheduler.scheduleMessage(
-                        chatId, sunriseDatetimeTomorrow, SUNRISE_MESSAGE);
-
-                if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                    LOG.warn(String.format("Sunrise message not scheduled even for time [%s]",
-                            sunriseDatetimeTomorrow.toString()));
-                }
-            }
+            timesTomorrow = scheduleSunriseSunsetMessage(chatId, times, null, SUNRISE_MESSAGE);
         } catch (IllegalStateException e) {
             bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunrise Time.", e);
         }
 
         try {
-            BotScheduler.ScheduleResult result =
-                    scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
-
-            // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
-            if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                timesTomorrow = timesTomorrow == null ?
-                        calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1)) :
-                        timesTomorrow;
-                Date sunsetDatetimeTomorrow = DateUtils.addDays(timesTomorrow.getSunsetTime(), 1);
-                result = scheduler.scheduleMessage(
-                        chatId, sunsetDatetimeTomorrow, SUNSET_MESSAGE);
-                if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                    LOG.warn(String.format("Sunset message not scheduled even for time [%s]",
-                            sunsetDatetimeTomorrow.toString()));
-                }
-            }
+            scheduleSunriseSunsetMessage(chatId, times, timesTomorrow, SUNSET_MESSAGE);
         } catch (IllegalStateException e) {
             bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunset Time.", e);
         }
+    }
+
+    private @Nullable
+    SunsetSunriseTimes scheduleSunriseSunsetMessage(long chatId,
+                                                    SunsetSunriseTimes times,
+                                                    @Nullable SunsetSunriseTimes timesTomorrow,
+                                                    String message) throws ServiceException { // TODO: sostituire questo con qualcosa di più furbo
+        BotScheduler.ScheduleResult result =
+                scheduler.scheduleMessage(chatId, times.getSunriseTime(), message);
+
+        // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
+        if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
+            timesTomorrow = timesTomorrow != null ?
+                    timesTomorrow : calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
+            Date datetimeTomorrow = DateUtils.addDays(
+                    SUNRISE_MESSAGE.equals(message) ? timesTomorrow.getSunriseTime() : timesTomorrow.getSunsetTime(),
+                    1);
+            result = scheduler.scheduleMessage(
+                    chatId, datetimeTomorrow, message);
+
+            if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
+                LOG.warn(String.format("%s message not scheduled even for time [%s]",
+                        SUNRISE_MESSAGE.equals(message) ? SUNRISE_MESSAGE : SUNSET_MESSAGE,
+                        datetimeTomorrow.toString()));
+            }
+        }
+        return timesTomorrow;
     }
 
     public void scheduleDailyAllNotifiersInstaller() {
