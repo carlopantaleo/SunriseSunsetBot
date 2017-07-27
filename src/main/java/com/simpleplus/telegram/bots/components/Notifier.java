@@ -82,13 +82,13 @@ public class Notifier implements BotBean {
         SunsetSunriseTimes timesTomorrow = null; // Deferred initialization: a call to a REST service is expensive
 
         try {
-            timesTomorrow = scheduleSunriseSunsetMessage(chatId, times, null, SUNRISE_MESSAGE);
+            timesTomorrow = scheduleSunriseSunsetMessage(chatId, times, null, TimeType.SUNRISE_TIME);
         } catch (IllegalStateException e) {
             bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunrise Time.", e);
         }
 
         try {
-            scheduleSunriseSunsetMessage(chatId, times, timesTomorrow, SUNSET_MESSAGE);
+            scheduleSunriseSunsetMessage(chatId, times, timesTomorrow, TimeType.SUNSET_TIME);
         } catch (IllegalStateException e) {
             bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunset Time.", e);
         }
@@ -98,23 +98,24 @@ public class Notifier implements BotBean {
     SunsetSunriseTimes scheduleSunriseSunsetMessage(long chatId,
                                                     SunsetSunriseTimes times,
                                                     @Nullable SunsetSunriseTimes timesTomorrow,
-                                                    String message) throws ServiceException { // TODO: sostituire questo con qualcosa di più furbo
+                                                    TimeType timeType) throws ServiceException {
         BotScheduler.ScheduleResult result =
-                scheduler.scheduleMessage(chatId, times.getSunriseTime(), message);
+                scheduler.scheduleMessage(chatId, times.getSunriseTime(),
+                        timeType == TimeType.SUNRISE_TIME? SUNRISE_MESSAGE : SUNSET_MESSAGE);
 
         // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
         if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
             timesTomorrow = timesTomorrow != null ?
                     timesTomorrow : calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
             Date datetimeTomorrow = DateUtils.addDays(
-                    SUNRISE_MESSAGE.equals(message) ? timesTomorrow.getSunriseTime() : timesTomorrow.getSunsetTime(),
+                    timeType == TimeType.SUNRISE_TIME ? timesTomorrow.getSunriseTime() : timesTomorrow.getSunsetTime(),
                     1);
             result = scheduler.scheduleMessage(
-                    chatId, datetimeTomorrow, message);
+                    chatId, datetimeTomorrow, timeType == TimeType.SUNRISE_TIME? SUNRISE_MESSAGE : SUNSET_MESSAGE);
 
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 LOG.warn(String.format("%s message not scheduled even for time [%s]",
-                        SUNRISE_MESSAGE.equals(message) ? SUNRISE_MESSAGE : SUNSET_MESSAGE,
+                        timeType == TimeType.SUNRISE_TIME ? "Sunrise" : "Sunset",
                         datetimeTomorrow.toString()));
             }
         }
@@ -139,5 +140,8 @@ public class Notifier implements BotBean {
         return calculateSunriseAndSunset(chatId, LocalDate.now());
     }
 
-
+    private enum TimeType {
+        SUNSET_TIME,
+        SUNRISE_TIME
+    }
 }
