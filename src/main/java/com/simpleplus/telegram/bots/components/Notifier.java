@@ -8,10 +8,10 @@ import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
-import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
