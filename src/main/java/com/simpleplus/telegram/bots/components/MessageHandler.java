@@ -7,6 +7,8 @@ import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Update;
 
+import static com.simpleplus.telegram.bots.datamodel.Step.EXPIRED;
+
 public class MessageHandler implements BotBean {
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
 
@@ -61,7 +63,8 @@ public class MessageHandler implements BotBean {
     }
 
     private boolean isChatNew(long chatId) {
-        return persistenceManager.getUserState(chatId) != null;
+        UserState userState = persistenceManager.getUserState(chatId);
+        return userState == null || userState.getStep() == EXPIRED;
     }
 
     private void gestNewChat(long chatId) {
