@@ -37,6 +37,12 @@ public class CommandHandler implements BotBean {
         long chatId = update.getMessage().getChatId();
 
         switch (getCommand(update)) {
+            case START: {
+                // It's the same as a normal message sent from a new chat.
+                messageHandler.handleMessage(update);
+            }
+            break;
+
             case REENTER_LOCATION: {
                 UserState userState = persistenceManager.getUserState(chatId);
                 userState.setStep(Step.TO_REENTER_LOCATION);
@@ -97,6 +103,8 @@ public class CommandHandler implements BotBean {
         }
 
         switch (command) {
+            case "start":
+                return Command.START;
             case "change_location":
                 return Command.REENTER_LOCATION;
             case "set_administrator":
@@ -122,6 +130,7 @@ public class CommandHandler implements BotBean {
 
     @VisibleForTesting
     enum Command {
+        START,
         REENTER_LOCATION,
         SET_ADMINISTRATOR,
         SEND_TO_ADMINISTRATORS,

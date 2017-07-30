@@ -8,10 +8,10 @@ import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
-import com.sun.istack.internal.Nullable;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -100,8 +100,9 @@ public class Notifier implements BotBean {
                                                     @Nullable SunsetSunriseTimes timesTomorrow,
                                                     TimeType timeType) throws ServiceException {
         BotScheduler.ScheduleResult result =
-                scheduler.scheduleMessage(chatId, times.getSunriseTime(),
-                        timeType == TimeType.SUNRISE_TIME? SUNRISE_MESSAGE : SUNSET_MESSAGE);
+                timeType == TimeType.SUNRISE_TIME ?
+                        scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE) :
+                        scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
 
         // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
         if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
@@ -111,7 +112,7 @@ public class Notifier implements BotBean {
                     timeType == TimeType.SUNRISE_TIME ? timesTomorrow.getSunriseTime() : timesTomorrow.getSunsetTime(),
                     1);
             result = scheduler.scheduleMessage(
-                    chatId, datetimeTomorrow, timeType == TimeType.SUNRISE_TIME? SUNRISE_MESSAGE : SUNSET_MESSAGE);
+                    chatId, datetimeTomorrow, timeType == TimeType.SUNRISE_TIME ? SUNRISE_MESSAGE : SUNSET_MESSAGE);
 
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 LOG.warn(String.format("%s message not scheduled even for time [%s]",
