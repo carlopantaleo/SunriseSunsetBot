@@ -29,7 +29,11 @@ public class CommandHandler implements BotBean {
     }
 
     public boolean isCommand(Update update) {
-        return update.getMessage().getText().charAt(0) == '/';
+        if (update.getMessage().hasText()) {
+            return update.getMessage().getText().charAt(0) == '/';
+        } else {
+            return false;
+        }
     }
 
     // TODO: unit test
