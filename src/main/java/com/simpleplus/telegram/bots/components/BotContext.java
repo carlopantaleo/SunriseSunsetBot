@@ -49,8 +49,17 @@ public class BotContext {
         }
     }
 
+    /**
+     * Adds a already-constructed {@link BotBean}
+     * @param clazz the Class of the {@code BotBean}. It may be a superclass of the one of {@code bean}.
+     * @param bean constructed {@link BotBean} to add.
+     */
+    public void addBean(Class<? extends BotBean> clazz, BotBean bean) {
+        beans.put(clazz.getCanonicalName(), bean);
+    }
+
     public void addBean(Class<? extends BotBean> clazz) {
-        addBean(clazz, null);
+        addBean(clazz, (Object[]) null);
     }
 
     public BotBean getBean(Class<? extends BotBean> clazz) {

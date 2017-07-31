@@ -25,13 +25,12 @@ public class PersistenceManagerTest {
     public void setup() {
         BotContext context = new BotContext();
         BotContext.setDefaultContext(context);
-        context.addBean(PropertiesMock.class);
+        context.addBean(PropertiesManager.class, new PropertiesMock());
         context.addBean(PersistenceManager.class);
-
-        propertiesManager = (PropertiesManager) context.getBean(PropertiesMock.class);
-        persistenceManager = (PersistenceManager) context.getBean(PersistenceManager.class);
-
         context.initContext();
+
+        propertiesManager = (PropertiesManager) context.getBean(PropertiesManager.class);
+        persistenceManager = (PersistenceManager) context.getBean(PersistenceManager.class);
     }
 
     @After
@@ -40,6 +39,8 @@ public class PersistenceManagerTest {
         if (file.exists()) {
             file.delete();
         }
+
+        BotContext.setDefaultContext(null);
     }
 
     @Test
