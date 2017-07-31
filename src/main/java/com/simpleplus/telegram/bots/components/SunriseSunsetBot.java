@@ -58,6 +58,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
             return;
 
+        logMessage(update);
+
         try {
             if (commandHandler.isCommand(update)) {
                 commandHandler.handleCommand(update);
@@ -66,6 +68,18 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             }
         } catch (Exception e) {
             replyAndLogError(update.getMessage().getChatId(), "Exception while handling update.", e);
+        }
+    }
+
+    private void logMessage(Update update) {
+        String message = String.format("Incoming message from chatId %d: ", update.getMessage().getChatId());
+
+        if (update.getMessage().hasText()) {
+            LOG.info(message + update.getMessage().getText());
+        } else if (update.getMessage().hasLocation()) {
+            LOG.info(message + "(location message) " + update.getMessage().getLocation().toString());
+        } else {
+            LOG.info(message + "(other message type) " + update.getMessage().toString());
         }
     }
 
