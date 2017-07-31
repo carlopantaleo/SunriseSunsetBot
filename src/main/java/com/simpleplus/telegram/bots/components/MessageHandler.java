@@ -26,13 +26,13 @@ public class MessageHandler implements BotBean {
     public void handleMessage(Update update) {
         final long chatId = update.getMessage().getChatId();
 
-        // Se la chat è nuova faccio varie inizializzazioni
+        // If chat is new, it has to be initialized
         if (isChatNew(chatId)) {
             gestNewChat(chatId);
             return;
         }
 
-        // Altrimenti procedo con gli step
+        // Otherwise go on with steps
         switch (persistenceManager.getUserState(chatId).getStep()) {
             case TO_REENTER_LOCATION: {
                 gestToEnterCoordinates(chatId, false);
