@@ -51,8 +51,8 @@ public class CommandHandler implements BotBean {
                 UserState userState = persistenceManager.getUserState(chatId);
                 userState.setStep(Step.TO_REENTER_LOCATION);
                 persistenceManager.setUserState(chatId, userState);
+                LOG.info(String.format("ChatId[%d] has asked to /change_location.", chatId));
                 messageHandler.handleMessage(update);
-                LOG.info(String.format("ChatId[%d] has asked to /change-location.", chatId));
             }
             break;
 
@@ -61,10 +61,10 @@ public class CommandHandler implements BotBean {
                     UserState userState = persistenceManager.getUserState(chatId);
                     userState.setAdmin(true);
                     persistenceManager.setUserState(chatId, userState);
-                    bot.reply(chatId, "Administration commands are now available.");
                     LOG.info(String.format("Set admin chat for chatId[%d]", chatId));
+                    bot.reply(chatId, "Administration commands are now available.");
                 } else {
-                    LOG.warn(String.format("ChatId[%d] is issuing the /set-administrator command without " +
+                    LOG.warn(String.format("ChatId[%d] is issuing the /set_administrator command without " +
                             "a valid token.", chatId));
                 }
             }
