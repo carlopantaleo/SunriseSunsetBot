@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class PersistenceManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
+    private static final String DEFAULT_DATABASE = "sunrise-sunset-bot.db";
 
     private PreparedStatement getUserStateStatement;
     private PreparedStatement insertUserStateStatement;
@@ -18,12 +19,16 @@ public class PersistenceManager implements BotBean {
     private PreparedStatement getAllUserStatesStatement;
     private Connection connection;
     private String database;
-
-    public PersistenceManager(String database) {
-        this.database = database;
-    }
+    private PropertiesManager propertiesManager;
 
     public void init() {
+        propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
+
+        database = propertiesManager.getBotDatabase();
+        if (database == null) {
+            database = DEFAULT_DATABASE;
+        }
+
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + database);
             doStartup();

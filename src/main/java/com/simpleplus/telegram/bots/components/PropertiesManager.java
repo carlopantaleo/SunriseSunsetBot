@@ -3,6 +3,7 @@ package com.simpleplus.telegram.bots.components;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +25,7 @@ public class PropertiesManager implements BotBean {
     private String botToken;
     private String botName;
     private String botPropertiesPath;
+    private String botDatabase;
 
     public String getBotToken() {
         return botToken;
@@ -31,6 +33,10 @@ public class PropertiesManager implements BotBean {
 
     public String getBotName() {
         return botName;
+    }
+
+    public @Nullable String getBotDatabase() {
+        return botDatabase;
     }
 
     @Override
@@ -87,6 +93,10 @@ public class PropertiesManager implements BotBean {
             parsed = true;
         }
 
+        if (this.botDatabase == null) {
+            this.botDatabase = properties.getProperty("bot-database");
+        }
+
         return parsed;
     }
 
@@ -110,6 +120,12 @@ public class PropertiesManager implements BotBean {
                 .hasArg()
                 .argName("PATH")
                 .build());
+        options.addOption(Option.builder("d")
+                .longOpt("bot-database")
+                .desc("bot database name")
+                .hasArg()
+                .argName("NAME")
+                .build());
 
         CommandLineParser parser = new DefaultParser();
         boolean parsed = false;
@@ -126,6 +142,10 @@ public class PropertiesManager implements BotBean {
 
             if (line.hasOption("bot-properties-path")) {
                 botPropertiesPath = line.getOptionValue("bot-properties-path");
+            }
+
+            if (line.hasOption("bot-database")) {
+                botDatabase = line.getOptionValue("bot-database");
             }
         } catch (ParseException e) {
             LOG.error("Exception while parsing argv.", e);
