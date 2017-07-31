@@ -35,7 +35,7 @@ public class MessageHandler implements BotBean {
         // Otherwise go on with steps
         switch (persistenceManager.getUserState(chatId).getStep()) {
             case TO_REENTER_LOCATION: {
-                gestToEnterCoordinates(chatId, false);
+                gestStartRestartChat(chatId, false);
             }
             break;
 
@@ -68,10 +68,10 @@ public class MessageHandler implements BotBean {
     }
 
     private void gestNewChat(long chatId) {
-        gestToEnterCoordinates(chatId, true);
+        gestStartRestartChat(chatId, true);
     }
 
-    private void gestToEnterCoordinates(long chatId, boolean isChatNew) {
+    private void gestStartRestartChat(long chatId, boolean isChatNew) {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.";
         bot.reply(chatId, message);
 
