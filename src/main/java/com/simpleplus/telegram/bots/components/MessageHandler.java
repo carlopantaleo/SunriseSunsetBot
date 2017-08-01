@@ -94,6 +94,7 @@ public class MessageHandler implements BotBean {
         }
 
         // Must overload Location, since it was thought to be created only by the bot
+        // TODO: maybe use Coordinates class instead?
         Float finalLongitude = longitude;
         Float finalLatitude = latitude;
         return new Location() {
