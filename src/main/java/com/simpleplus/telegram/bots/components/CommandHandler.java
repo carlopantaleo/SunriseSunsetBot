@@ -51,7 +51,7 @@ public class CommandHandler implements BotBean {
                 UserState userState = persistenceManager.getUserState(chatId);
                 userState.setStep(Step.TO_REENTER_LOCATION);
                 persistenceManager.setUserState(chatId, userState);
-                LOG.info(String.format("ChatId[%d] has asked to /change_location.", chatId));
+                LOG.debug(String.format("ChatId[%d] has asked to /change_location.", chatId));
                 messageHandler.handleMessage(update);
             }
             break;
