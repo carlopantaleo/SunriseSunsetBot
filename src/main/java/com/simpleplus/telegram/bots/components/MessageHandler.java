@@ -5,7 +5,6 @@ import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.apache.log4j.Logger;
-import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Update;
 
 import javax.annotation.Nullable;
@@ -46,10 +45,11 @@ public class MessageHandler implements BotBean {
             break;
 
             case TO_ENTER_LOCATION: {
-                Location location = null;
+                Coordinates location = null;
 
                 if (update.getMessage().hasLocation()) {
-                    location = update.getMessage().getLocation();
+                    location = new Coordinates(update.getMessage().getLocation().getLatitude(),
+                            update.getMessage().getLocation().getLongitude());
                 } else if (update.getMessage().hasText()) {
                     location = parseLocation(update.getMessage().getText());
                 }
@@ -71,7 +71,7 @@ public class MessageHandler implements BotBean {
         }
     }
 
-    private @Nullable Location parseLocation(String text) {
+    private @Nullable Coordinates parseLocation(String text) {
         Pattern pattern = Pattern.compile("['\"]?(-?[0-9]*[.,][-0-9]*)[ .,;a-zA-Z]*(-?[0-9]*[.,][-0-9]*)['\"]?");
         Matcher matcher = pattern.matcher(text);
 
@@ -93,19 +93,7 @@ public class MessageHandler implements BotBean {
             return null;
         }
 
-        // Must overload Location, since it was thought to be created only by the bot
-        // TODO: maybe use Coordinates class instead?
-        Float finalLongitude = longitude;
-        Float finalLatitude = latitude;
-        return new Location() {
-            public Float getLongitude() {
-                return finalLongitude;
-            }
-
-            public Float getLatitude() {
-                return finalLatitude;
-            }
-        };
+        return new Coordinates(latitude, longitude);
     }
 
     private void setStep(long chatId, Step step) {
@@ -131,9 +119,9 @@ public class MessageHandler implements BotBean {
         persistenceManager.setUserState(chatId, userState);
     }
 
-    private void setLocation(long chatId, Location location) {
+    private void setLocation(long chatId, Coordinates location) {
         UserState userState = persistenceManager.getUserState(chatId);
-        userState.setCoordinates(new Coordinates(location.getLatitude(), location.getLongitude()));
+        userState.setCoordinates(location);
         persistenceManager.setUserState(chatId, userState);
     }
 
