@@ -16,7 +16,7 @@ public class BotScheduler implements BotBean {
 
     private Timer schedule = new Timer();
     private SunriseSunsetBot bot;
-    private ListMultimap<Long, Date> scheduledMessages = ArrayListMultimap.create();
+    private ListMultimap<Long, Task> scheduledMessages = ArrayListMultimap.create();
 
     @Override
     public void init() {
@@ -33,9 +33,10 @@ public class BotScheduler implements BotBean {
         try {
             // Schedule message only if time >= now
             if (time.after(Date.from(Instant.now().atZone(ZoneId.systemDefault()).toInstant()))) {
-                schedule.schedule(new ScheduledMessage(chatId, message, bot), time);
+                TimerTask task = new ScheduledMessage(chatId, message, bot);
+                schedule.schedule(task, time);
                 LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
-                scheduledMessages.put(chatId, time);
+                scheduledMessages.put(chatId, new Task(time, task));
                 return ScheduleResult.SCHEDULED;
             } else {
                 LOG.info("Message for chatId[" + Long.toString(chatId) + "] " +
@@ -50,8 +51,11 @@ public class BotScheduler implements BotBean {
 
     //TODO: unit test!
     private boolean alreadyScheduled(long chatId, Date time) {
-        List<Date> dates = scheduledMessages.get(chatId);
-        return dates.contains(time);
+        List<Task> tasks = scheduledMessages.get(chatId);
+        return !tasks.stream()
+                .filter(s -> s.datetimeScheduled.equals(time))
+                .collect(Collectors.toList())
+                .isEmpty();
     }
 
     public ScheduleResult schedule(TimerTask task, Date firstTime, long period) {
@@ -72,6 +76,13 @@ public class BotScheduler implements BotBean {
         return ScheduleResult.SCHEDULED;
     }
 
+    public void cancelAllScheduledMessages(long chatId) {
+        List<Task> tasksToStop = scheduledMessages.removeAll(chatId);
+        tasksToStop.forEach(s -> s.task.cancel());
+        LOG.debug(String.format("Deleted these scheduled messages for chatId %d: %s", chatId, tasksToStop.toString()));
+        //TODO purge
+    }
+
     public enum ScheduleResult {
         SCHEDULED,
         NOT_SCHEDULED,
@@ -82,6 +93,36 @@ public class BotScheduler implements BotBean {
                     .filter(this::equals)
                     .collect(Collectors.toList())
                     .isEmpty();
+        }
+    }
+
+    private class Task {
+        Date datetimeScheduled;
+        TimerTask task;
+
+        public Task(Date datetimeScheduled, TimerTask task) {
+            this.datetimeScheduled = datetimeScheduled;
+            this.task = task;
+        }
+
+        @Override
+        public String toString() {
+            return "Task{" +
+                    "datetimeScheduled=" + datetimeScheduled +
+                    ", task=" + task +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Task task1 = (Task) o;
+
+            if (datetimeScheduled != null ? !datetimeScheduled.equals(task1.datetimeScheduled) : task1.datetimeScheduled != null)
+                return false;
+            return task != null ? task.equals(task1.task) : task1.task == null;
         }
     }
 

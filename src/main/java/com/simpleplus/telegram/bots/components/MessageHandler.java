@@ -20,12 +20,14 @@ public class MessageHandler implements BotBean {
     private SunriseSunsetBot bot;
     private PersistenceManager persistenceManager;
     private Notifier notifier;
+    private BotScheduler scheduler;
 
     @Override
     public void init() {
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
+        scheduler = (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
     }
 
     public void handleMessage(Update update) {
@@ -57,6 +59,7 @@ public class MessageHandler implements BotBean {
                 if (location != null) {
                     setLocation(chatId, location);
                     try {
+                        scheduler.cancelAllScheduledMessages(chatId);
                         notifier.tryToInstallNotifier(chatId, 5);
                         setNextStep(chatId);
                         bot.reply(chatId, "You will be notified at sunset and sunrise.");
@@ -64,14 +67,15 @@ public class MessageHandler implements BotBean {
                         bot.replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
                     }
                 } else {
-                    bot.reply(chatId, "You aren't sending me a location. Please try again!");
+                    bot.reply(chatId, "You aren't sending me a valid location. Please try again!");
                 }
             }
             break;
         }
     }
 
-    private @Nullable Coordinates parseLocation(String text) {
+    private @Nullable
+    Coordinates parseLocation(String text) {
         Pattern pattern = Pattern.compile("['\"]?(-?[0-9]*[.,][-0-9]*)[ .,;a-zA-Z]*(-?[0-9]*[.,][-0-9]*)['\"]?");
         Matcher matcher = pattern.matcher(text);
 
