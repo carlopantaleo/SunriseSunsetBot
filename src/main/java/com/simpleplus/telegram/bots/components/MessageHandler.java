@@ -21,6 +21,7 @@ public class MessageHandler implements BotBean {
     private PersistenceManager persistenceManager;
     private Notifier notifier;
     private BotScheduler scheduler;
+    private AdminCommandHandler adminCommandHandler;
 
     @Override
     public void init() {
@@ -28,6 +29,7 @@ public class MessageHandler implements BotBean {
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
         scheduler = (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
+        adminCommandHandler = (AdminCommandHandler) BotContext.getDefaultContext().getBean(AdminCommandHandler.class);
     }
 
     public void handleMessage(Update update) {
@@ -71,7 +73,20 @@ public class MessageHandler implements BotBean {
                 }
             }
             break;
+
+            case TO_ENTER_SUPPORT_MESSAGE: {
+                sendToSupport(chatId, update.getMessage().getText());
+                setNextStep(chatId);
+            }
+            break;
         }
+    }
+
+    public void sendToSupport(long chatId, String message) {
+        adminCommandHandler.broadcastToAdmins(String.format("Support request from chatId %d. Message: %s",
+                chatId,
+                message));
+        bot.reply(chatId, "Message to support sent. We will get in touch with you shortly.");
     }
 
     private @Nullable
@@ -137,6 +152,7 @@ public class MessageHandler implements BotBean {
                 userState.setStep(Step.TO_ENTER_LOCATION);
                 break;
             case TO_ENTER_LOCATION:
+            case TO_ENTER_SUPPORT_MESSAGE:
                 userState.setStep(Step.RUNNING);
                 break;
         }

@@ -71,10 +71,15 @@ public class CommandHandler implements BotBean {
             break;
 
             case SEND_TO_ADMINISTRATORS: {
-                adminCommandHandler.broadcastToAdmins(String.format("Support request from chatId %d. Message: %s",
-                        chatId,
-                        getCommandArguments(update)));
-                bot.reply(chatId, "Message to support sent. We will get in touch with you shortly.");
+                String commandArguments = getCommandArguments(update);
+                if (!commandArguments.matches(" *")) {
+                    messageHandler.sendToSupport(chatId, commandArguments);
+                } else {
+                    UserState userState = persistenceManager.getUserState(chatId);
+                    userState.setStep(Step.TO_ENTER_SUPPORT_MESSAGE);
+                    persistenceManager.setUserState(chatId, userState);
+                    bot.reply(chatId, "Ok, send me your message for support.");
+                }
             }
             break;
 
