@@ -131,7 +131,7 @@ public class MessageHandler implements BotBean {
 
     private void gestStartRestartChat(long chatId, boolean isChatNew) {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.\n" +
-                "Tip: use the 'send -> location' in your app, or send me a message like '15.44286; -5.3362'.";
+                "Tip: use 'send -> location' in your app, or send me your coordinates like '15.44286; -5.3362'.";
         bot.reply(chatId, message);
 
         UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION, false);
