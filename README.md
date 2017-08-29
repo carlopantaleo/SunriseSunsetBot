@@ -17,6 +17,7 @@ Got a problem? Found a bug? Send a `/support` message and get in touch with us!
 #### Upcoming features
 The following are in order of priority, from higher to lower.
 * `/pause` and `/resume` the bot.
+* When a location message is sent to the bot, it automatically set current user location.
 * Possibility to send the name of the city instead of the coordinates.
 * More configurable alerts (civil and nautical twilight).
 * Optional alerts also for moonrise and moonset.
