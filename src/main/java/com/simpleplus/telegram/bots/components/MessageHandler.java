@@ -84,7 +84,8 @@ public class MessageHandler implements BotBean {
                 scheduler.cancelAllScheduledMessages(chatId);
                 notifier.tryToInstallNotifier(chatId, 5);
                 setNextStep(chatId);
-                bot.reply(chatId, "You will be notified at sunset and sunrise.");
+                bot.reply(chatId, "Your location has been saved. " +
+                        "You will be notified at sunset and sunrise.");
             } catch (ServiceException e) {
                 bot.replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
             }
