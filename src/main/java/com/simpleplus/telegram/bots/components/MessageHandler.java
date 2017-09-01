@@ -37,40 +37,25 @@ public class MessageHandler implements BotBean {
 
         // If chat is new, it has to be initialized
         if (isChatNew(chatId)) {
-            gestNewChat(chatId);
+            handleNewChat(chatId);
+            return;
+        }
+
+        // If it's a location message, handle it even though the state wasn't TO_ENTER_LOCATION
+        if (update.getMessage().hasLocation()) {
+            handleToEnterLocation(update);
             return;
         }
 
         // Otherwise go on with steps
         switch (persistenceManager.getUserState(chatId).getStep()) {
             case TO_REENTER_LOCATION: {
-                gestStartRestartChat(chatId, false);
+                handleStartRestartChat(chatId, false);
             }
             break;
 
             case TO_ENTER_LOCATION: {
-                Coordinates location = null;
-
-                if (update.getMessage().hasLocation()) {
-                    location = new Coordinates(update.getMessage().getLocation().getLatitude(),
-                            update.getMessage().getLocation().getLongitude());
-                } else if (update.getMessage().hasText()) {
-                    location = parseLocation(update.getMessage().getText());
-                }
-
-                if (location != null) {
-                    setLocation(chatId, location);
-                    try {
-                        scheduler.cancelAllScheduledMessages(chatId);
-                        notifier.tryToInstallNotifier(chatId, 5);
-                        setNextStep(chatId);
-                        bot.reply(chatId, "You will be notified at sunset and sunrise.");
-                    } catch (ServiceException e) {
-                        bot.replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
-                    }
-                } else {
-                    bot.reply(chatId, "You aren't sending me a valid location. Please try again!");
-                }
+                handleToEnterLocation(update);
             }
             break;
 
@@ -79,6 +64,32 @@ public class MessageHandler implements BotBean {
                 setNextStep(chatId);
             }
             break;
+        }
+    }
+
+    public void handleToEnterLocation(Update update) {
+        long chatId = update.getMessage().getChatId();
+        Coordinates location = null;
+
+        if (update.getMessage().hasLocation()) {
+            location = new Coordinates(update.getMessage().getLocation().getLatitude(),
+                    update.getMessage().getLocation().getLongitude());
+        } else if (update.getMessage().hasText()) {
+            location = parseLocation(update.getMessage().getText());
+        }
+
+        if (location != null) {
+            setLocation(chatId, location);
+            try {
+                scheduler.cancelAllScheduledMessages(chatId);
+                notifier.tryToInstallNotifier(chatId, 5);
+                setNextStep(chatId);
+                bot.reply(chatId, "You will be notified at sunset and sunrise.");
+            } catch (ServiceException e) {
+                bot.replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
+            }
+        } else {
+            bot.reply(chatId, "You aren't sending me a valid location. Please try again!");
         }
     }
 
@@ -125,11 +136,11 @@ public class MessageHandler implements BotBean {
         return userState == null || userState.getStep() == EXPIRED;
     }
 
-    private void gestNewChat(long chatId) {
-        gestStartRestartChat(chatId, true);
+    private void handleNewChat(long chatId) {
+        handleStartRestartChat(chatId, true);
     }
 
-    private void gestStartRestartChat(long chatId, boolean isChatNew) {
+    private void handleStartRestartChat(long chatId, boolean isChatNew) {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.\n" +
                 "Tip: use 'send -> location' in your app, or send me your coordinates like '15.44286; -5.3362'.";
         bot.reply(chatId, message);
