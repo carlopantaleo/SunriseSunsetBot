@@ -9,6 +9,7 @@ public enum Step {
     TO_REENTER_LOCATION,
     TO_ENTER_SUPPORT_MESSAGE,
     RUNNING,
+    STOPPED,
     EXPIRED;
 
     public boolean in(Step... steps) {

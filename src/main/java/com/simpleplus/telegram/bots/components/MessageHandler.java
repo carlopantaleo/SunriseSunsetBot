@@ -61,7 +61,7 @@ public class MessageHandler implements BotBean {
 
             case TO_ENTER_SUPPORT_MESSAGE: {
                 sendToSupport(chatId, update.getMessage().getText());
-                setNextStep(chatId);
+                persistenceManager.setNextStep(chatId);
             }
             break;
         }
@@ -83,7 +83,7 @@ public class MessageHandler implements BotBean {
             try {
                 scheduler.cancelAllScheduledMessages(chatId);
                 notifier.tryToInstallNotifier(chatId, 5);
-                setNextStep(chatId);
+                persistenceManager.setNextStep(chatId);
                 bot.reply(chatId, "Your location has been saved. " +
                         "You will be notified at sunset and sunrise.");
             } catch (ServiceException e) {
@@ -127,11 +127,6 @@ public class MessageHandler implements BotBean {
         return new Coordinates(latitude, longitude);
     }
 
-    private void setStep(long chatId, Step step) {
-        UserState userState = persistenceManager.getUserState(chatId);
-        userState.setStep(step);
-    }
-
     private boolean isChatNew(long chatId) {
         UserState userState = persistenceManager.getUserState(chatId);
         return userState == null || userState.getStep() == EXPIRED;
@@ -153,22 +148,6 @@ public class MessageHandler implements BotBean {
     private void setLocation(long chatId, Coordinates location) {
         UserState userState = persistenceManager.getUserState(chatId);
         userState.setCoordinates(location);
-        persistenceManager.setUserState(chatId, userState);
-    }
-
-    private void setNextStep(long chatId) {
-        UserState userState = persistenceManager.getUserState(chatId);
-
-        switch (userState.getStep()) {
-            case NEW_CHAT:
-                userState.setStep(Step.TO_ENTER_LOCATION);
-                break;
-            case TO_ENTER_LOCATION:
-            case TO_ENTER_SUPPORT_MESSAGE:
-                userState.setStep(Step.RUNNING);
-                break;
-        }
-
         persistenceManager.setUserState(chatId, userState);
     }
 }

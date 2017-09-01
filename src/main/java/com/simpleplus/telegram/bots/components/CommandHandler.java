@@ -3,6 +3,7 @@ package com.simpleplus.telegram.bots.components;
 import com.google.common.annotations.VisibleForTesting;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
+import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.objects.Update;
 
@@ -16,6 +17,8 @@ public class CommandHandler implements BotBean {
     private MessageHandler messageHandler;
     private PersistenceManager persistenceManager;
     private AdminCommandHandler adminCommandHandler;
+    private BotScheduler scheduler;
+    private Notifier notifier;
 
     @Override
     public void init() {
@@ -25,7 +28,10 @@ public class CommandHandler implements BotBean {
                 (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         this.adminCommandHandler =
                 (AdminCommandHandler) BotContext.getDefaultContext().getBean(AdminCommandHandler.class);
-
+        this.scheduler =
+                (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
+        this.notifier =
+                (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
     }
 
     public boolean isCommand(Update update) {
@@ -47,10 +53,18 @@ public class CommandHandler implements BotBean {
             }
             break;
 
+            case STOP: {
+                handleStop(chatId);
+            }
+            break;
+
+            case RESUME: {
+                handleResume(chatId);
+            }
+            break;
+
             case REENTER_LOCATION: {
-                UserState userState = persistenceManager.getUserState(chatId);
-                userState.setStep(Step.TO_REENTER_LOCATION);
-                persistenceManager.setUserState(chatId, userState);
+                persistenceManager.setStep(chatId, Step.TO_REENTER_LOCATION);
                 LOG.debug(String.format("ChatId[%d] has asked to /change_location.", chatId));
                 messageHandler.handleMessage(update);
             }
@@ -75,9 +89,7 @@ public class CommandHandler implements BotBean {
                 if (!commandArguments.matches(" *")) {
                     messageHandler.sendToSupport(chatId, commandArguments);
                 } else {
-                    UserState userState = persistenceManager.getUserState(chatId);
-                    userState.setStep(Step.TO_ENTER_SUPPORT_MESSAGE);
-                    persistenceManager.setUserState(chatId, userState);
+                    persistenceManager.setStep(chatId, Step.TO_ENTER_SUPPORT_MESSAGE);
                     bot.reply(chatId, "Ok, send me your message for support.");
                 }
             }
@@ -100,6 +112,35 @@ public class CommandHandler implements BotBean {
         }
     }
 
+    public void handleResume(long chatId) {
+        UserState userState = persistenceManager.getUserState(chatId);
+
+        if (userState.getStep() == Step.STOPPED) {
+            try {
+                notifier.tryToInstallNotifier(chatId, 5);
+                persistenceManager.setNextStep(chatId);
+                bot.reply(chatId, "The bot has been resumed. You will be notified at sunrise and sunset.");
+            } catch (ServiceException e) {
+                bot.replyAndLogError(chatId, "ServiceException while resuming chat.", e);
+            }
+        } else {
+            bot.reply(chatId, "The bot is already running.");
+        }
+    }
+
+    private void handleStop(long chatId) {
+        UserState userState = persistenceManager.getUserState(chatId);
+
+        if (userState.getStep() != Step.STOPPED) {
+            scheduler.cancelAllScheduledMessages(chatId);
+            persistenceManager.setStep(chatId, Step.STOPPED);
+            bot.reply(chatId, "The bot has been stopped and you won't receive any more messages from now. " +
+                    "To receive messages again, use the /resume command.");
+        } else {
+            bot.reply(chatId, "The bot is already stopped.");
+        }
+    }
+
     @VisibleForTesting
     Command getCommand(Update update) {
         String text = update.getMessage().getText();
@@ -114,6 +155,10 @@ public class CommandHandler implements BotBean {
         switch (command) {
             case "start":
                 return Command.START;
+            case "stop":
+                return Command.STOP;
+            case "resume":
+                return Command.RESUME;
             case "change_location":
                 return Command.REENTER_LOCATION;
             case "set_administrator":
@@ -140,6 +185,8 @@ public class CommandHandler implements BotBean {
     @VisibleForTesting
     enum Command {
         START,
+        STOP,
+        RESUME,
         REENTER_LOCATION,
         SET_ADMINISTRATOR,
         SEND_TO_ADMINISTRATORS,

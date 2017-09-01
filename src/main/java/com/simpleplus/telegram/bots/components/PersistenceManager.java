@@ -123,6 +123,33 @@ public class PersistenceManager implements BotBean {
         }
     }
 
+    public void setNextStep(long chatId) {
+        UserState userState = getUserState(chatId);
+
+        switch (userState.getStep()) {
+            case NEW_CHAT:
+                userState.setStep(Step.TO_ENTER_LOCATION);
+                break;
+            case TO_ENTER_LOCATION:
+            case TO_ENTER_SUPPORT_MESSAGE:
+            case STOPPED:
+                userState.setStep(Step.RUNNING);
+                break;
+            case RUNNING:
+                userState.setStep(Step.STOPPED);
+                break;
+        }
+
+        setUserState(chatId, userState);
+    }
+
+    public void setStep(long chatId, Step step) {
+        UserState userState = getUserState(chatId);
+        userState.setStep(step);
+        setUserState(chatId, userState);
+    }
+
+
     private void doStartup() {
         try (Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(
