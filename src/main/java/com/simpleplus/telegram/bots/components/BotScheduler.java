@@ -80,7 +80,8 @@ public class BotScheduler implements BotBean {
         List<Task> tasksToStop = scheduledMessages.removeAll(chatId);
         tasksToStop.forEach(s -> s.task.cancel());
         LOG.debug(String.format("Deleted these scheduled messages for chatId %d: %s", chatId, tasksToStop.toString()));
-        //TODO purge
+        LOG.info(String.format("Deleted %d scheduled messages for chatId %d", tasksToStop.size(), chatId));
+        schedule.purge();
     }
 
     public enum ScheduleResult {
