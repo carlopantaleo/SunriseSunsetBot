@@ -3,7 +3,6 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
-import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -84,18 +83,20 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     public void reply(long chatId, String message) {
-        SendMessage messageToSend = new SendMessage();
-        messageToSend.setChatId(chatId);
-        messageToSend.setText(message);
+        SendMessage messageToSend = new SendMessage()
+                .setChatId(chatId)
+                .setText(message);
+        reply(messageToSend);
+    }
 
+    public void reply(SendMessage messageToSend) {
+        long chatId = Long.parseLong(messageToSend.getChatId());
         try {
             execute(messageToSend);
-            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + message);
+            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + messageToSend.getText());
         } catch (TelegramApiException e) {
-            UserState userState = persistenceManager.getUserState(chatId);
-            userState.setStep(Step.EXPIRED);
-            persistenceManager.setUserState(chatId, userState);
-            LOG.error("TelegramApiException during reply. Chat flagged as expired.", e);
+            persistenceManager.setStep(chatId, Step.EXPIRED);
+            LOG.warn("TelegramApiException during reply. Chat flagged as expired.", e);
         }
     }
 

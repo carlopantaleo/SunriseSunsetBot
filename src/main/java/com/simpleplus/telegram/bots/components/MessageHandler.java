@@ -5,9 +5,15 @@ import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.apache.log4j.Logger;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -138,8 +144,13 @@ public class MessageHandler implements BotBean {
 
     private void handleStartRestartChat(long chatId, boolean isChatNew) {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.\n" +
-                "Tip: use 'send -> location' in your app, or send me your coordinates like '15.44286; -5.3362'.";
-        bot.reply(chatId, message);
+                "Tip: hit the 'Send Location' button below, or send me your coordinates " +
+                "like '15.44286; -5.3362'.";
+        SendMessage messageToSend = new SendMessage()
+                .setChatId(chatId)
+                .setText(message);
+        addSendLocationInlineKeyboard(messageToSend);
+        bot.reply(messageToSend);
 
         UserState userState = persistenceManager.getUserState(chatId);
         if (userState == null) { // Chat new
@@ -149,6 +160,18 @@ public class MessageHandler implements BotBean {
         userState.setCoordinates(DEFAULT_COORDINATE);
         userState.setStep(Step.TO_ENTER_LOCATION);
         persistenceManager.setUserState(chatId, userState);
+    }
+
+    private void addSendLocationInlineKeyboard(SendMessage messageToSend) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup()
+                .setOneTimeKeyboard(true)
+                .setResizeKeyboard(true);
+        KeyboardRow row = new KeyboardRow();
+        row.add(new KeyboardButton().setText("Send Location").setRequestLocation(true));
+        List<KeyboardRow> rows = new ArrayList<>();
+        rows.add(row);
+        keyboardMarkup.setKeyboard(rows);
+        messageToSend.setReplyMarkup(keyboardMarkup);
     }
 
     private void setLocation(long chatId, Coordinates location) {
