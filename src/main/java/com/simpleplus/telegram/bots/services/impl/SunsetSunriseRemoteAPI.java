@@ -21,8 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
-    private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
+    private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {

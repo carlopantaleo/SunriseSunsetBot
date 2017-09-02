@@ -33,6 +33,7 @@ public class SunsetSunriseTimes {
 
     /**
      * Returns a {@link Date} zoned date-time from a {@link LocalTime}.
+     *
      * @param localTime the non-zoned time. It is implicitly assumed to be UTC.
      * @return
      */

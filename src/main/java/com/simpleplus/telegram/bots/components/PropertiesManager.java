@@ -27,6 +27,14 @@ public class PropertiesManager implements BotBean {
     private String botPropertiesPath;
     private String botDatabase;
 
+    public static String[] getArgv() {
+        return argv;
+    }
+
+    public static void setArgv(String[] argv) {
+        PropertiesManager.argv = argv;
+    }
+
     public String getBotToken() {
         return botToken;
     }
@@ -35,7 +43,8 @@ public class PropertiesManager implements BotBean {
         return botName;
     }
 
-    public @Nullable String getBotDatabase() {
+    public @Nullable
+    String getBotDatabase() {
         return botDatabase;
     }
 
@@ -153,13 +162,5 @@ public class PropertiesManager implements BotBean {
         }
 
         return parsed;
-    }
-
-    public static String[] getArgv() {
-        return argv;
-    }
-
-    public static void setArgv(String[] argv) {
-        PropertiesManager.argv = argv;
     }
 }

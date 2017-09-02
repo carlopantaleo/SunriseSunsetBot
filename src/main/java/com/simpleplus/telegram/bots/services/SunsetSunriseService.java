@@ -8,5 +8,6 @@ import java.time.LocalDate;
 
 public interface SunsetSunriseService {
     SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException;
+
     SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException;
 }

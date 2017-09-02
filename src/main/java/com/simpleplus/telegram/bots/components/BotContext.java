@@ -11,10 +11,8 @@ import java.util.Map;
  * singleton and there can't exists to instances of the same {@code BotBean} withing the same {@code BotContext}.
  */
 public class BotContext {
-    private static BotContext defaultContext;
     private static final Logger LOG = Logger.getLogger(BotContext.class);
-
-
+    private static BotContext defaultContext;
     private Map<String, BotBean> beans = new HashMap<>();
 
     public static BotContext getDefaultContext() {
@@ -33,7 +31,8 @@ public class BotContext {
 
     /**
      * Adds a {@code BotBean} to the {@code BotContext}.
-     * @param clazz The Class of the {@code BotBean}.
+     *
+     * @param clazz    The Class of the {@code BotBean}.
      * @param beanArgs Arguments to be passed to the constructor of the {@code BotBean}.
      */
     public void addBean(Class<? extends BotBean> clazz, Object... beanArgs) {
@@ -51,8 +50,9 @@ public class BotContext {
 
     /**
      * Adds a already-constructed {@link BotBean}
+     *
      * @param clazz the Class of the {@code BotBean}. It may be a superclass of the one of {@code bean}.
-     * @param bean constructed {@link BotBean} to add.
+     * @param bean  constructed {@link BotBean} to add.
      */
     public void addBean(Class<? extends BotBean> clazz, BotBean bean) {
         beans.put(clazz.getCanonicalName(), bean);
