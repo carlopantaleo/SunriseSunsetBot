@@ -141,7 +141,13 @@ public class MessageHandler implements BotBean {
                 "Tip: use 'send -> location' in your app, or send me your coordinates like '15.44286; -5.3362'.";
         bot.reply(chatId, message);
 
-        UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION, false);
+        UserState userState = persistenceManager.getUserState(chatId);
+        if (userState == null) { // Chat new
+            userState = new UserState();
+        }
+
+        userState.setCoordinates(DEFAULT_COORDINATE);
+        userState.setStep(Step.TO_ENTER_LOCATION);
         persistenceManager.setUserState(chatId, userState);
     }
 
