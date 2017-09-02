@@ -2,7 +2,6 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.components.tasks.ScheduledNotifiersInstaller;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
-import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
@@ -20,6 +19,8 @@ import java.util.Map;
 
 import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_SCHEDULED;
 import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_TO_SCHEDULE;
+import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
+import static com.simpleplus.telegram.bots.datamodel.Step.TO_ENTER_SUPPORT_MESSAGE;
 
 public class Notifier implements BotBean {
     private static final String SUNRISE_MESSAGE = "The sun is rising!";
@@ -42,7 +43,7 @@ public class Notifier implements BotBean {
 
     public void installAllNotifiers() {
         for (Map.Entry<Long, UserState> userState : persistenceManager.getUserStatesMap().entrySet()) {
-            if (userState.getValue().getStep() == Step.RUNNING) {
+            if (userState.getValue().getStep().in(RUNNING, TO_ENTER_SUPPORT_MESSAGE)) {
                 Long chatId = userState.getKey();
                 try {
                     tryToInstallNotifier(chatId, 5);

@@ -1,7 +1,9 @@
 package com.simpleplus.telegram.bots;
 
 
+import com.simpleplus.telegram.bots.components.BotContext;
 import com.simpleplus.telegram.bots.components.PersistenceManager;
+import com.simpleplus.telegram.bots.components.PropertiesManager;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
@@ -16,21 +18,29 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class PersistenceManagerTest {
-    private static final String TEST_DB = "test.db";
     private PersistenceManager persistenceManager;
+    private PropertiesManager propertiesManager;
 
     @Before
+    public void setup() {
+        BotContext context = new BotContext();
+        BotContext.setDefaultContext(context);
+        context.addBean(PropertiesManager.class, new PropertiesMock());
+        context.addBean(PersistenceManager.class);
+        context.initContext();
+
+        propertiesManager = (PropertiesManager) context.getBean(PropertiesManager.class);
+        persistenceManager = (PersistenceManager) context.getBean(PersistenceManager.class);
+    }
+
     @After
-    public void init() {
-        File file = new File(TEST_DB);
+    public void cleanup() {
+        File file = new File(propertiesManager.getBotDatabase());
         if (file.exists()) {
             file.delete();
         }
 
-        if (persistenceManager == null) {
-            persistenceManager = new PersistenceManager(TEST_DB);
-            persistenceManager.init();
-        }
+        BotContext.setDefaultContext(null);
     }
 
     @Test

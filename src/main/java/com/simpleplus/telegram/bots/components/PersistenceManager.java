@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class PersistenceManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
+    private static final String DEFAULT_DATABASE = "sunrise-sunset-bot.db";
 
     private PreparedStatement getUserStateStatement;
     private PreparedStatement insertUserStateStatement;
@@ -18,12 +19,16 @@ public class PersistenceManager implements BotBean {
     private PreparedStatement getAllUserStatesStatement;
     private Connection connection;
     private String database;
-
-    public PersistenceManager(String database) {
-        this.database = database;
-    }
+    private PropertiesManager propertiesManager;
 
     public void init() {
+        propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
+
+        database = propertiesManager.getBotDatabase();
+        if (database == null) {
+            database = DEFAULT_DATABASE;
+        }
+
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + database);
             doStartup();
@@ -117,6 +122,33 @@ public class PersistenceManager implements BotBean {
             LOG.error("User state not set!.", e);
         }
     }
+
+    public void setNextStep(long chatId) {
+        UserState userState = getUserState(chatId);
+
+        switch (userState.getStep()) {
+            case NEW_CHAT:
+                userState.setStep(Step.TO_ENTER_LOCATION);
+                break;
+            case TO_ENTER_LOCATION:
+            case TO_ENTER_SUPPORT_MESSAGE:
+            case STOPPED:
+                userState.setStep(Step.RUNNING);
+                break;
+            case RUNNING:
+                userState.setStep(Step.STOPPED);
+                break;
+        }
+
+        setUserState(chatId, userState);
+    }
+
+    public void setStep(long chatId, Step step) {
+        UserState userState = getUserState(chatId);
+        userState.setStep(step);
+        setUserState(chatId, userState);
+    }
+
 
     private void doStartup() {
         try (Statement statement = connection.createStatement();
