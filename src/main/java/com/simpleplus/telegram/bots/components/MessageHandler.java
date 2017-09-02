@@ -5,6 +5,7 @@ import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.apache.log4j.Logger;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 
 import javax.annotation.Nullable;
@@ -139,7 +140,11 @@ public class MessageHandler implements BotBean {
     private void handleStartRestartChat(long chatId, boolean isChatNew) {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.\n" +
                 "Tip: use 'send -> location' in your app, or send me your coordinates like '15.44286; -5.3362'.";
-        bot.reply(chatId, message);
+        SendMessage messageToSend = new SendMessage()
+                .setChatId(chatId)
+                .setText(message);
+
+        bot.reply(messageToSend);
 
         UserState userState = new UserState(DEFAULT_COORDINATE, Step.TO_ENTER_LOCATION, false);
         persistenceManager.setUserState(chatId, userState);
