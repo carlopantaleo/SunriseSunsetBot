@@ -176,7 +176,7 @@ public class CommandHandler implements BotBean {
     @VisibleForTesting
     String getCommandArguments(Update update) {
         String text = update.getMessage().getText();
-        Pattern pattern = Pattern.compile("\\/[_a-z]* ?(.*)");
+        Pattern pattern = Pattern.compile("\\/[_a-z]* ?(.*)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
 
         return matcher.find() ? matcher.group(1) : "";
