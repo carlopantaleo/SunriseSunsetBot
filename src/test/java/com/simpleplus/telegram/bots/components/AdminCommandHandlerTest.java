@@ -22,17 +22,23 @@ public class AdminCommandHandlerTest {
         String broadcastMessage = adminCommandHandler.getBroadcastMessage("broadcast bla bla bla.");
         assertEquals("bla bla bla.", broadcastMessage);
 
+        broadcastMessage = adminCommandHandler.getBroadcastMessage("broadcast bla bla \nbla.");
+        assertEquals("bla bla \nbla.", broadcastMessage);
+
         broadcastMessage = adminCommandHandler.getBroadcastMessage("podcast bla bla bla.");
         assertEquals("", broadcastMessage);
     }
 
     @Test
     public void getSendMessageWorks() throws Exception {
-        String broadcastMessage = adminCommandHandler.getSendMessage("send chatid=12345 send message.");
-        assertEquals("send message.", broadcastMessage);
+        String sendMessage = adminCommandHandler.getSendMessage("send chatid=12345 send message.");
+        assertEquals("send message.", sendMessage);
 
-        broadcastMessage = adminCommandHandler.getSendMessage("send chatid=a12345 send message.");
-        assertEquals("", broadcastMessage);
+        sendMessage = adminCommandHandler.getSendMessage("send chatid=12345 send \n\nmessage.");
+        assertEquals("send \n\nmessage.", sendMessage);
+
+        sendMessage = adminCommandHandler.getSendMessage("send chatid=a12345 send message.");
+        assertEquals("", sendMessage);
     }
 
     @Test

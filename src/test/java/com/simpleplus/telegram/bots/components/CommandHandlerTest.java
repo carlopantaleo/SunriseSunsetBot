@@ -49,6 +49,10 @@ public class CommandHandlerTest {
         jsonInString = "{\"message\" : {\"text\" : \"/change_location arg1 arg2\"}}";
         update = mapper.readValue(jsonInString, Update.class);
         assertEquals("arg1 arg2", commandHandler.getCommandArguments(update));
+
+        jsonInString = "{\"message\" : {\"text\" : \"/change_location arg1 \\narg2\"}}";
+        update = mapper.readValue(jsonInString, Update.class);
+        assertEquals("arg1 \narg2", commandHandler.getCommandArguments(update));
     }
 
 }

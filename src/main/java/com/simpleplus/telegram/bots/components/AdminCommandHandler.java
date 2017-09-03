@@ -84,7 +84,7 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
 
     @VisibleForTesting
     String getSendMessage(String commandArgs) {
-        Pattern pattern = Pattern.compile("send chatid=[0-9]* (.*)");
+        Pattern pattern = Pattern.compile("send chatid=[0-9]* (.*)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(commandArgs);
 
         return matcher.find() ? matcher.group(1) : "";
@@ -112,7 +112,7 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
 
     @VisibleForTesting
     String getBroadcastMessage(String commandArgs) {
-        Pattern pattern = Pattern.compile("broadcast (.*)");
+        Pattern pattern = Pattern.compile("broadcast (.*)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(commandArgs);
 
         return matcher.find() ? matcher.group(1) : "";
