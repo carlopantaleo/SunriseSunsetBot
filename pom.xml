@@ -84,6 +84,20 @@
             <artifactId>guava</artifactId>
             <version>22.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.2.10.Final</version>
+        </dependency>
+        <dependency><!-- TODO: remove this dependency -->
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.196</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.dialect</groupId>
+            <artifactId>sqlite-dialect</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

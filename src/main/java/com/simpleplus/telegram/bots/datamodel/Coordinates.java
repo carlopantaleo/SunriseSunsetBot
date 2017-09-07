@@ -1,11 +1,12 @@
 package com.simpleplus.telegram.bots.datamodel;
 
 
-import java.io.Serializable;
+import javax.persistence.Embeddable;
 
-public class Coordinates implements Serializable {
-    private final float latitude;
-    private final float longitude;
+@Embeddable
+public class Coordinates {
+    private float latitude;
+    private float longitude;
 
     public Coordinates(float latitude, float longitude) {
         this.latitude = latitude;
@@ -15,6 +16,14 @@ public class Coordinates implements Serializable {
     public Coordinates() {
         this.latitude = 0;
         this.longitude = 0;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
     }
 
     public float getLongitude() {

@@ -1,7 +1,12 @@
 package com.simpleplus.telegram.bots.datamodel;
 
 
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
+
+@Embeddable
 public class UserState {
+    @Embedded
     private Coordinates coordinates;
     private Step step;
     private boolean isAdmin;

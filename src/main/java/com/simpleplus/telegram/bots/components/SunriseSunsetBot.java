@@ -43,7 +43,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         // Add shutdown hook to gracefully close db connection
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Shutting down...");
-            persistenceManager.shutdown();
             botSession.stop();
         }));
     }
