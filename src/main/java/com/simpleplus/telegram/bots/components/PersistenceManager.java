@@ -24,7 +24,11 @@ public class PersistenceManager implements BotBean {
     }
 
     public UserState getUserState(long chatId) {
-        return createEntityManager().find(SavedChat.class, chatId).getUserState();
+        EntityManager em = createEntityManager();
+        SavedChat savedChat = em.find(SavedChat.class, chatId);
+        UserState userState = savedChat != null ? savedChat.getUserState() : null;
+        em.close();
+        return userState;
     }
 
     public Map<Long, UserState> getUserStatesMap() {
@@ -42,6 +46,8 @@ public class PersistenceManager implements BotBean {
             result.put(savedChat.getChatId(), savedChat.getUserState());
         }
 
+        em.close();
+
         return result;
     }
 
@@ -51,8 +57,10 @@ public class PersistenceManager implements BotBean {
 
         transaction.begin();
         SavedChat savedChat = new SavedChat(chatId, userState);
-        em.persist(savedChat);
+        em.merge(savedChat);
+        em.flush();
         transaction.commit();
+        em.close();
     }
 
     public void setNextStep(long chatId) {
