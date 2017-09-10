@@ -5,10 +5,7 @@ import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -18,9 +15,10 @@ import java.util.Map;
 
 public class PersistenceManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
-
+    private EntityManagerFactory emFactory;
 
     public void init() {
+        emFactory = Persistence.createEntityManagerFactory("h2");
     }
 
     public UserState getUserState(long chatId) {
@@ -90,6 +88,6 @@ public class PersistenceManager implements BotBean {
     }
 
     protected EntityManager createEntityManager() {
-        return Persistence.createEntityManagerFactory("h2").createEntityManager();
+        return emFactory.createEntityManager();
     }
 }
