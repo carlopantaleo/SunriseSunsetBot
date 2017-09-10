@@ -89,7 +89,7 @@ public class PersistenceManager implements BotBean {
         setUserState(chatId, userState);
     }
 
-    private EntityManager createEntityManager() {
+    protected EntityManager createEntityManager() {
         return Persistence.createEntityManagerFactory("h2").createEntityManager();
     }
 }

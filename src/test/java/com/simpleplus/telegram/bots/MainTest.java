@@ -11,7 +11,7 @@ public class MainTest {
         context.addBean(SunsetSunriseRemoteAPI.class);
         context.addBean(BotScheduler.class);
         context.addBean(Notifier.class);
-        context.addBean(PersistenceManager.class);
+        context.addBean(PersistenceManager.class, new PersistenceManagerWithTestDB());
         context.addBean(MessageHandler.class);
         context.addBean(MessageHandler.class);
         context.addBean(CommandHandler.class);
