@@ -7,11 +7,9 @@ import com.simpleplus.telegram.bots.components.PropertiesManager;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Map;
 
 import static org.junit.Assert.assertNull;
@@ -23,24 +21,10 @@ public class PersistenceManagerTest {
 
     @Before
     public void setup() {
-        BotContext context = new BotContext();
-        BotContext.setDefaultContext(context);
-        context.addBean(PropertiesManager.class, new PropertiesMock());
-        context.addBean(PersistenceManager.class);
-        context.initContext();
+        MainTest.initDefaultBotContext();
 
-        propertiesManager = (PropertiesManager) context.getBean(PropertiesManager.class);
-        persistenceManager = (PersistenceManager) context.getBean(PersistenceManager.class);
-    }
-
-    @After
-    public void cleanup() {
-        File file = new File(propertiesManager.getBotDatabase());
-        if (file.exists()) {
-            file.delete();
-        }
-
-        BotContext.setDefaultContext(null);
+        propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
+        persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
     }
 
     @Test

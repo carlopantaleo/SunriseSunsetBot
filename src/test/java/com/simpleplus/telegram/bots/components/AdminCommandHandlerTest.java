@@ -1,6 +1,6 @@
 package com.simpleplus.telegram.bots.components;
 
-import com.simpleplus.telegram.bots.Main;
+import com.simpleplus.telegram.bots.MainTest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class AdminCommandHandlerTest {
 
     @Before
     public void init() {
-        Main.initDefaultBotContext();
+        MainTest.initDefaultBotContext();
         adminCommandHandler = (AdminCommandHandler) BotContext.getDefaultContext().getBean(AdminCommandHandler.class);
     }
 

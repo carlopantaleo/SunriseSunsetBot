@@ -1,7 +1,7 @@
 package com.simpleplus.telegram.bots.components;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.simpleplus.telegram.bots.Main;
+import com.simpleplus.telegram.bots.MainTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.telegram.telegrambots.api.objects.Update;
@@ -13,7 +13,7 @@ public class CommandHandlerTest {
 
     @Before
     public void init() {
-        Main.initDefaultBotContext();
+        MainTest.initDefaultBotContext();
         commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean(CommandHandler.class);
     }
 
