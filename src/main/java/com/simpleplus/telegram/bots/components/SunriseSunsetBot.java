@@ -12,11 +12,6 @@ import org.telegram.telegrambots.generics.BotSession;
 
 import java.util.UUID;
 
-/* Lista della spesa
-    - Ci sono ancora eccezioni da gestire
-    - Implementare un po' di comandi
-    - Introdurre logiche di amministrazione
- */
 public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);

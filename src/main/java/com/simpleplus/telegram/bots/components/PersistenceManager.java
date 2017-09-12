@@ -24,23 +24,27 @@ public class PersistenceManager implements BotBean {
     public void init() {
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
 
-        String botDatabase = propertiesManager.getBotDatabase() != null ?
-                propertiesManager.getBotDatabase() : "sunrise-sunset-bot";
-        String botUser = propertiesManager.getProperty("bot-db-user") != null ?
-                propertiesManager.getProperty("bot-db-user") : "sa";
-        String botPassword = propertiesManager.getProperty("bot-db-password") != null ?
-                propertiesManager.getProperty("bot-db-user") : "";
-
-
         Map<String, String> persistenceMap = new HashMap<>();
-        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" + botDatabase);
-        persistenceMap.put("javax.persistence.jdbc.user", botUser);
-        persistenceMap.put("javax.persistence.jdbc.password", botPassword);
+        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" +
+                propertiesManager.getPropertyOrDefault("bot-database", "sunrise-sunset-bot"));
+        persistenceMap.put("javax.persistence.jdbc.user",
+                propertiesManager.getPropertyOrDefault("bot-db-user", "sa"));
+        persistenceMap.put("javax.persistence.jdbc.password",
+                propertiesManager.getPropertyOrDefault("bot-db-password", ""));
         emFactory = Persistence.createEntityManagerFactory("h2", persistenceMap);
-        try {
-            webServer = Server.createWebServer("-webAllowOthers", "-webPort", "8082").start();
-        } catch (SQLException e) {
-            LOG.error("Cannot create web server.", e);
+
+        // Start embedded H2 db browser
+        if (propertiesManager.getProperty("embed-web-server") != null) {
+            try {
+                webServer = Server.createWebServer(
+                        "-webAllowOthers",
+                        "-webPort",
+                        propertiesManager.getPropertyOrDefault("bot-db-port", "8082")
+                ).start();
+                LOG.info(String.format("H2 web server started on port %d.", webServer.getPort()));
+            } catch (SQLException e) {
+                LOG.error("Cannot create web server.", e);
+            }
         }
     }
 
