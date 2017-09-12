@@ -24,10 +24,18 @@ public class PersistenceManager implements BotBean {
     public void init() {
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
 
+        String botDatabase = propertiesManager.getBotDatabase() != null ?
+                propertiesManager.getBotDatabase() : "sunrise-sunset-bot";
+        String botUser = propertiesManager.getProperty("bot-db-user") != null ?
+                propertiesManager.getProperty("bot-db-user") : "sa";
+        String botPassword = propertiesManager.getProperty("bot-db-password") != null ?
+                propertiesManager.getProperty("bot-db-user") : "";
+
+
         Map<String, String> persistenceMap = new HashMap<>();
-        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" + propertiesManager.getBotDatabase());
-        persistenceMap.put("javax.persistence.jdbc.user", "sa");
-        persistenceMap.put("javax.persistence.jdbc.password", "");
+        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" + botDatabase);
+        persistenceMap.put("javax.persistence.jdbc.user", botUser);
+        persistenceMap.put("javax.persistence.jdbc.password", botPassword);
         emFactory = Persistence.createEntityManagerFactory("h2", persistenceMap);
         try {
             webServer = Server.createWebServer("-webAllowOthers", "-webPort", "8082").start();
