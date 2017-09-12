@@ -44,6 +44,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Shutting down...");
             botSession.stop();
+            persistenceManager.shutDown();
         }));
     }
 

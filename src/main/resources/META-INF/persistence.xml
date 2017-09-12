@@ -8,9 +8,9 @@
             <property name="hibernate.archive.autodetection" value="class"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
             <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
-            <property name="hibernate.connection.url" value="jdbc:h2:./sunrise-sunset-bot"/>
+            <property name="hibernate.connection.url" value="jdbc:h2:./sunrise-sunset-bot;AUTO_SERVER=TRUE"/>
             <property name="hibernate.connection.user" value="sa"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.flushMode" value="COMMIT"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
         </properties>
@@ -24,7 +24,7 @@
             <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
             <property name="hibernate.connection.url" value="jdbc:h2:./sunrise-sunset-bot-unit-test"/>
             <property name="hibernate.connection.user" value="sa"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.flushMode" value="COMMIT"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
         </properties>
