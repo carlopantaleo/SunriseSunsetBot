@@ -23,17 +23,11 @@ public class PersistenceManager implements BotBean {
 
     public void init() {
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
+        createEMFactory();
+        startEmbeddedWebServer();
+    }
 
-        Map<String, String> persistenceMap = new HashMap<>();
-        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" +
-                propertiesManager.getPropertyOrDefault("bot-database", "sunrise-sunset-bot"));
-        persistenceMap.put("javax.persistence.jdbc.user",
-                propertiesManager.getPropertyOrDefault("bot-db-user", "sa"));
-        persistenceMap.put("javax.persistence.jdbc.password",
-                propertiesManager.getPropertyOrDefault("bot-db-password", ""));
-        emFactory = Persistence.createEntityManagerFactory("h2", persistenceMap);
-
-        // Start embedded H2 db browser
+    private void startEmbeddedWebServer() {
         if (propertiesManager.getProperty("embed-web-server") != null) {
             try {
                 webServer = Server.createWebServer(
@@ -46,6 +40,17 @@ public class PersistenceManager implements BotBean {
                 LOG.error("Cannot create web server.", e);
             }
         }
+    }
+
+    private void createEMFactory() {
+        Map<String, String> persistenceMap = new HashMap<>();
+        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" +
+                propertiesManager.getPropertyOrDefault("bot-database", "sunrise-sunset-bot"));
+        persistenceMap.put("javax.persistence.jdbc.user",
+                propertiesManager.getPropertyOrDefault("bot-db-user", "sa"));
+        persistenceMap.put("javax.persistence.jdbc.password",
+                propertiesManager.getPropertyOrDefault("bot-db-password", ""));
+        emFactory = Persistence.createEntityManagerFactory("h2", persistenceMap);
     }
 
     public void shutDown() {
