@@ -30,6 +30,20 @@ public class PropertiesManager implements BotBean {
 
     private Map<String, String> propertiesMap = new HashMap<>();
 
+    public PropertiesManager() {
+        setPropertiesFromPropertiesFile();
+        setPropertiesFromSystemOptions();
+        setPropertiesFromArgv();
+    }
+
+    public static String[] getArgv() {
+        return argv;
+    }
+
+    public static void setArgv(String[] argv) {
+        PropertiesManager.argv = argv;
+    }
+
     public String getBotToken() {
         return propertiesMap.get("bot-token");
     }
@@ -38,15 +52,13 @@ public class PropertiesManager implements BotBean {
         return propertiesMap.get("bot-name");
     }
 
-    public @Nullable String getBotDatabase() {
+    public @Nullable
+    String getBotDatabase() {
         return propertiesMap.get("bot-database");
     }
 
     @Override
     public void init() {
-        setPropertiesFromPropertiesFile();
-        setPropertiesFromSystemOptions();
-        setPropertiesFromArgv();
     }
 
     private void setPropertiesFromPropertiesFile() {
@@ -99,7 +111,8 @@ public class PropertiesManager implements BotBean {
             Option[] opts = line.getOptions();
 
             for (Option opt : opts) {
-                propertiesMap.put(opt.getLongOpt(), opt.getValue());
+                String value = opt.getValue() != null ? opt.getValue() : "true"; // Workaround for no-arg options
+                propertiesMap.put(opt.getLongOpt(), value);
             }
         } catch (ParseException e) {
             LOG.error("Exception while parsing argv.", e);
@@ -134,18 +147,23 @@ public class PropertiesManager implements BotBean {
                 .hasArg()
                 .argName("NAME")
                 .build());
+        options.addOption(Option.builder()
+                .longOpt("embed-web-server")
+                .desc("start embedded H2 web server")
+                .build());
         return options;
-    }
-
-    public static String[] getArgv() {
-        return argv;
-    }
-
-    public static void setArgv(String[] argv) {
-        PropertiesManager.argv = argv;
     }
 
     public String getProperty(String property) {
         return propertiesMap.get(property);
+    }
+
+    public String getPropertyOrDefault(String property, String defaultValue) {
+        String value = propertiesMap.get(property);
+        if (value != null) {
+            return value;
+        } else {
+            return defaultValue;
+        }
     }
 }
