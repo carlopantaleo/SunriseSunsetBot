@@ -1,4 +1,6 @@
 # SunriseSunsetBot
+[![Build Status](https://travis-ci.org/carlopantaleo/SunriseSunsetBot.svg?branch=master)](https://travis-ci.org/carlopantaleo/SunriseSunsetBot)
+
 A Telegram bot that alerts you at sunrise and sunset, based on your location. Sunrise and sunset times are provided by the excellent API by [sunrise-sunset.org](http://sunrise-sunset.org).
 
 #### How does it work?
