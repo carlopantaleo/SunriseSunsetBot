@@ -35,6 +35,7 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
 
     /**
      * This method can be used to broadcast a message to the bot administrators.
+     *
      * @param message the message to be broadcasted.
      */
     public void broadcastToAdmins(String message) {
