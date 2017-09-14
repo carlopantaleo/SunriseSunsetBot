@@ -54,7 +54,9 @@ public class PersistenceManager implements BotBean {
     }
 
     public void shutDown() {
-        webServer.shutdown();
+        if (webServer != null) {
+            webServer.shutdown();
+        }
     }
 
     public UserState getUserState(long chatId) {
