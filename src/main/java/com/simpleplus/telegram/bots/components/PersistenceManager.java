@@ -45,7 +45,7 @@ public class PersistenceManager implements BotBean {
     private void createEMFactory() {
         Map<String, String> persistenceMap = new HashMap<>();
         persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" +
-                propertiesManager.getPropertyOrDefault("bot-database", "sunrise-sunset-bot"));
+                propertiesManager.getPropertyOrDefault("bot-database", "db"));
         persistenceMap.put("javax.persistence.jdbc.user",
                 propertiesManager.getPropertyOrDefault("bot-db-user", "sa"));
         persistenceMap.put("javax.persistence.jdbc.password",
