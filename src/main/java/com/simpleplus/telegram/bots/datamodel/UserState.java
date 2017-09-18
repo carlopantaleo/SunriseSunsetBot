@@ -3,12 +3,17 @@ package com.simpleplus.telegram.bots.datamodel;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @Embeddable
 public class UserState {
     @Embedded
     private Coordinates coordinates;
+
+    @Enumerated(EnumType.STRING)
     private Step step;
+
     private boolean isAdmin;
 
     public UserState(Coordinates coordinates, Step step, boolean isAdmin) {
