@@ -15,14 +15,6 @@ public class SunsetSunriseTimes {
         this.sunriseTime = sunriseTime;
     }
 
-    public LocalTime getUTCSunsetTime() {
-        return sunsetTime;
-    }
-
-    public LocalTime getUTCSunriseTime() {
-        return sunriseTime;
-    }
-
     public Date getSunsetTime() {
         return getZonedTime(sunsetTime);
     }

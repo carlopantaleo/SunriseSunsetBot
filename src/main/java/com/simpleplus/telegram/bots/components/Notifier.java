@@ -24,8 +24,6 @@ import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
 import static com.simpleplus.telegram.bots.datamodel.Step.TO_ENTER_SUPPORT_MESSAGE;
 
 public class Notifier implements BotBean {
-    private static final String SUNRISE_MESSAGE = "The sun is rising!";
-    private static final String SUNSET_MESSAGE = "Sunset has begun!";
     private static final Logger LOG = Logger.getLogger(Notifier.class);
 
     private SunriseSunsetBot bot;
