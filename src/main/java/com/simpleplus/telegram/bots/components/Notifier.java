@@ -1,9 +1,7 @@
 package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.components.tasks.ScheduledNotifiersInstaller;
-import com.simpleplus.telegram.bots.datamodel.Coordinates;
-import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
-import com.simpleplus.telegram.bots.datamodel.UserState;
+import com.simpleplus.telegram.bots.datamodel.*;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
@@ -11,10 +9,13 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_SCHEDULED;
@@ -78,50 +79,64 @@ public class Notifier implements BotBean {
         throw new ServiceException("Cannot install notifier: service not available.");
     }
 
-    public void installNotifier(long chatId) throws ServiceException {
+    private void installNotifier(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
         SunsetSunriseTimes timesTomorrow = null; // Deferred initialization: a call to a REST service is expensive
 
-        try {
-            timesTomorrow = scheduleSunriseSunsetMessage(chatId, times, null, TimeType.SUNRISE_TIME);
-        } catch (IllegalStateException e) {
-            bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunrise Time.", e);
-        }
-
-        try {
-            scheduleSunriseSunsetMessage(chatId, times, timesTomorrow, TimeType.SUNSET_TIME);
-        } catch (IllegalStateException e) {
-            bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for Sunset Time.", e);
+        for (UserAlert alert : getUserAlerts(chatId)) {
+            try {
+                timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType());
+            } catch (IllegalStateException e) {
+                bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for " +
+                        alert.getTimeType().name() + " .", e);
+            }
         }
     }
 
+    private List<UserAlert> getUserAlerts(long chatId) {
+        // At the moment it's a mock. Later it will retrieve alerts from database.
+        ArrayList<UserAlert> alerts = new ArrayList<>();
+        alerts.add(new UserAlert(chatId, TimeType.SUNRISE_TIME, 0));
+        alerts.add(new UserAlert(chatId, TimeType.SUNSET_TIME, 0));
+        return alerts;
+    }
+
     private @Nullable
-    SunsetSunriseTimes scheduleSunriseSunsetMessage(long chatId,
-                                                    SunsetSunriseTimes times,
-                                                    @Nullable SunsetSunriseTimes timesTomorrow,
-                                                    TimeType timeType) throws ServiceException {
-        BotScheduler.ScheduleResult result =
-                timeType == TimeType.SUNRISE_TIME ?
-                        scheduler.scheduleMessage(chatId, times.getSunriseTime(), SUNRISE_MESSAGE) :
-                        scheduler.scheduleMessage(chatId, times.getSunsetTime(), SUNSET_MESSAGE);
+    SunsetSunriseTimes scheduleMessage(long chatId,
+                                       SunsetSunriseTimes times,
+                                       @Nullable SunsetSunriseTimes timesTomorrow,
+                                       TimeType timeType) throws ServiceException {
+        Date datetime = getDateTimeFromTimeType(times, timeType);
+        BotScheduler.ScheduleResult result = scheduler.scheduleMessage(chatId, datetime, timeType.getMessage());
 
         // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
         if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-            timesTomorrow = timesTomorrow != null ?
-                    timesTomorrow : calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
-            Date datetimeTomorrow = DateUtils.addDays(
-                    timeType == TimeType.SUNRISE_TIME ? timesTomorrow.getSunriseTime() : timesTomorrow.getSunsetTime(),
-                    1);
-            result = scheduler.scheduleMessage(
-                    chatId, datetimeTomorrow, timeType == TimeType.SUNRISE_TIME ? SUNRISE_MESSAGE : SUNSET_MESSAGE);
+            if (timesTomorrow == null) {
+                calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
+            }
+
+            Date datetimeTomorrow = DateUtils.addDays(getDateTimeFromTimeType(times, timeType), 1);
+            result = scheduler.scheduleMessage(chatId, datetimeTomorrow, timeType.getMessage());
 
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 LOG.warn(String.format("%s message not scheduled even for time [%s]",
-                        timeType == TimeType.SUNRISE_TIME ? "Sunrise" : "Sunset",
-                        datetimeTomorrow.toString()));
+                        timeType.name(), datetimeTomorrow.toString()));
             }
         }
+
         return timesTomorrow;
+    }
+
+    private Date getDateTimeFromTimeType(SunsetSunriseTimes times, TimeType timeType) {
+        switch (timeType) {
+            case SUNRISE_TIME:
+                return times.getSunriseTime();
+            case SUNSET_TIME:
+                return times.getSunsetTime();
+            default:
+                // Should never happen
+                return Date.from(Instant.now());
+        }
     }
 
     public void scheduleDailyAllNotifiersInstaller() {
@@ -142,8 +157,5 @@ public class Notifier implements BotBean {
         return calculateSunriseAndSunset(chatId, LocalDate.now());
     }
 
-    private enum TimeType {
-        SUNSET_TIME,
-        SUNRISE_TIME
-    }
+
 }
