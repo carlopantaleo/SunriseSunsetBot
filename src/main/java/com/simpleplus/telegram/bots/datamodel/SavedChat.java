@@ -1,16 +1,21 @@
 package com.simpleplus.telegram.bots.datamodel;
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class SavedChat {
     @Id
+    @Column(name = "CHAT_ID")
     private Long chatId;
 
     @Embedded
     private UserState userState;
+
+    @OneToMany
+    @JoinColumn(name = "CHAT_ID")
+    private Set<UserAlert> userAlert = new HashSet<>();
 
     public SavedChat() {
     }

@@ -13,7 +13,6 @@ public class MainTest {
         context.addBean(Notifier.class);
         context.addBean(PersistenceManager.class, new PersistenceManagerWithTestDB());
         context.addBean(MessageHandler.class);
-        context.addBean(MessageHandler.class);
         context.addBean(CommandHandler.class);
         context.addBean(AdminCommandHandler.class);
         context.addBean(PropertiesManager.class);
