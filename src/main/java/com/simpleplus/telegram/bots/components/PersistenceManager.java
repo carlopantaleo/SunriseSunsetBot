@@ -59,14 +59,29 @@ public class PersistenceManager implements BotBean {
         }
     }
 
-    public UserState getUserState(long chatId) {
+    private SavedChat getSavedChat(long chatId) {
         EntityManager em = createEntityManager();
         SavedChat savedChat = em.find(SavedChat.class, chatId);
-        UserState userState = savedChat != null ? savedChat.getUserState() : null;
         em.close();
-        return userState;
+        return savedChat;
     }
 
+    /**
+     * Gets the {@link UserState} associated with a {@code chatId}.
+     *
+     * @param chatId the {@code chatId} to look for
+     * @return the {@link UserState} associated
+     */
+    public UserState getUserState(long chatId) {
+        SavedChat savedChat = getSavedChat(chatId);
+        return savedChat != null ? savedChat.getUserState() : null;
+    }
+
+    /**
+     * Gets a map of all the {@link UserState}s in the database.
+     *
+     * @return a map of {@link UserState}s
+     */
     public Map<Long, UserState> getUserStatesMap() {
         Map<Long, UserState> result = new HashMap<>();
 
@@ -87,6 +102,12 @@ public class PersistenceManager implements BotBean {
         return result;
     }
 
+    /**
+     * Sets a {@link UserState} for a certain {@code chatId}.
+     *
+     * @param chatId    the {@code chatId} for which the {@link UserState} has to be set
+     * @param userState the {@link UserState}
+     */
     public void setUserState(long chatId, UserState userState) {
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();
@@ -99,6 +120,12 @@ public class PersistenceManager implements BotBean {
         em.close();
     }
 
+    /**
+     * Sets the logically following {@link Step} to a certain {@code chatId}.
+     * If there's not a logically following {@link Step}, it will leave the current {@link Step} as is.
+     *
+     * @param chatId the {@code chatId} for which the next step has to be set.
+     */
     public void setNextStep(long chatId) {
         UserState userState = getUserState(chatId);
 
@@ -119,6 +146,12 @@ public class PersistenceManager implements BotBean {
         setUserState(chatId, userState);
     }
 
+    /**
+     * Sets a given {@link Step} to a certain {@code chatId}.
+     *
+     * @param chatId the {@code chatId} to be updated
+     * @param step   the {@link Step} to set
+     */
     public void setStep(long chatId, Step step) {
         UserState userState = getUserState(chatId);
         userState.setStep(step);
