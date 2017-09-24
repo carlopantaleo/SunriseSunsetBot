@@ -15,7 +15,7 @@ public class SavedChat {
 
     @OneToMany
     @JoinColumn(name = "CHAT_ID")
-    private Set<UserAlert> userAlert = new HashSet<>();
+    private Set<UserAlert> userAlerts = new HashSet<>();
 
     public SavedChat() {
     }
@@ -41,4 +41,13 @@ public class SavedChat {
     public void setUserState(UserState userState) {
         this.userState = userState;
     }
+
+    public Set<UserAlert> getUserAlerts() {
+        return userAlerts;
+    }
+
+    public void addUserAlert(UserAlert userAlert) {
+        userAlerts.add(userAlert);
+    }
+
 }

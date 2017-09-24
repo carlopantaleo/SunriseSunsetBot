@@ -2,6 +2,7 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.SavedChat;
 import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PersistenceManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
@@ -59,12 +61,18 @@ public class PersistenceManager implements BotBean {
         }
     }
 
+    protected EntityManager createEntityManager() {
+        return emFactory.createEntityManager();
+    }
+
     private SavedChat getSavedChat(long chatId) {
         EntityManager em = createEntityManager();
         SavedChat savedChat = em.find(SavedChat.class, chatId);
         em.close();
         return savedChat;
     }
+
+    // The following methods act on the UserState part of a SavedChat
 
     /**
      * Gets the {@link UserState} associated with a {@code chatId}.
@@ -113,7 +121,8 @@ public class PersistenceManager implements BotBean {
         EntityTransaction transaction = em.getTransaction();
 
         transaction.begin();
-        SavedChat savedChat = new SavedChat(chatId, userState);
+        SavedChat savedChat = getSavedChat(chatId);
+        savedChat.setUserState(userState);
         em.merge(savedChat);
         em.flush();
         transaction.commit();
@@ -158,7 +167,36 @@ public class PersistenceManager implements BotBean {
         setUserState(chatId, userState);
     }
 
-    protected EntityManager createEntityManager() {
-        return emFactory.createEntityManager();
+
+    // The following methods act on the UserAlert part of a SavedChat
+
+    /**
+     * Gets the {@link UserAlert}s associated with the given {@code chatId}.
+     *
+     * @param chatId the {@code chatId} to which the {@link UserAlert}s are associated
+     * @return the {@link UserAlert}s associated
+     */
+    public Set<UserAlert> getUserAlerts(long chatId) {
+        SavedChat savedChat = getSavedChat(chatId);
+        return savedChat.getUserAlerts();
+    }
+
+    /**
+     * Adds a {@link UserAlert} to the {@link SavedChat} associated with the given {@code chatId}.
+     *
+     * @param chatId    the {@code chatId} to add the {@link UserAlert} to
+     * @param userAlert the {@link UserAlert} to be added
+     */
+    public void addUserAlert(long chatId, UserAlert userAlert) {
+        EntityManager em = createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        transaction.begin();
+        SavedChat savedChat = getSavedChat(chatId);
+        savedChat.addUserAlert(userAlert);
+        em.merge(savedChat);
+        em.flush();
+        transaction.commit();
+        em.close();
     }
 }
