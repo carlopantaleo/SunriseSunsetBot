@@ -138,7 +138,7 @@ public class Notifier implements BotBean {
     }
 
     public void scheduleDailyAllNotifiersInstaller() {
-        scheduler.schedule(new ScheduledNotifiersInstaller(this),
+        scheduler.schedule(new ScheduledNotifiersInstaller(),
                 Date.from(LocalTime.of(0, 0) // Midnight
                         .atDate(LocalDate.now().plusDays(1)) // Tomorrow
                         .atZone(ZoneOffset.UTC) // At UTC

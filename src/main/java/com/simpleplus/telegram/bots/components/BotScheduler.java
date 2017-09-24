@@ -33,7 +33,7 @@ public class BotScheduler implements BotBean {
         try {
             // Schedule message only if time >= now
             if (time.after(Date.from(Instant.now().atZone(ZoneId.systemDefault()).toInstant()))) {
-                TimerTask task = new ScheduledMessage(chatId, message, bot);
+                TimerTask task = new ScheduledMessage(chatId, message);
                 schedule.schedule(task, time);
                 LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
                 scheduledMessages.put(chatId, new Task(time, task));
