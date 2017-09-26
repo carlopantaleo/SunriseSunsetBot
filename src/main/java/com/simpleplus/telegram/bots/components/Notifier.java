@@ -13,9 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_SCHEDULED;
@@ -30,6 +28,7 @@ public class Notifier implements BotBean {
     private SunsetSunriseService sunsetSunriseService;
     private BotScheduler scheduler;
     private PersistenceManager persistenceManager;
+    private UserAlertsManager userAlertsManager;
 
     public void init() {
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
@@ -38,6 +37,8 @@ public class Notifier implements BotBean {
                 (SunsetSunriseService) BotContext.getDefaultContext().getBean(SunsetSunriseRemoteAPI.class);
         this.persistenceManager =
                 (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
+        this.userAlertsManager =
+                (UserAlertsManager) BotContext.getDefaultContext().getBean(UserAlertsManager.class);
     }
 
     public void installAllNotifiers() {
@@ -81,7 +82,7 @@ public class Notifier implements BotBean {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
         SunsetSunriseTimes timesTomorrow = null; // Deferred initialization: a call to a REST service is expensive
 
-        for (UserAlert alert : getUserAlerts(chatId)) {
+        for (UserAlert alert : userAlertsManager.getUserAlerts(chatId)) {
             try {
                 timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType());
             } catch (IllegalStateException e) {
@@ -89,14 +90,6 @@ public class Notifier implements BotBean {
                         alert.getTimeType().name() + " .", e);
             }
         }
-    }
-
-    private List<UserAlert> getUserAlerts(long chatId) {
-        // At the moment it's a mock. Later it will retrieve alerts from database.
-        ArrayList<UserAlert> alerts = new ArrayList<>();
-        alerts.add(new UserAlert(chatId, TimeType.SUNRISE_TIME, 0));
-        alerts.add(new UserAlert(chatId, TimeType.SUNSET_TIME, 0));
-        return alerts;
     }
 
     private @Nullable

@@ -41,6 +41,7 @@ public class Main {
         context.addBean(CommandHandler.class);
         context.addBean(AdminCommandHandler.class);
         context.addBean(PropertiesManager.class);
+        context.addBean(UserAlertsManager.class);
         context.initContext();
     }
 }

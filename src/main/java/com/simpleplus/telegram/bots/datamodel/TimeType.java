@@ -4,7 +4,7 @@ public enum TimeType {
     SUNSET_TIME("The sun is rising!"),
     SUNRISE_TIME("Sunset has begun.");
 
-    private final String message;
+    private String message;
 
     TimeType(String message) {
         this.message = message;

@@ -121,7 +121,13 @@ public class PersistenceManager implements BotBean {
         EntityTransaction transaction = em.getTransaction();
 
         transaction.begin();
+
         SavedChat savedChat = getSavedChat(chatId);
+        if (savedChat == null) {
+            savedChat = new SavedChat();
+            savedChat.setChatId(chatId);
+        }
+
         savedChat.setUserState(userState);
         em.merge(savedChat);
         em.flush();
@@ -184,15 +190,14 @@ public class PersistenceManager implements BotBean {
     /**
      * Adds a {@link UserAlert} to the {@link SavedChat} associated with the given {@code chatId}.
      *
-     * @param chatId    the {@code chatId} to add the {@link UserAlert} to
      * @param userAlert the {@link UserAlert} to be added
      */
-    public void addUserAlert(long chatId, UserAlert userAlert) {
+    public void addUserAlert(UserAlert userAlert) {
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
         transaction.begin();
-        SavedChat savedChat = getSavedChat(chatId);
+        SavedChat savedChat = getSavedChat(userAlert.getChatId());
         savedChat.addUserAlert(userAlert);
         em.merge(savedChat);
         em.flush();
