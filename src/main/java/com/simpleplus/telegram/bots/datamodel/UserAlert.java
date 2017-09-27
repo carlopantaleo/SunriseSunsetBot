@@ -2,10 +2,7 @@ package com.simpleplus.telegram.bots.datamodel;
 
 import com.google.common.base.Objects;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -15,22 +12,32 @@ import java.io.Serializable;
 @Entity
 public class UserAlert implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "CHAT_ID")
     private long chatId;
 
-    @Id
     @Enumerated(EnumType.STRING)
     private TimeType timeType;
 
-    @Id
     private long delay; //Used for custom alerts
+
+    public UserAlert(long chatId, TimeType timeType, long delay) {
+        this.chatId = chatId;
+        this.timeType = timeType;
+        this.delay = delay;
+    }
 
     public UserAlert() {
     }
 
-    public UserAlert(long chatId, TimeType alertType, long delay) {
-        this.chatId = chatId;
-        this.timeType = alertType;
-        this.delay = delay;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getChatId() {
@@ -62,13 +69,14 @@ public class UserAlert implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserAlert alert = (UserAlert) o;
-        return chatId == alert.chatId &&
+        return id == alert.id &&
+                chatId == alert.chatId &&
                 delay == alert.delay &&
                 timeType == alert.timeType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(chatId, timeType, delay);
+        return Objects.hashCode(id, chatId, timeType, delay);
     }
 }
