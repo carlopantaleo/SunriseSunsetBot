@@ -1,5 +1,6 @@
 package com.simpleplus.telegram.bots.components;
 
+import com.google.common.collect.Sets;
 import com.simpleplus.telegram.bots.MainTest;
 import com.simpleplus.telegram.bots.datamodel.*;
 import com.simpleplus.telegram.bots.mocks.PersistenceManagerWithTestDB;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class NotifierTest {
     private Notifier notifier;
@@ -38,11 +40,12 @@ public class NotifierTest {
         assertEquals(2, userAlerts.size());
 
         UserAlert[] userAlertsArr = userAlerts.toArray(new UserAlert[2]);
+        Set<TimeType> expectedTimes = Sets.newHashSet(TimeType.SUNRISE_TIME, TimeType.SUNSET_TIME);
+        Set<TimeType> savedTimes = Sets.newHashSet(userAlertsArr[0].getTimeType(), userAlertsArr[1].getTimeType());
         assertEquals(101L, userAlertsArr[0].getChatId());
         assertEquals(101L, userAlertsArr[1].getChatId());
-        assertEquals(TimeType.SUNSET_TIME, userAlertsArr[0].getTimeType());
-        assertEquals(TimeType.SUNRISE_TIME, userAlertsArr[1].getTimeType());
         assertEquals(0, userAlertsArr[0].getDelay());
         assertEquals(0, userAlertsArr[1].getDelay());
+        assertTrue(expectedTimes.containsAll(savedTimes));
     }
 }
