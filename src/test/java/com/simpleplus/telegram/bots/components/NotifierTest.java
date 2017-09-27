@@ -40,8 +40,8 @@ public class NotifierTest {
         UserAlert[] userAlertsArr = userAlerts.toArray(new UserAlert[2]);
         assertEquals(101L, userAlertsArr[0].getChatId());
         assertEquals(101L, userAlertsArr[1].getChatId());
-        assertEquals(TimeType.SUNRISE_TIME, userAlertsArr[0].getTimeType());
-        assertEquals(TimeType.SUNSET_TIME, userAlertsArr[1].getTimeType());
+        assertEquals(TimeType.SUNSET_TIME, userAlertsArr[0].getTimeType());
+        assertEquals(TimeType.SUNRISE_TIME, userAlertsArr[1].getTimeType());
         assertEquals(0, userAlertsArr[0].getDelay());
         assertEquals(0, userAlertsArr[1].getDelay());
     }
