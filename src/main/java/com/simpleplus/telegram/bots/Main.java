@@ -1,6 +1,7 @@
 package com.simpleplus.telegram.bots;
 
 import com.simpleplus.telegram.bots.components.*;
+import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -32,7 +33,7 @@ public class Main {
         BotContext context = new BotContext();
         BotContext.setDefaultContext(context);
         context.addBean(SunriseSunsetBot.class);
-        context.addBean(SunsetSunriseRemoteAPI.class);
+        context.addBean(SunsetSunriseService.class, new SunsetSunriseRemoteAPI());
         context.addBean(BotScheduler.class);
         context.addBean(Notifier.class);
         context.addBean(PersistenceManager.class);
