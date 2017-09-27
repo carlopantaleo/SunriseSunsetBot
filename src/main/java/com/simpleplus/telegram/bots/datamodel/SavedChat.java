@@ -13,7 +13,7 @@ public class SavedChat {
     @Embedded
     private UserState userState;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "CHAT_ID")
     private Set<UserAlert> userAlerts = new HashSet<>();
 
