@@ -42,7 +42,6 @@ public class CommandHandler implements BotBean {
         }
     }
 
-    // TODO: unit test
     public void handleCommand(Update update) {
         long chatId = update.getMessage().getChatId();
 
