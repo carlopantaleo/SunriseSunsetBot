@@ -2,6 +2,7 @@ package com.simpleplus.telegram.bots;
 
 import com.simpleplus.telegram.bots.components.*;
 import com.simpleplus.telegram.bots.mocks.PersistenceManagerWithTestDB;
+import com.simpleplus.telegram.bots.mocks.SunriseSunsetBotMock;
 import com.simpleplus.telegram.bots.mocks.SunriseSunsetServiceMock;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 
@@ -9,7 +10,7 @@ public class MainTest {
     public static void initDefaultBotContext() {
         BotContext context = new BotContext();
         BotContext.setDefaultContext(context);
-        context.addBean(SunriseSunsetBot.class);
+        context.addBean(SunriseSunsetBot.class, new SunriseSunsetBotMock());
         context.addBean(SunsetSunriseService.class, new SunriseSunsetServiceMock());
         context.addBean(BotScheduler.class);
         context.addBean(Notifier.class);
