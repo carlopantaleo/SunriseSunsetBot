@@ -93,6 +93,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             persistenceManager.setStep(chatId, Step.EXPIRED);
             LOG.warn("TelegramApiException during reply. Chat flagged as expired.", e);
         }
+
+        if (propertiesManager.getProperty("force-gc") != null) {
+            // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+            System.gc();
+        }
     }
 
     public void replyAndLogError(long chatId, String message, Throwable e) {
