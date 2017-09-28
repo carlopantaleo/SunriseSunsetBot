@@ -18,4 +18,9 @@ public class SunriseSunsetBotMock extends SunriseSunsetBot {
     public String getLastTextMessage() {
         return lastSendMessage.getText();
     }
+
+    @Override
+    public String getBotToken() {
+        return "DummyToken";
+    }
 }

@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.telegram.telegrambots.api.objects.Update;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class CommandHandlerTest {
     private CommandHandler commandHandler;
@@ -131,5 +131,43 @@ public class CommandHandlerTest {
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.TO_ENTER_LOCATION, userState.getStep());
+    }
+
+    @Test
+    public void setAdministratorWithInvalidToken() throws Exception {
+        persistenceManager.setUserState(101L, new UserState(
+                new Coordinates(0, 0),
+                Step.RUNNING,
+                false
+        ));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = "{\"message\" : {\"text\" : \"/set_administrator invalidToken \", " +
+                "\"chat\" : {\"id\" : \"101\"}}}";
+        Update update = mapper.readValue(jsonInString, Update.class);
+
+        commandHandler.handleCommand(update);
+
+        UserState userState = persistenceManager.getUserState(101L);
+        assertFalse(userState.isAdmin());
+    }
+
+    @Test
+    public void setAdministratorWithValidToken() throws Exception {
+        persistenceManager.setUserState(101L, new UserState(
+                new Coordinates(0, 0),
+                Step.RUNNING,
+                false
+        ));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = "{\"message\" : {\"text\" : \"/set_administrator DummyToken\", " +
+                "\"chat\" : {\"id\" : \"101\"}}}";
+        Update update = mapper.readValue(jsonInString, Update.class);
+
+        commandHandler.handleCommand(update);
+
+        UserState userState = persistenceManager.getUserState(101L);
+        assertTrue(userState.isAdmin());
     }
 }
