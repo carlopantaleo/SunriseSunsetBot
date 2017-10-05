@@ -87,7 +87,7 @@ public class CommandHandlerTest {
         String jsonInString = "{\"message\" : {\"text\" : \"/stop \", \"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.STOPPED, userState.getStep());
@@ -105,7 +105,7 @@ public class CommandHandlerTest {
         String jsonInString = "{\"message\" : {\"text\" : \"/resume \", \"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.RUNNING, userState.getStep());
@@ -117,7 +117,7 @@ public class CommandHandlerTest {
         String jsonInString = "{\"message\" : {\"text\" : \"/start \", \"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.TO_ENTER_LOCATION, userState.getStep());
@@ -135,7 +135,7 @@ public class CommandHandlerTest {
         String jsonInString = "{\"message\" : {\"text\" : \"/change_location \", \"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.TO_ENTER_LOCATION, userState.getStep());
@@ -154,7 +154,7 @@ public class CommandHandlerTest {
                 "\"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertFalse(userState.isAdmin());
@@ -173,7 +173,7 @@ public class CommandHandlerTest {
                 "\"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertTrue(userState.isAdmin());
@@ -192,7 +192,7 @@ public class CommandHandlerTest {
                 "\"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
 
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.TO_ENTER_SUPPORT_MESSAGE, userState.getStep());
@@ -218,12 +218,12 @@ public class CommandHandlerTest {
         String jsonInString = "{\"message\" : {\"text\" : \"/support\", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         jsonInString = "{\"message\" : {\"text\" : \"test\", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
         update = mapper.readValue(jsonInString, Update.class);
-        messageHandler.handleMessage(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.RUNNING, userState.getStep());
@@ -255,7 +255,7 @@ public class CommandHandlerTest {
         String jsonInString = "{\"message\" : {\"text\" : \"/support help me\", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
         Update update = mapper.readValue(jsonInString, Update.class);
-        commandHandler.handleCommand(update);
+        sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.RUNNING, userState.getStep());
