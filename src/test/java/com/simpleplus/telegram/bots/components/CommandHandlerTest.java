@@ -83,9 +83,8 @@ public class CommandHandlerTest {
                 false
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/stop \", \"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -101,9 +100,8 @@ public class CommandHandlerTest {
                 false
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/resume \", \"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -113,9 +111,8 @@ public class CommandHandlerTest {
 
     @Test
     public void handleNewChatWorks() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/start \", \"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -131,9 +128,8 @@ public class CommandHandlerTest {
                 false
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/change_location \", \"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -149,10 +145,9 @@ public class CommandHandlerTest {
                 false
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/set_administrator invalidToken \", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -168,10 +163,9 @@ public class CommandHandlerTest {
                 false
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/set_administrator DummyToken\", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -187,10 +181,9 @@ public class CommandHandlerTest {
                 false
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = "{\"message\" : {\"text\" : \"/support\", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
 
         sunriseSunsetBot.onUpdateReceived(update);
 
@@ -250,11 +243,9 @@ public class CommandHandlerTest {
                 true
         ));
 
-        ObjectMapper mapper = new ObjectMapper();
-
         String jsonInString = "{\"message\" : {\"text\" : \"/support help me\", " +
                 "\"chat\" : {\"id\" : \"101\"}}}";
-        Update update = mapper.readValue(jsonInString, Update.class);
+        Update update = new ObjectMapper().readValue(jsonInString, Update.class);
         sunriseSunsetBot.onUpdateReceived(update);
 
         UserState userState = persistenceManager.getUserState(101L);
