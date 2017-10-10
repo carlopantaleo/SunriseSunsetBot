@@ -28,15 +28,16 @@ public class UserAlertsManager implements BotBean {
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
         if (userAlerts.isEmpty()) {
             LOG.info(String.format("Going to generate default UserAlerts for chatid %s", chatId));
-            generateDefaultUserAlerts(chatId);
+            return generateAndGetDefaultUserAlerts(chatId);
         }
 
         return userAlerts;
     }
 
-    private void generateDefaultUserAlerts(long chatId) {
+    private Set<UserAlert> generateAndGetDefaultUserAlerts(long chatId) {
         persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNRISE_TIME, 0));
         persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNSET_TIME, 0));
+        return persistenceManager.getUserAlerts(chatId);
     }
 
 }
