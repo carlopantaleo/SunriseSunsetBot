@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class UserAlertsManagerTest {
     private PersistenceManager persistenceManager;
@@ -36,4 +36,18 @@ public class UserAlertsManagerTest {
         assertEquals(2, userAlerts.size());
     }
 
+    @Test
+    public void validateSyntaxWorks() throws Exception {
+        assertTrue(userAlertsManager.validateSyntax("add sunset delay 5"));
+        assertTrue(userAlertsManager.validateSyntax("add sunset delay 55"));
+        assertFalse(userAlertsManager.validateSyntax("add sunset delay 555"));
+        assertFalse(userAlertsManager.validateSyntax("add sunset delay"));
+        assertFalse(userAlertsManager.validateSyntax("add civil twilight"));
+        assertTrue(userAlertsManager.validateSyntax("add civil twilight begin"));
+        assertTrue(userAlertsManager.validateSyntax("add civil twilight end"));
+        assertTrue(userAlertsManager.validateSyntax("add civil twilight end delay -4"));
+        assertTrue(userAlertsManager.validateSyntax("remove 5"));
+        assertFalse(userAlertsManager.validateSyntax("remove"));
+        assertFalse(userAlertsManager.validateSyntax("remove 5L"));
+    }
 }

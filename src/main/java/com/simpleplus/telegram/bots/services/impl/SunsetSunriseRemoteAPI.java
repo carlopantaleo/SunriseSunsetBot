@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
@@ -69,7 +70,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
         String result = "";
 
         try {
-            URL url = new URL(String.format(baseUrl,
+            URL url = new URL(String.format(Locale.ROOT, baseUrl,
                     coordinates.getLatitude(),
                     coordinates.getLongitude(),
                     localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));

@@ -48,9 +48,21 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         botSession.start();
     }
 
+    public static long getChatId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getChatId();
+        } else if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getChatId();
+        } else {
+            return 0L;
+        }
+    }
+
     public void onUpdateReceived(Update update) {
-        if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
+        if (!(update.hasCallbackQuery() ||
+                (update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))) {
             return;
+        }
 
         logMessage(update);
 
@@ -61,19 +73,23 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 messageHandler.handleMessage(update);
             }
         } catch (Exception e) {
-            replyAndLogError(update.getMessage().getChatId(), "Exception while handling update.", e);
+            replyAndLogError(getChatId(update), "Exception while handling update.", e);
         }
     }
 
     private void logMessage(Update update) {
-        String message = String.format("Incoming message from chatId %d: ", update.getMessage().getChatId());
+        String message = String.format("Incoming message from chatId %d: ", getChatId(update));
 
-        if (update.getMessage().hasText()) {
-            LOG.info(message + update.getMessage().getText());
-        } else if (update.getMessage().hasLocation()) {
-            LOG.info(message + "(location message) " + update.getMessage().getLocation().toString());
-        } else {
-            LOG.info(message + "(other message type) " + update.getMessage().toString());
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
+                LOG.info(message + update.getMessage().getText());
+            } else if (update.getMessage().hasLocation()) {
+                LOG.info(message + "(location message) " + update.getMessage().getLocation().toString());
+            } else {
+                LOG.info(message + "(other message type) " + update.getMessage().toString());
+            }
+        } else if (update.hasCallbackQuery()) {
+            LOG.info("(callback query) " + update.getCallbackQuery().getData());
         }
     }
 
