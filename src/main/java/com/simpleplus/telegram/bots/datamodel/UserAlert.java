@@ -75,6 +75,14 @@ public class UserAlert implements Serializable {
                 timeType == alert.timeType;
     }
 
+    public boolean equalsNoId(UserAlert o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        return chatId == o.chatId &&
+                delay == o.delay &&
+                timeType == o.timeType;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(id, chatId, timeType, delay);

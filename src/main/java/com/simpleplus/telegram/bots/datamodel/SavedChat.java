@@ -47,6 +47,13 @@ public class SavedChat {
     }
 
     public void addUserAlert(UserAlert userAlert) {
+        // Check if not already present
+        for (UserAlert alert : userAlerts) {
+            if (alert.equalsNoId(userAlert)) {
+                return;
+            }
+        }
+
         userAlerts.add(userAlert);
     }
 

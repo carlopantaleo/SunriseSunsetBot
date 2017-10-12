@@ -83,7 +83,7 @@ public class Notifier implements BotBean {
 
         for (UserAlert alert : userAlertsManager.getUserAlerts(chatId)) {
             try {
-                timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType());
+                timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(), alert.getDelay());
             } catch (IllegalStateException e) {
                 bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for " +
                         alert.getTimeType().name() + " .", e);
@@ -95,8 +95,9 @@ public class Notifier implements BotBean {
     SunsetSunriseTimes scheduleMessage(long chatId,
                                        SunsetSunriseTimes times,
                                        @Nullable SunsetSunriseTimes timesTomorrow,
-                                       TimeType timeType) throws ServiceException {
-        Date datetime = getDateTimeFromTimeType(times, timeType);
+                                       TimeType timeType,
+                                       long delay) throws ServiceException {
+        Date datetime = DateUtils.addMinutes(getDateTimeFromTimeType(times, timeType), (int) delay);
         BotScheduler.ScheduleResult result = scheduler.scheduleMessage(chatId, datetime, timeType.getMessage());
 
         // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
@@ -106,6 +107,7 @@ public class Notifier implements BotBean {
             }
 
             Date datetimeTomorrow = DateUtils.addDays(getDateTimeFromTimeType(times, timeType), 1);
+            datetimeTomorrow = DateUtils.addMinutes(datetimeTomorrow, (int) delay);
             result = scheduler.scheduleMessage(chatId, datetimeTomorrow, timeType.getMessage());
 
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
