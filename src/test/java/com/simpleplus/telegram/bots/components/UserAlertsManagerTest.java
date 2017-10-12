@@ -51,5 +51,6 @@ public class UserAlertsManagerTest {
         assertTrue(userAlertsManager.validateSyntax("remove 5"));
         assertTrue(userAlertsManager.validateSyntax("remove"));
         assertFalse(userAlertsManager.validateSyntax("remove 5L"));
+        assertTrue(userAlertsManager.validateSyntax("edit 5 sunset delay 7"));
     }
 }
