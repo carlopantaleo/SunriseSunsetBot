@@ -46,8 +46,10 @@ public class UserAlertsManagerTest {
         assertTrue(userAlertsManager.validateSyntax("add civil twilight begin"));
         assertTrue(userAlertsManager.validateSyntax("add civil twilight end"));
         assertTrue(userAlertsManager.validateSyntax("add civil twilight end delay -4"));
+        assertTrue(userAlertsManager.validateSyntax("add civil twilight end delay -4"));
+        assertTrue(userAlertsManager.validateSyntax("add"));
         assertTrue(userAlertsManager.validateSyntax("remove 5"));
-        assertFalse(userAlertsManager.validateSyntax("remove"));
+        assertTrue(userAlertsManager.validateSyntax("remove"));
         assertFalse(userAlertsManager.validateSyntax("remove 5L"));
     }
 }

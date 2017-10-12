@@ -21,7 +21,7 @@ import java.util.Set;
 public class UserAlertsManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
-            "(add (civil twilight (begin|end)|sunrise|sunset)( delay -?[0-9]{1,2})?|remove [0-9]*)";
+            "(add( civil twilight (begin|end)| sunrise| sunset)?( delay -?[0-9]{1,2})?|remove( [0-9]*)?)";
 
     private PersistenceManager persistenceManager;
     private SunriseSunsetBot bot;

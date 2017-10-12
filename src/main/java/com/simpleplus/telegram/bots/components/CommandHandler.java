@@ -106,7 +106,7 @@ public class CommandHandler implements BotBean {
             break;
 
             case ALERTS: {
-                String commandArguments = getCommandArguments(update);
+                String commandArguments = getCommandArguments(update).trim();
                 if (userAlertsManager.validateSyntax(commandArguments)) {
                     // TODO
                 } else {
