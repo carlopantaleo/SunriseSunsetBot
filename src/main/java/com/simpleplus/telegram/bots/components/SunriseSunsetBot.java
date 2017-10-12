@@ -1,7 +1,6 @@
 package com.simpleplus.telegram.bots.components;
 
 
-import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -10,10 +9,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.BotSession;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
-    private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
     private Notifier notifier;
     private BotSession botSession;
@@ -21,6 +20,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private MessageHandler messageHandler;
     private CommandHandler commandHandler;
     private PropertiesManager propertiesManager;
+    private LocalTime lastGCTime = LocalTime.now();
 
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
@@ -110,9 +110,13 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             LOG.warn("TelegramApiException during reply. Chat flagged as expired.", e);
         }
 
+        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
         if (propertiesManager.getProperty("force-gc") != null) {
-            // This is a good moment to call the garbage collector (experimental for limited hardware machines).
-            System.gc();
+            // ...but don't abuse of it.
+            if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 1) {
+                System.gc();
+                lastGCTime = LocalTime.now();
+            }
         }
     }
 
