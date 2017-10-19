@@ -8,10 +8,7 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +78,71 @@ public class UserAlertsManager implements BotBean {
         bot.reply(messageToSend);
     }
 
+    private void sendAlertsTypes(long chatId) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+
+        // Build the keyboard (adds a default delay of +1 as a workaround in order to not overwrite any existing
+        // no-delay alert.
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay 1"));
+        row1.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay 1"));
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(new InlineKeyboardButton().setText("Begin of civil twilight")
+                .setCallbackData("/alerts add civil twilight begin delay 1"));
+        row2.add(new InlineKeyboardButton().setText("End of civil twilight")
+                .setCallbackData("/alerts add civil twilight end delay 1"));
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row1);
+        keyboard.add(row2);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        // Build the message
+        SendMessage messageToSend = new SendMessage();
+        messageToSend.setReplyMarkup(keyboardMarkup);
+        messageToSend.setChatId(chatId);
+        messageToSend.setText("When do you want to be alerted?");
+
+        bot.reply(messageToSend);
+    }
+
+    private void sendDelays(long chatId) {
+        // Get latest inserted user alert
+        long id = getUserAlerts(chatId).stream()
+                .max(Comparator.comparingLong(UserAlert::getId))
+                .get()
+                .getId();
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+
+        // Build the keyboard
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(new InlineKeyboardButton().setText("No, thanks")
+                .setCallbackData(String.format("/alerts edit %d delay 0", id)));
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(new InlineKeyboardButton().setText("5m")
+                .setCallbackData(String.format("/alerts edit %d delay -5", id)));
+        row2.add(new InlineKeyboardButton().setText("10m")
+                .setCallbackData(String.format("/alerts edit %d delay -10", id)));
+        row2.add(new InlineKeyboardButton().setText("15m")
+                .setCallbackData(String.format("/alerts edit %d delay -15", id)));
+        row2.add(new InlineKeyboardButton().setText("30m")
+                .setCallbackData(String.format("/alerts edit %d delay -30", id)));
+        row2.add(new InlineKeyboardButton().setText("1h")
+                .setCallbackData(String.format("/alerts edit %d delay -60", id)));
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row1);
+        keyboard.add(row2);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        // Build the message
+        SendMessage messageToSend = new SendMessage();
+        messageToSend.setReplyMarkup(keyboardMarkup);
+        messageToSend.setChatId(chatId);
+        messageToSend.setText("Do you want to be alerted in advance with respect to the time you selected?");
+
+        bot.reply(messageToSend);
+    }
+
     public void handleCommand(long chatId, String commandArguments) {
         CommandParameters parameters = extractParameters(commandArguments);
 
@@ -94,6 +156,9 @@ public class UserAlertsManager implements BotBean {
                     break;
                 case "edit":
                     handleEdit(chatId, parameters);
+                    break;
+                case "nop":
+                default:
                     break;
             }
         }
@@ -110,22 +175,40 @@ public class UserAlertsManager implements BotBean {
 
     private void handleAdd(long chatId, CommandParameters parameters) {
         if (parameters.hasAlertType()) {
-            switch (parameters.alertType) {
-                case "sunrise":
-                    persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNRISE_TIME, parameters.delay));
-                    break;
-                case "sunset":
-                    persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNSET_TIME, parameters.delay));
-                    break;
-            }
+            addAppropriateUserAlert(chatId, parameters);
 
             try {
                 notifier.tryToInstallNotifier(chatId, 5);
+                sendDelays(chatId);
             } catch (ServiceException e) {
                 bot.reply(chatId, "Your alert has been saved, however we are encountering some " +
                         "technical difficulties and it may not be fired for today.");
                 LOG.error("ServiceException while trying to install notifier on just created alert.", e);
             }
+        } else {
+            sendAlertsTypes(chatId);
+        }
+    }
+
+    private void addAppropriateUserAlert(long chatId, CommandParameters parameters) {
+        TimeType timeType = TimeType.DEFAULT;
+        switch (parameters.alertType) {
+            case "sunrise":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.SUNRISE_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.SUNRISE_TIME_ANTICIPATION;
+                }
+                persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
+                break;
+            case "sunset":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.SUNSET_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.SUNSET_TIME_ANTICIPATION;
+                }
+                persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
+                break;
         }
     }
 

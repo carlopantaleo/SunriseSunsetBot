@@ -98,7 +98,8 @@ public class Notifier implements BotBean {
                                        TimeType timeType,
                                        long delay) throws ServiceException {
         Date datetime = DateUtils.addMinutes(getDateTimeFromTimeType(times, timeType), (int) delay);
-        BotScheduler.ScheduleResult result = scheduler.scheduleMessage(chatId, datetime, timeType.getMessage());
+        BotScheduler.ScheduleResult result =
+                scheduler.scheduleMessage(chatId, datetime, formatMessage(timeType, delay));
 
         // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
         if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
@@ -108,7 +109,7 @@ public class Notifier implements BotBean {
 
             Date datetimeTomorrow = DateUtils.addDays(getDateTimeFromTimeType(times, timeType), 1);
             datetimeTomorrow = DateUtils.addMinutes(datetimeTomorrow, (int) delay);
-            result = scheduler.scheduleMessage(chatId, datetimeTomorrow, timeType.getMessage());
+            result = scheduler.scheduleMessage(chatId, datetimeTomorrow, formatMessage(timeType, delay));
 
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
                 LOG.warn(String.format("%s message not scheduled even for time [%s]",
@@ -119,12 +120,25 @@ public class Notifier implements BotBean {
         return timesTomorrow;
     }
 
+    private String formatMessage(TimeType timeType, long delay) {
+        return delay == 0 ? timeType.getMessage() : String.format(timeType.getMessage(), delay);
+    }
+
     private Date getDateTimeFromTimeType(SunsetSunriseTimes times, TimeType timeType) {
         switch (timeType) {
             case SUNRISE_TIME:
+            case SUNRISE_TIME_ANTICIPATION:
                 return times.getSunriseTime();
+            case SUNSET_TIME_ANTICIPATION:
             case SUNSET_TIME:
                 return times.getSunsetTime();
+            case CIVIL_TWILIGHT_BEGIN_TIME:
+            case CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
+                return times.getSunriseTime(); // TODO get correct time
+            case CIVIL_TWILIGHT_END_TIME:
+            case CIVIL_TWILIGHT_END_TIME_ANTICIPATION:
+                return times.getSunsetTime(); // TODO get correct time
+
             default:
                 // Should never happen
                 return Date.from(Instant.now());
