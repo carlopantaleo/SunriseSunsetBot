@@ -20,11 +20,17 @@ import java.util.regex.Pattern;
  * </ul>
  */
 public class UserAlertsManager implements BotBean {
+    /**
+     * When issuing '/alerts add <something> delay null', the alert gets saved with a draft delay,
+     * so that it's persisted but not scheduled.
+     */
+    public static final int DRAFT_DELAY = -100;
+
     private static final Logger LOG = Logger.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
                     "( civil twilight (?:begin|end)| sunrise| sunset)?" +
-                    "(?: delay (-?[0-9]{1,2}))?)";
+                    "(?: delay (-?[0-9]{1,2}|null))?)";
 
     private PersistenceManager persistenceManager;
     private SunriseSunsetBot bot;
@@ -218,10 +224,11 @@ public class UserAlertsManager implements BotBean {
 
         CommandParameters parameters = new CommandParameters();
         if (matcher.find()) {
+            String delay = Optional.ofNullable(matcher.group(4)).orElse("0").trim();
+            parameters.delay = "null".equals(delay) ? DRAFT_DELAY : Long.parseLong(delay);
             parameters.command = Optional.ofNullable(matcher.group(1)).orElse("").trim();
             parameters.alertType = Optional.ofNullable(matcher.group(3)).orElse("").trim();
             parameters.alertId = Long.parseLong(Optional.ofNullable(matcher.group(2)).orElse("0").trim());
-            parameters.delay = Long.parseLong(Optional.ofNullable(matcher.group(4)).orElse("0").trim());
         }
 
         return parameters;

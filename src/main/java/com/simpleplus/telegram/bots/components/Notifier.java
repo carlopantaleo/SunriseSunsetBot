@@ -83,7 +83,9 @@ public class Notifier implements BotBean {
 
         for (UserAlert alert : userAlertsManager.getUserAlerts(chatId)) {
             try {
-                timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(), alert.getDelay());
+                if (alert.getDelay() != UserAlertsManager.DRAFT_DELAY) {
+                    timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(), alert.getDelay());
+                }
             } catch (IllegalStateException e) {
                 bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for " +
                         alert.getTimeType().name() + " .", e);
