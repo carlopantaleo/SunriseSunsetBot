@@ -87,7 +87,7 @@ public class UserAlertsManager implements BotBean {
     private void sendAlertsTypes(long chatId) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
-        // Build the keyboard (adds a default delay of +1 as a workaround in order to not overwrite any existing
+        // Build the keyboard (adds a default delay (null) as a workaround in order to not overwrite any existing
         // no-delay alert.
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay 1"));
