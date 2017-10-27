@@ -90,13 +90,13 @@ public class UserAlertsManager implements BotBean {
         // Build the keyboard (adds a default delay (null) as a workaround in order to not overwrite any existing
         // no-delay alert.
         List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay 1"));
-        row1.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay 1"));
+        row1.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay null"));
+        row1.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay null"));
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row2.add(new InlineKeyboardButton().setText("Begin of civil twilight")
-                .setCallbackData("/alerts add civil twilight begin delay 1"));
+                .setCallbackData("/alerts add civil twilight begin delay null"));
         row2.add(new InlineKeyboardButton().setText("End of civil twilight")
-                .setCallbackData("/alerts add civil twilight end delay 1"));
+                .setCallbackData("/alerts add civil twilight end delay null"));
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(row1);
         keyboard.add(row2);
