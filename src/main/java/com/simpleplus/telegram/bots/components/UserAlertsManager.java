@@ -11,6 +11,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This component handles user alerts. It:
@@ -79,9 +80,37 @@ public class UserAlertsManager implements BotBean {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setReplyMarkup(keyboardMarkup);
         messageToSend.setChatId(chatId);
-        messageToSend.setText("TBD");
+        messageToSend.setText(getAlertsList(chatId));
 
         bot.reply(messageToSend);
+    }
+
+    private String getAlertsList(long chatId) {
+        Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
+        List<UserAlert> orderedUserAlerts = userAlerts.stream()
+                .sorted(Comparator.comparingLong(UserAlert::getId))
+                .collect(Collectors.toList());
+
+        StringBuilder builder = new StringBuilder();
+
+        for (UserAlert alert : orderedUserAlerts) {
+            builder.append("#")
+                    .append(alert.getId())
+                    .append(": ");
+
+            if (alert.getDelay() != 0) {
+                builder.append(Math.abs(alert.getDelay()))
+                        .append(" minutes ")
+                        .append(alert.getDelay() > 0 ? "after " : "before ")
+                        .append(alert.getTimeType().getReadableName().toLowerCase());
+            } else {
+                builder.append(alert.getTimeType().getReadableName());
+            }
+
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 
     private void sendAlertsTypes(long chatId) {
