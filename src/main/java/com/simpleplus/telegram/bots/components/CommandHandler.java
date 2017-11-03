@@ -108,7 +108,7 @@ public class CommandHandler implements BotBean {
             case ALERTS: {
                 String commandArguments = getCommandArguments(update).trim();
                 if (userAlertsManager.validateSyntax(commandArguments)) {
-                    userAlertsManager.handleCommand(chatId, commandArguments);
+                    userAlertsManager.handleCommand(chatId, commandArguments, getMessageId(update));
                 } else {
                     userAlertsManager.sendAlertsListAndActions(chatId);
                 }
@@ -130,6 +130,16 @@ public class CommandHandler implements BotBean {
                 bot.reply(chatId, "I don't know how to handle this command.");
             }
         }
+    }
+
+    private long getMessageId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getMessageId();
+        } else if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getMessageId();
+        }
+
+        return 0;
     }
 
     public void handleResume(long chatId) {

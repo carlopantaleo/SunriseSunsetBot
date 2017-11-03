@@ -5,6 +5,7 @@ import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -140,7 +141,7 @@ public class UserAlertsManager implements BotBean {
         bot.reply(messageToSend);
     }
 
-    private void sendDelays(long chatId) {
+    private void sendDelays(long chatId, CommandParameters parameters) {
         // Get latest inserted user alert
         long id = getUserAlerts(chatId).stream()
                 .max(Comparator.comparingLong(UserAlert::getId))
@@ -170,16 +171,20 @@ public class UserAlertsManager implements BotBean {
         keyboardMarkup.setKeyboard(keyboard);
 
         // Build the message
-        SendMessage messageToSend = new SendMessage();
+        EditMessageText messageToSend = new EditMessageText();
         messageToSend.setReplyMarkup(keyboardMarkup);
         messageToSend.setChatId(chatId);
         messageToSend.setText("Do you want to be alerted in advance with respect to the time you selected?");
+        if (parameters.messageId != 0) {
+            messageToSend.setMessageId((int) parameters.messageId);
+        }
 
         bot.reply(messageToSend);
     }
 
-    public void handleCommand(long chatId, String commandArguments) {
+    public void handleCommand(long chatId, String commandArguments, long messageId) {
         CommandParameters parameters = extractParameters(commandArguments);
+        parameters.messageId = messageId;
 
         if (parameters.hasCommand()) {
             switch (parameters.command) {
@@ -216,7 +221,7 @@ public class UserAlertsManager implements BotBean {
 
             try {
                 notifier.tryToInstallNotifier(chatId, 5);
-                sendDelays(chatId);
+                sendDelays(chatId, parameters);
             } catch (ServiceException e) {
                 bot.reply(chatId, "Your alert has been saved, however we are encountering some " +
                         "technical difficulties and it may not be fired for today.");
@@ -270,6 +275,7 @@ public class UserAlertsManager implements BotBean {
         public String alertType = "";
         public long alertId = 0;
         public long delay = 0;
+        public long messageId = 0;
 
         public boolean hasCommand() {
             return !command.isEmpty();

@@ -3,7 +3,9 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.Step;
 import org.apache.log4j.Logger;
+import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -102,15 +104,31 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
 
     public void reply(SendMessage messageToSend) {
         long chatId = Long.parseLong(messageToSend.getChatId());
+        reply(messageToSend, chatId, messageToSend.getText());
+
+        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+        gc();
+    }
+
+    public void reply(EditMessageText messageToSend) {
+        long chatId = Long.parseLong(messageToSend.getChatId());
+        reply(messageToSend, chatId, messageToSend.getText());
+
+        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+        gc();
+    }
+
+    private void reply(BotApiMethod messageToSend, long chatId, String text) {
         try {
             execute(messageToSend);
-            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + messageToSend.getText());
+            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + text);
         } catch (TelegramApiException e) {
             persistenceManager.setStep(chatId, Step.EXPIRED);
             LOG.warn("TelegramApiException during reply. Chat flagged as expired.", e);
         }
+    }
 
-        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+    private void gc() {
         if (propertiesManager.getProperty("force-gc") != null) {
             // ...but don't abuse of it.
             if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 1) {
