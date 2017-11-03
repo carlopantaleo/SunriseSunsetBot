@@ -210,9 +210,37 @@ public class UserAlertsManager implements BotBean {
     }
 
     private void handleRemove(long chatId, CommandParameters parameters) {
-        LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
-        persistenceManager.deleteUserAlert(chatId, parameters.alertId);
-        bot.reply(chatId, String.format("Alert #%d has been deleted.", parameters.alertId));
+        if (parameters.alertId != 0) {
+            LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
+            persistenceManager.deleteUserAlert(chatId, parameters.alertId);
+            bot.reply(chatId, String.format("Alert #%d has been deleted.", parameters.alertId));
+        } else {
+            sendAlertsDeletionList(chatId, parameters);
+        }
+    }
+
+    private void sendAlertsDeletionList(long chatId, CommandParameters parameters) {
+        Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+
+        // Build the keyboard
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        for (UserAlert alert : userAlerts) {
+            row.add(new InlineKeyboardButton().setText("#" + alert.getId())
+                    .setCallbackData("/alerts remove " + alert.getId()));
+        }
+
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+
+        // Build the message
+        SendMessage messageToSend = new SendMessage();
+        messageToSend.setReplyMarkup(keyboardMarkup);
+        messageToSend.setChatId(chatId);
+        messageToSend.setText("Which alert do you want to delete?");
+
+        bot.reply(messageToSend);
     }
 
     private void handleAdd(long chatId, CommandParameters parameters) {
