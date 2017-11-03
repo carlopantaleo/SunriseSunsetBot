@@ -57,4 +57,18 @@ public class SavedChat {
         userAlerts.add(userAlert);
     }
 
+    public void deleteUserAlert(long alertId) {
+        UserAlert alertToRemove = null;
+
+        for (UserAlert alert : userAlerts) {
+            if (alert.getId() == alertId) {
+                alertToRemove = alert;
+                break;
+            }
+        }
+
+        if (alertToRemove != null) {
+            userAlerts.remove(alertToRemove);
+        }
+    }
 }

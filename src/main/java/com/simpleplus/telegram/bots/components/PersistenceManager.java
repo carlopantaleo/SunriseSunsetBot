@@ -204,4 +204,17 @@ public class PersistenceManager implements BotBean {
         transaction.commit();
         em.close();
     }
+
+    public void deleteUserAlert(long chatId, long alertId) {
+        EntityManager em = createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        transaction.begin();
+        SavedChat savedChat = getSavedChat(chatId);
+        savedChat.deleteUserAlert(alertId);
+        em.merge(savedChat);
+        em.flush();
+        transaction.commit();
+        em.close();
+    }
 }

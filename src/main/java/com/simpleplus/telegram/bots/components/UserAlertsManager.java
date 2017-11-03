@@ -205,7 +205,9 @@ public class UserAlertsManager implements BotBean {
     }
 
     private void handleRemove(long chatId, CommandParameters parameters) {
-        // TODO
+        LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
+        persistenceManager.deleteUserAlert(chatId, parameters.alertId);
+        bot.reply(chatId, String.format("Alert #%d has been deleted.", parameters.alertId));
     }
 
     private void handleAdd(long chatId, CommandParameters parameters) {
