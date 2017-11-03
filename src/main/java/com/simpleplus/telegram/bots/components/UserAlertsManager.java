@@ -72,7 +72,7 @@ public class UserAlertsManager implements BotBean {
         // Build the keyboard
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add(new InlineKeyboardButton().setText("Add...").setCallbackData("/alerts add"));
-        row.add(new InlineKeyboardButton().setText("Delete...").setCallbackData("/alerts delete"));
+        row.add(new InlineKeyboardButton().setText("Delete...").setCallbackData("/alerts remove"));
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(row);
         keyboardMarkup.setKeyboard(keyboard);
