@@ -57,6 +57,7 @@ public class SavedChat {
         userAlerts.add(userAlert);
     }
 
+    // Todo return boolean
     public void deleteUserAlert(long alertId) {
         UserAlert alertToRemove = null;
 
