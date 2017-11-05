@@ -213,7 +213,14 @@ public class UserAlertsManager implements BotBean {
         if (parameters.alertId != 0) {
             LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
             persistenceManager.deleteUserAlert(chatId, parameters.alertId);
-            bot.reply(chatId, String.format("Alert #%d has been deleted.", parameters.alertId));
+
+            EditMessageText messageToSend = new EditMessageText();
+            messageToSend.setChatId(chatId);
+            messageToSend.setText(String.format("Alert #%d has been deleted.", parameters.alertId));
+            if (parameters.messageId != 0) {
+                messageToSend.setMessageId((int) parameters.messageId);
+            }
+            bot.reply(messageToSend);
         } else {
             sendAlertsDeletionList(chatId, parameters);
         }
