@@ -114,7 +114,7 @@ public class UserAlertsManager implements BotBean {
         return builder.toString();
     }
 
-    private void sendAlertsTypes(long chatId) {
+    private void sendAlertsTypes(long chatId, CommandParameters parameters) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
         // Build the keyboard (adds a default delay (null) as a workaround in order to not overwrite any existing
@@ -133,9 +133,12 @@ public class UserAlertsManager implements BotBean {
         keyboardMarkup.setKeyboard(keyboard);
 
         // Build the message
-        SendMessage messageToSend = new SendMessage();
+        EditMessageText messageToSend = new EditMessageText();
         messageToSend.setReplyMarkup(keyboardMarkup);
         messageToSend.setChatId(chatId);
+        if (parameters.messageId != 0) {
+            messageToSend.setMessageId((int) parameters.messageId);
+        }
         messageToSend.setText("When do you want to be alerted?");
 
         bot.reply(messageToSend);
@@ -242,10 +245,13 @@ public class UserAlertsManager implements BotBean {
         keyboardMarkup.setKeyboard(keyboard);
 
         // Build the message
-        SendMessage messageToSend = new SendMessage();
+        EditMessageText messageToSend = new EditMessageText();
         messageToSend.setReplyMarkup(keyboardMarkup);
         messageToSend.setChatId(chatId);
-        messageToSend.setText("Which alert do you want to delete?");
+        if (parameters.messageId != 0) {
+            messageToSend.setMessageId((int) parameters.messageId);
+        }
+        messageToSend.setText("Which alert do you want to delete?\n" + getAlertsList(chatId));
 
         bot.reply(messageToSend);
     }
@@ -263,7 +269,7 @@ public class UserAlertsManager implements BotBean {
                 LOG.error("ServiceException while trying to install notifier on just created alert.", e);
             }
         } else {
-            sendAlertsTypes(chatId);
+            sendAlertsTypes(chatId, parameters);
         }
     }
 
