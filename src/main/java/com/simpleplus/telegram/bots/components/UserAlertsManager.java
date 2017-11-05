@@ -269,7 +269,6 @@ public class UserAlertsManager implements BotBean {
                 } else if (parameters.delay < 0) {
                     timeType = TimeType.SUNRISE_TIME_ANTICIPATION;
                 }
-                persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
                 break;
             case "sunset":
                 if (parameters.delay == 0) {
@@ -277,9 +276,13 @@ public class UserAlertsManager implements BotBean {
                 } else if (parameters.delay < 0) {
                     timeType = TimeType.SUNSET_TIME_ANTICIPATION;
                 }
-                persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
                 break;
+            default:
+                // Do not add the alert.
+                return;
         }
+
+        persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
     }
 
     private CommandParameters extractParameters(String commandArguments) {
