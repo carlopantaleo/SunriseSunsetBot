@@ -132,16 +132,7 @@ public class UserAlertsManager implements BotBean {
         keyboard.add(row2);
         keyboardMarkup.setKeyboard(keyboard);
 
-        // Build the message
-        EditMessageText messageToSend = new EditMessageText();
-        messageToSend.setReplyMarkup(keyboardMarkup);
-        messageToSend.setChatId(chatId);
-        if (parameters.messageId != 0) {
-            messageToSend.setMessageId((int) parameters.messageId);
-        }
-        messageToSend.setText("When do you want to be alerted?");
-
-        bot.reply(messageToSend);
+        replyWithEditMessage(chatId, parameters, keyboardMarkup, "When do you want to be alerted?");
     }
 
     private void sendDelays(long chatId, CommandParameters parameters) {
@@ -173,16 +164,8 @@ public class UserAlertsManager implements BotBean {
         keyboard.add(row2);
         keyboardMarkup.setKeyboard(keyboard);
 
-        // Build the message
-        EditMessageText messageToSend = new EditMessageText();
-        messageToSend.setReplyMarkup(keyboardMarkup);
-        messageToSend.setChatId(chatId);
-        messageToSend.setText("Do you want to be alerted in advance with respect to the time you selected?");
-        if (parameters.messageId != 0) {
-            messageToSend.setMessageId((int) parameters.messageId);
-        }
-
-        bot.reply(messageToSend);
+        replyWithEditMessage(chatId, parameters, keyboardMarkup,
+                "Do you want to be alerted in advance with respect to the time you selected?");
     }
 
     public void handleCommand(long chatId, String commandArguments, long messageId) {
@@ -217,13 +200,8 @@ public class UserAlertsManager implements BotBean {
             LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
             persistenceManager.deleteUserAlert(chatId, parameters.alertId);
 
-            EditMessageText messageToSend = new EditMessageText();
-            messageToSend.setChatId(chatId);
-            messageToSend.setText(String.format("Alert #%d has been deleted.", parameters.alertId));
-            if (parameters.messageId != 0) {
-                messageToSend.setMessageId((int) parameters.messageId);
-            }
-            bot.reply(messageToSend);
+            replyWithEditMessage(chatId, parameters, null,
+                    String.format("Alert #%d has been deleted.", parameters.alertId));
         } else {
             sendAlertsDeletionList(chatId, parameters);
         }
@@ -243,15 +221,23 @@ public class UserAlertsManager implements BotBean {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(row);
         keyboardMarkup.setKeyboard(keyboard);
+        replyWithEditMessage(chatId, parameters, keyboardMarkup,
+                "Which alert do you want to delete?\n" + getAlertsList(chatId));
 
-        // Build the message
+
+    }
+
+    private void replyWithEditMessage(long chatId,
+                                      CommandParameters parameters,
+                                      InlineKeyboardMarkup keyboardMarkup,
+                                      String text) {
         EditMessageText messageToSend = new EditMessageText();
         messageToSend.setReplyMarkup(keyboardMarkup);
         messageToSend.setChatId(chatId);
         if (parameters.messageId != 0) {
             messageToSend.setMessageId((int) parameters.messageId);
         }
-        messageToSend.setText("Which alert do you want to delete?\n" + getAlertsList(chatId));
+        messageToSend.setText(text);
 
         bot.reply(messageToSend);
     }
