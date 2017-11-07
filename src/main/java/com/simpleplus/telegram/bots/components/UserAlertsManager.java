@@ -191,7 +191,27 @@ public class UserAlertsManager implements BotBean {
     }
 
     private void handleEdit(long chatId, CommandParameters parameters) {
-        // TODO
+        if (parameters.alertId != 0) {
+            LOG.info(String.format("Going to edit alert %d for chatId %d", parameters.alertId, chatId));
+            UserAlert editedUserAlert = getEditedUserAlert(chatId, parameters);
+            if (editedUserAlert != null) {
+                persistenceManager.editUserAlert(editedUserAlert);
+                replyWithEditMessage(chatId, parameters, null,
+                        String.format("Alert #%d has been successfully created.", parameters.alertId));
+            } else {
+                bot.reply(chatId, "An error occurred. For further information, please contact support.");
+            }
+        }
+    }
+
+    private UserAlert getEditedUserAlert(long chatId, CommandParameters parameters) {
+        for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
+            if (alert.getId() == parameters.alertId) {
+                alert.setDelay(parameters.delay);
+                return alert;
+            }
+        }
+        return null;
     }
 
     private void handleRemove(long chatId, CommandParameters parameters) {
