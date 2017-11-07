@@ -87,8 +87,7 @@ public class UserAlertsManager implements BotBean {
     }
 
     private String getAlertsList(long chatId) {
-        Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
-        List<UserAlert> orderedUserAlerts = userAlerts.stream()
+        List<UserAlert> orderedUserAlerts = persistenceManager.getUserAlerts(chatId).stream()
                 .sorted(Comparator.comparingLong(UserAlert::getId))
                 .collect(Collectors.toList());
 
@@ -208,12 +207,15 @@ public class UserAlertsManager implements BotBean {
     }
 
     private void sendAlertsDeletionList(long chatId, CommandParameters parameters) {
-        Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
+        List<UserAlert> orderedUserAlerts = persistenceManager.getUserAlerts(chatId).stream()
+                .sorted(Comparator.comparingLong(UserAlert::getId))
+                .collect(Collectors.toList());
+
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
         // Build the keyboard
         List<InlineKeyboardButton> row = new ArrayList<>();
-        for (UserAlert alert : userAlerts) {
+        for (UserAlert alert : orderedUserAlerts) {
             row.add(new InlineKeyboardButton().setText("#" + alert.getId())
                     .setCallbackData("/alerts remove " + alert.getId()));
         }
