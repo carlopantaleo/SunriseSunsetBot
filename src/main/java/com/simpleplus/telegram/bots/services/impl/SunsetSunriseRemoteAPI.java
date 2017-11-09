@@ -23,7 +23,7 @@ import java.util.Locale;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
-    private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
+    private static final String BASE_URL = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
@@ -63,14 +63,14 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             throw new ServiceException("Internal service error (DateTimeParseException)");
         }
 
-        return new SunsetSunriseTimes(sunset, sunrise);
+        return new SunsetSunriseTimes(sunset, sunrise, null, null);
     }
 
     private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
         String result = "";
 
         try {
-            URL url = new URL(String.format(Locale.ROOT, baseUrl,
+            URL url = new URL(String.format(Locale.ROOT, BASE_URL,
                     coordinates.getLatitude(),
                     coordinates.getLongitude(),
                     localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));

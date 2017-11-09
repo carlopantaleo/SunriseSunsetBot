@@ -9,10 +9,18 @@ import java.util.Date;
 public class SunsetSunriseTimes {
     private final LocalTime sunsetTime;
     private final LocalTime sunriseTime;
+    private final LocalTime civilTwilightEndTime;
 
-    public SunsetSunriseTimes(LocalTime sunsetTime, LocalTime sunriseTime) {
+    private final LocalTime civilTwilightBeginTime;
+
+    public SunsetSunriseTimes(LocalTime sunsetTime,
+                              LocalTime sunriseTime,
+                              LocalTime civilTwilightEndTime,
+                              LocalTime civilTwilightBeginTime) {
         this.sunsetTime = sunsetTime;
         this.sunriseTime = sunriseTime;
+        this.civilTwilightEndTime = civilTwilightEndTime;
+        this.civilTwilightBeginTime = civilTwilightBeginTime;
     }
 
     public Date getSunsetTime() {
@@ -21,6 +29,14 @@ public class SunsetSunriseTimes {
 
     public Date getSunriseTime() {
         return getZonedTime(sunriseTime);
+    }
+
+    public Date getCivilTwilightEndTime() {
+        return getZonedTime(civilTwilightEndTime);
+    }
+
+    public Date getCivilTwilightBeginTime() {
+        return getZonedTime(civilTwilightBeginTime);
     }
 
     /**
