@@ -196,22 +196,20 @@ public class UserAlertsManager implements BotBean {
             UserAlert editedUserAlert = getEditedUserAlert(chatId, parameters);
             if (editedUserAlert != null) {
                 persistenceManager.editUserAlert(editedUserAlert);
-                replyWithEditMessage(chatId, parameters, null,
-                        String.format("Alert #%d has been successfully created.", parameters.alertId));
+
+                try {
+                    notifier.tryToInstallNotifier(chatId, 5);
+                    replyWithEditMessage(chatId, parameters, null,
+                            String.format("Alert #%d has been successfully created.", parameters.alertId));
+                } catch (ServiceException e) {
+                    bot.reply(chatId, "Your alert has been saved, however we are encountering some " +
+                            "technical difficulties and it may not be fired for today.");
+                    LOG.error("ServiceException while trying to install notifier on just edited alert.", e);
+                }
             } else {
                 bot.reply(chatId, "An error occurred. For further information, please contact support.");
             }
         }
-    }
-
-    private UserAlert getEditedUserAlert(long chatId, CommandParameters parameters) {
-        for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
-            if (alert.getId() == parameters.alertId) {
-                alert.setDelay(parameters.delay);
-                return alert;
-            }
-        }
-        return null;
     }
 
     private void handleRemove(long chatId, CommandParameters parameters) {
@@ -224,6 +222,34 @@ public class UserAlertsManager implements BotBean {
         } else {
             sendAlertsDeletionList(chatId, parameters);
         }
+    }
+
+    private void handleAdd(long chatId, CommandParameters parameters) {
+        if (parameters.hasAlertType()) {
+            addAppropriateUserAlert(chatId, parameters);
+
+            try {
+                notifier.tryToInstallNotifier(chatId, 5);
+                sendDelays(chatId, parameters);
+            } catch (ServiceException e) {
+                bot.reply(chatId, "Your alert has been added, however we are encountering some " +
+                        "technical difficulties and it may not be fired for today.");
+                LOG.error("ServiceException while trying to install notifier on just created alert.", e);
+            }
+        } else {
+            sendAlertsTypes(chatId, parameters);
+        }
+    }
+
+    private UserAlert getEditedUserAlert(long chatId, CommandParameters parameters) {
+        for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
+            if (alert.getId() == parameters.alertId) {
+                alert.setDelay(parameters.delay);
+                alert.setTimeType(getAppropriateTimeType(parameters));
+                return alert;
+            }
+        }
+        return null;
     }
 
     private void sendAlertsDeletionList(long chatId, CommandParameters parameters) {
@@ -264,24 +290,15 @@ public class UserAlertsManager implements BotBean {
         bot.reply(messageToSend);
     }
 
-    private void handleAdd(long chatId, CommandParameters parameters) {
-        if (parameters.hasAlertType()) {
-            addAppropriateUserAlert(chatId, parameters);
+    private void addAppropriateUserAlert(long chatId, CommandParameters parameters) {
+        TimeType timeType = getAppropriateTimeType(parameters);
 
-            try {
-                notifier.tryToInstallNotifier(chatId, 5);
-                sendDelays(chatId, parameters);
-            } catch (ServiceException e) {
-                bot.reply(chatId, "Your alert has been saved, however we are encountering some " +
-                        "technical difficulties and it may not be fired for today.");
-                LOG.error("ServiceException while trying to install notifier on just created alert.", e);
-            }
-        } else {
-            sendAlertsTypes(chatId, parameters);
+        if (timeType != TimeType.DEFAULT) {
+            persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
         }
     }
 
-    private void addAppropriateUserAlert(long chatId, CommandParameters parameters) {
+    private TimeType getAppropriateTimeType(CommandParameters parameters) {
         TimeType timeType = TimeType.DEFAULT;
         switch (parameters.alertType) {
             case "sunrise":
@@ -298,12 +315,23 @@ public class UserAlertsManager implements BotBean {
                     timeType = TimeType.SUNSET_TIME_ANTICIPATION;
                 }
                 break;
-            default:
-                // Do not add the alert.
-                return;
+            case "civil twilight begin":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.CIVIL_TWILIGHT_BEGIN_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION;
+                }
+                break;
+            case "civil twilight end":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.CIVIL_TWILIGHT_END_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.CIVIL_TWILIGHT_END_TIME_ANTICIPATION;
+                }
+                break;
         }
 
-        persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
+        return timeType;
     }
 
     private CommandParameters extractParameters(String commandArguments) {
