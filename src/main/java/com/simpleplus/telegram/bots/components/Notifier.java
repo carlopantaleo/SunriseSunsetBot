@@ -136,10 +136,10 @@ public class Notifier implements BotBean {
                 return times.getSunsetTime();
             case CIVIL_TWILIGHT_BEGIN_TIME:
             case CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
-                return times.getSunriseTime(); // TODO get correct time
+                return times.getCivilTwilightBeginTime();
             case CIVIL_TWILIGHT_END_TIME:
             case CIVIL_TWILIGHT_END_TIME_ANTICIPATION:
-                return times.getSunsetTime(); // TODO get correct time
+                return times.getCivilTwilightEndTime();
 
             default:
                 // Should never happen
