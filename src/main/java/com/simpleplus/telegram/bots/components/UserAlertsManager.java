@@ -192,7 +192,8 @@ public class UserAlertsManager implements BotBean {
 
     private void handleEdit(long chatId, CommandParameters parameters) {
         if (parameters.alertId != 0) {
-            LOG.info(String.format("Going to edit alert %d for chatId %d", parameters.alertId, chatId));
+            LOG.info(String.format("Going to edit alert %d for chatId %d and reschedule all alerts",
+                    parameters.alertId, chatId));
             UserAlert editedUserAlert = getEditedUserAlert(chatId, parameters);
             if (editedUserAlert != null) {
                 persistenceManager.editUserAlert(editedUserAlert);
@@ -229,8 +230,11 @@ public class UserAlertsManager implements BotBean {
             addAppropriateUserAlert(chatId, parameters);
 
             try {
-                notifier.tryToInstallNotifier(chatId, 5);
-                sendDelays(chatId, parameters);
+                if (parameters.delay != DRAFT_DELAY) {
+                    notifier.tryToInstallNotifier(chatId, 5);
+                } else {
+                    sendDelays(chatId, parameters);
+                }
             } catch (ServiceException e) {
                 bot.reply(chatId, "Your alert has been added, however we are encountering some " +
                         "technical difficulties and it may not be fired for today.");
@@ -244,6 +248,7 @@ public class UserAlertsManager implements BotBean {
     private UserAlert getEditedUserAlert(long chatId, CommandParameters parameters) {
         for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
             if (alert.getId() == parameters.alertId) {
+                parameters.alertType = alert.getTimeType().getReadableName().toLowerCase();
                 alert.setDelay(parameters.delay);
                 alert.setTimeType(getAppropriateTimeType(parameters));
                 return alert;
