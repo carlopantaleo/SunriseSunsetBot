@@ -24,6 +24,16 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private PropertiesManager propertiesManager;
     private LocalTime lastGCTime = LocalTime.now();
 
+    public static long getChatId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getChatId();
+        } else if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getChatId();
+        } else {
+            return 0L;
+        }
+    }
+
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
@@ -48,16 +58,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private synchronized void restart() {
         botSession.stop();
         botSession.start();
-    }
-
-    public static long getChatId(Update update) {
-        if (update.hasMessage()) {
-            return update.getMessage().getChatId();
-        } else if (update.hasCallbackQuery()) {
-            return update.getCallbackQuery().getMessage().getChatId();
-        } else {
-            return 0L;
-        }
     }
 
     public void onUpdateReceived(Update update) {
@@ -132,8 +132,17 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         if (propertiesManager.getProperty("force-gc") != null) {
             // ...but don't abuse of it.
             if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 1) {
+                // Get current size of heap in bytes
+                long heapSizeBefore = Runtime.getRuntime().totalMemory();
+                long heapFreeBefore = Runtime.getRuntime().freeMemory();
                 System.gc();
                 lastGCTime = LocalTime.now();
+                long heapSizeAfter = Runtime.getRuntime().totalMemory();
+                long heapFreeAfter = Runtime.getRuntime().freeMemory();
+
+                LOG.info(String.format("Full GC executed. Heap before: total = %d, free = %d. " +
+                                "Heap after: total = %d, free = %d",
+                        heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter));
             }
         }
     }
