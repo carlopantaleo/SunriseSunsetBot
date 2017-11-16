@@ -89,6 +89,7 @@ public class UserAlertsManager implements BotBean {
     private String getAlertsList(long chatId) {
         List<UserAlert> orderedUserAlerts = persistenceManager.getUserAlerts(chatId).stream()
                 .sorted(Comparator.comparingLong(UserAlert::getId))
+                .filter(alert -> alert.getDelay() != DRAFT_DELAY)
                 .collect(Collectors.toList());
 
         StringBuilder builder = new StringBuilder();
