@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_SCHEDULED;
 import static com.simpleplus.telegram.bots.components.BotScheduler.ScheduleResult.NOT_TO_SCHEDULE;
+import static com.simpleplus.telegram.bots.components.UserAlertsManager.DRAFT_DELAY;
 import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
 import static com.simpleplus.telegram.bots.datamodel.Step.TO_ENTER_SUPPORT_MESSAGE;
 
@@ -49,6 +50,14 @@ public class Notifier implements BotBean {
                 } catch (ServiceException e) {
                     bot.replyAndLogError(chatId, "ServiceException during installAllNotifiers", e);
                 }
+
+                for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
+                    if (alert.getDelay() == DRAFT_DELAY) {
+                        persistenceManager.deleteUserAlert(chatId, alert.getId());
+                        LOG.info(String.format("Deleted draft alert #%d", alert.getId()));
+                    }
+                }
+
             }
         }
     }
@@ -83,7 +92,7 @@ public class Notifier implements BotBean {
 
         for (UserAlert alert : userAlertsManager.getUserAlerts(chatId)) {
             try {
-                if (alert.getDelay() != UserAlertsManager.DRAFT_DELAY) {
+                if (alert.getDelay() != DRAFT_DELAY) {
                     timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(), alert.getDelay());
                 }
             } catch (IllegalStateException e) {
