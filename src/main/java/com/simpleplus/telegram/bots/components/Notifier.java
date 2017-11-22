@@ -132,7 +132,11 @@ public class Notifier implements BotBean {
     }
 
     private String formatMessage(TimeType timeType, long delay) {
-        return delay == 0 ? timeType.getMessage() : String.format(timeType.getMessage(), delay);
+        if (delay == 0) {
+            return timeType.getMessage();
+        } else {
+            return String.format(timeType.getMessage(), Math.abs(delay));
+        }
     }
 
     private Date getDateTimeFromTimeType(SunsetSunriseTimes times, TimeType timeType) {
