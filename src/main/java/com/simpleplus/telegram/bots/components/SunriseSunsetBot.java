@@ -140,8 +140,9 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 long heapSizeAfter = Runtime.getRuntime().totalMemory();
                 long heapFreeAfter = Runtime.getRuntime().freeMemory();
 
-                LOG.info(String.format("Full GC executed. Heap before: total = %d, free = %d. " +
-                                "Heap after: total = %d, free = %d",
+                LOG.info(String.format("Full GC executed.\n" +
+                                "\tHeap before: total = %d, free = %d.\n" +
+                                "\tHeap after: total = %d, free = %d",
                         heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter));
             }
         }
