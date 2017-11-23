@@ -14,6 +14,9 @@ import org.telegram.telegrambots.generics.BotSession;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import static com.simpleplus.telegram.bots.datamodel.Step.EXPIRED;
+import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
+
 public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
     private Notifier notifier;
@@ -67,6 +70,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         }
 
         logMessage(update);
+
+        // If chat was expired, reactivate it
+        if (persistenceManager.getUserState(getChatId(update)).getStep() == EXPIRED) {
+            persistenceManager.setStep(getChatId(update), RUNNING);
+        }
 
         try {
             if (commandHandler.isCommand(update)) {

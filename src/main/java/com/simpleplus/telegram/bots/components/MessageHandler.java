@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 
 import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
 import static com.simpleplus.telegram.bots.datamodel.Step.EXPIRED;
-import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
 
 public class MessageHandler implements BotBean {
     private static final Logger LOG = Logger.getLogger(MessageHandler.class);
@@ -47,11 +46,6 @@ public class MessageHandler implements BotBean {
         if (isChatNew(chatId)) {
             handleNewChat(chatId);
             return;
-        }
-
-        // If chat was expired, reactivate it
-        if (persistenceManager.getUserState(chatId).getStep() == EXPIRED) {
-            persistenceManager.setStep(chatId, RUNNING);
         }
 
         // If it's a location message, handle it even though the state wasn't TO_ENTER_LOCATION
