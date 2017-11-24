@@ -139,7 +139,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private void gc() {
         if (propertiesManager.getProperty("force-gc") != null) {
             // ...but don't abuse of it.
-            if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 1) {
+            if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 30) {
                 // Get current size of heap in bytes
                 long heapSizeBefore = Runtime.getRuntime().totalMemory();
                 long heapFreeBefore = Runtime.getRuntime().freeMemory();
