@@ -94,9 +94,10 @@ public class UserAlertsManager implements BotBean {
 
         StringBuilder builder = new StringBuilder();
 
+        int i = 1;
         for (UserAlert alert : orderedUserAlerts) {
             builder.append("#")
-                    .append(alert.getId())
+                    .append(i)
                     .append(": ");
 
             if (alert.getDelay() != 0) {
@@ -109,6 +110,7 @@ public class UserAlertsManager implements BotBean {
             }
 
             builder.append("\n");
+            i++;
         }
 
         return builder.toString();
@@ -201,8 +203,7 @@ public class UserAlertsManager implements BotBean {
 
                 try {
                     notifier.tryToInstallNotifier(chatId, 5);
-                    replyWithEditMessage(chatId, parameters, null,
-                            String.format("Alert #%d has been successfully created.", parameters.alertId));
+                    replyWithEditMessage(chatId, parameters, null, "Alert has been created.");
                 } catch (ServiceException e) {
                     bot.reply(chatId, "Your alert has been saved, however we are encountering some " +
                             "technical difficulties and it may not be fired for today.");
@@ -219,8 +220,7 @@ public class UserAlertsManager implements BotBean {
             LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
             persistenceManager.deleteUserAlert(chatId, parameters.alertId);
 
-            replyWithEditMessage(chatId, parameters, null,
-                    String.format("Alert #%d has been deleted.", parameters.alertId));
+            replyWithEditMessage(chatId, parameters, null, "Alert has been deleted.");
         } else {
             sendAlertsDeletionList(chatId, parameters);
         }
@@ -267,9 +267,11 @@ public class UserAlertsManager implements BotBean {
 
         // Build the keyboard
         List<InlineKeyboardButton> row = new ArrayList<>();
+        int i = 1;
         for (UserAlert alert : orderedUserAlerts) {
-            row.add(new InlineKeyboardButton().setText("#" + alert.getId())
+            row.add(new InlineKeyboardButton().setText("#" + i)
                     .setCallbackData("/alerts remove " + alert.getId()));
+            i++;
         }
 
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
