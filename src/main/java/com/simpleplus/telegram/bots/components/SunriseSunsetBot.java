@@ -2,6 +2,7 @@ package com.simpleplus.telegram.bots.components;
 
 
 import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -72,7 +73,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         logMessage(update);
 
         // If chat was expired, reactivate it
-        if (persistenceManager.getUserState(getChatId(update)).getStep() == EXPIRED) {
+        UserState userState = persistenceManager.getUserState(getChatId(update));
+        if (userState != null && userState.getStep() == EXPIRED) {
             persistenceManager.setStep(getChatId(update), RUNNING);
         }
 

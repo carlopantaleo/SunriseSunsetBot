@@ -57,7 +57,6 @@ public class Notifier implements BotBean {
                         LOG.info(String.format("Deleted draft alert #%d", alert.getId()));
                     }
                 }
-
             }
         }
     }
