@@ -2,6 +2,7 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.SavedChat;
 import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PersistenceManager implements BotBean {
     private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
@@ -59,14 +61,35 @@ public class PersistenceManager implements BotBean {
         }
     }
 
-    public UserState getUserState(long chatId) {
-        EntityManager em = createEntityManager();
-        SavedChat savedChat = em.find(SavedChat.class, chatId);
-        UserState userState = savedChat != null ? savedChat.getUserState() : null;
-        em.close();
-        return userState;
+    protected EntityManager createEntityManager() {
+        return emFactory.createEntityManager();
     }
 
+    private SavedChat getSavedChat(long chatId) {
+        EntityManager em = createEntityManager();
+        SavedChat savedChat = em.find(SavedChat.class, chatId);
+        em.close();
+        return savedChat;
+    }
+
+    // The following methods act on the UserState part of a SavedChat
+
+    /**
+     * Gets the {@link UserState} associated with a {@code chatId}.
+     *
+     * @param chatId the {@code chatId} to look for
+     * @return the {@link UserState} associated
+     */
+    public UserState getUserState(long chatId) {
+        SavedChat savedChat = getSavedChat(chatId);
+        return savedChat != null ? savedChat.getUserState() : null;
+    }
+
+    /**
+     * Gets a map of all the {@link UserState}s in the database.
+     *
+     * @return a map of {@link UserState}s
+     */
     public Map<Long, UserState> getUserStatesMap() {
         Map<Long, UserState> result = new HashMap<>();
 
@@ -87,18 +110,39 @@ public class PersistenceManager implements BotBean {
         return result;
     }
 
+    /**
+     * Sets a {@link UserState} for a certain {@code chatId}.
+     *
+     * @param chatId    the {@code chatId} for which the {@link UserState} has to be set
+     * @param userState the {@link UserState}
+     */
     public void setUserState(long chatId, UserState userState) {
+        LOG.debug(String.format("Setting UserState on chatId %d: %s", chatId, userState));
+
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
         transaction.begin();
-        SavedChat savedChat = new SavedChat(chatId, userState);
+
+        SavedChat savedChat = getSavedChat(chatId);
+        if (savedChat == null) {
+            savedChat = new SavedChat();
+            savedChat.setChatId(chatId);
+        }
+
+        savedChat.setUserState(userState);
         em.merge(savedChat);
         em.flush();
         transaction.commit();
         em.close();
     }
 
+    /**
+     * Sets the logically following {@link Step} to a certain {@code chatId}.
+     * If there's not a logically following {@link Step}, it will leave the current {@link Step} as is.
+     *
+     * @param chatId the {@code chatId} for which the next step has to be set.
+     */
     public void setNextStep(long chatId) {
         UserState userState = getUserState(chatId);
 
@@ -119,13 +163,79 @@ public class PersistenceManager implements BotBean {
         setUserState(chatId, userState);
     }
 
+    /**
+     * Sets a given {@link Step} to a certain {@code chatId}.
+     *
+     * @param chatId the {@code chatId} to be updated
+     * @param step   the {@link Step} to set
+     */
     public void setStep(long chatId, Step step) {
         UserState userState = getUserState(chatId);
         userState.setStep(step);
         setUserState(chatId, userState);
     }
 
-    protected EntityManager createEntityManager() {
-        return emFactory.createEntityManager();
+
+    // The following methods act on the UserAlert part of a SavedChat
+
+    /**
+     * Gets the {@link UserAlert}s associated with the given {@code chatId}.
+     *
+     * @param chatId the {@code chatId} to which the {@link UserAlert}s are associated
+     * @return the {@link UserAlert}s associated
+     */
+    public Set<UserAlert> getUserAlerts(long chatId) {
+        SavedChat savedChat = getSavedChat(chatId);
+        return savedChat.getUserAlerts();
+    }
+
+    /**
+     * Adds a {@link UserAlert} to the {@link SavedChat} to which it's associated.
+     *
+     * @param userAlert the {@link UserAlert} to be added
+     */
+    public void addUserAlert(UserAlert userAlert) {
+        EntityManager em = createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        transaction.begin();
+        SavedChat savedChat = getSavedChat(userAlert.getChatId());
+        savedChat.addUserAlert(userAlert);
+        em.merge(savedChat);
+        em.flush();
+        transaction.commit();
+        em.close();
+    }
+
+    /**
+     * Deletes a {@link UserAlert} from the {@link SavedChat} to which it's associated.
+     */
+    public void deleteUserAlert(long chatId, long alertId) {
+        EntityManager em = createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        transaction.begin();
+        SavedChat savedChat = getSavedChat(chatId);
+        savedChat.deleteUserAlert(alertId);
+        em.merge(savedChat);
+        em.flush();
+        transaction.commit();
+        em.close();
+    }
+
+    /**
+     * Edits a {@link UserAlert} from the {@link SavedChat} to which it's associated.
+     */
+    public void editUserAlert(UserAlert userAlert) {
+        EntityManager em = createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        transaction.begin();
+        SavedChat savedChat = getSavedChat(userAlert.getChatId());
+        savedChat.editUserAlert(userAlert);
+        em.merge(savedChat);
+        em.flush();
+        transaction.commit();
+        em.close();
     }
 }

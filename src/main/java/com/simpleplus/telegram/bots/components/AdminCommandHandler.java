@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
+
 public class AdminCommandHandler extends CommandHandler implements BotBean {
     private static final Logger LOG = Logger.getLogger(AdminCommandHandler.class);
 
@@ -54,7 +56,7 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
             break;
 
             case "send": {
-                send(commandArgs, update.getMessage().getChatId());
+                send(commandArgs, getChatId(update));
             }
             break;
         }

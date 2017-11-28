@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
 import static com.simpleplus.telegram.bots.datamodel.Step.EXPIRED;
 
 public class MessageHandler implements BotBean {
@@ -39,7 +40,7 @@ public class MessageHandler implements BotBean {
     }
 
     public void handleMessage(Update update) {
-        final long chatId = update.getMessage().getChatId();
+        final long chatId = getChatId(update);
 
         // If chat is new, it has to be initialized
         if (isChatNew(chatId)) {
@@ -74,7 +75,7 @@ public class MessageHandler implements BotBean {
     }
 
     public void handleToEnterLocation(Update update) {
-        long chatId = update.getMessage().getChatId();
+        long chatId = getChatId(update);
         Coordinates location = null;
 
         if (update.getMessage().hasLocation()) {

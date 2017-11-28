@@ -37,10 +37,13 @@ public class BotContext {
      */
     public void addBean(Class<? extends BotBean> clazz, Object... beanArgs) {
         try {
+            String canonicalName = clazz.getCanonicalName();
+            LOG.debug("Adding bean " + canonicalName);
+
             if (beanArgs != null) {
-                beans.put(clazz.getCanonicalName(), (BotBean) clazz.getConstructors()[0].newInstance(beanArgs));
+                beans.put(canonicalName, (BotBean) clazz.getConstructors()[0].newInstance(beanArgs));
             } else {
-                beans.put(clazz.getCanonicalName(), clazz.newInstance());
+                beans.put(canonicalName, clazz.newInstance());
             }
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
             LOG.fatal("Unable to instantiate class " + clazz.toString() + ": InstantiationException.", e);
@@ -55,7 +58,9 @@ public class BotContext {
      * @param bean  constructed {@link BotBean} to add.
      */
     public void addBean(Class<? extends BotBean> clazz, BotBean bean) {
-        beans.put(clazz.getCanonicalName(), bean);
+        String canonicalName = clazz.getCanonicalName();
+        LOG.debug("Adding already constructed bean " + canonicalName);
+        beans.put(canonicalName, bean);
     }
 
     public void addBean(Class<? extends BotBean> clazz) {

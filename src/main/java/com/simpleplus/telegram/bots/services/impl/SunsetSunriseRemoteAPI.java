@@ -19,10 +19,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
-    private String baseUrl = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
+    private static final String BASE_URL = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
@@ -38,38 +39,41 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
 
     private SunsetSunriseTimes parseResult(String result) throws ServiceException {
         JSONObject obj = new JSONObject(result);
-        String status, sunsetBegin, civilTwilightBegin;
+        String status, sunsetStr, sunriseStr, civilTwilightBeginStr, civilTwilightEndStr;
 
         try {
             status = obj.getString("status");
-            sunsetBegin = obj.getJSONObject("results").getString("sunset");
-            civilTwilightBegin = obj.getJSONObject("results").getString("civil_twilight_begin");
+            sunsetStr = obj.getJSONObject("results").getString("sunset");
+            sunriseStr = obj.getJSONObject("results").getString("sunrise");
+            civilTwilightBeginStr = obj.getJSONObject("results").getString("civil_twilight_begin");
+            civilTwilightEndStr = obj.getJSONObject("results").getString("civil_twilight_end");
         } catch (JSONException e) {
             throw new ServiceException("Internal service error (JSONException)");
         }
 
-        if (!status.equals("OK")) {
+        if (!"OK".equals(status)) {
             throw new ServiceException("Remote service error (" + status + ")");
         }
 
-        LocalTime sunset;
-        LocalTime sunrise;
+        LocalTime sunset, sunrise, civilTwilightBegin, civilTwilightEnd;
         try {
-            sunset = LocalTime.parse(sunsetBegin, DateTimeFormatter.ofPattern("h:m:s a"));
-            sunrise = LocalTime.parse(civilTwilightBegin, DateTimeFormatter.ofPattern("h:m:s a"));
+            sunset = LocalTime.parse(sunsetStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            sunrise = LocalTime.parse(sunriseStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            civilTwilightBegin = LocalTime.parse(civilTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            civilTwilightEnd = LocalTime.parse(civilTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
         } catch (DateTimeParseException e) {
             LOG.error("DateTimeParseException", e);
             throw new ServiceException("Internal service error (DateTimeParseException)");
         }
 
-        return new SunsetSunriseTimes(sunset, sunrise);
+        return new SunsetSunriseTimes(sunset, sunrise, civilTwilightEnd, civilTwilightBegin);
     }
 
     private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
         String result = "";
 
         try {
-            URL url = new URL(String.format(baseUrl,
+            URL url = new URL(String.format(Locale.ROOT, BASE_URL,
                     coordinates.getLatitude(),
                     coordinates.getLongitude(),
                     localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));

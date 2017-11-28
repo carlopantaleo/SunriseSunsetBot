@@ -1,16 +1,21 @@
 package com.simpleplus.telegram.bots.datamodel;
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class SavedChat {
     @Id
+    @Column(name = "CHAT_ID")
     private Long chatId;
 
     @Embedded
     private UserState userState;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "CHAT_ID")
+    private Set<UserAlert> userAlerts = new HashSet<>();
 
     public SavedChat() {
     }
@@ -35,5 +40,46 @@ public class SavedChat {
 
     public void setUserState(UserState userState) {
         this.userState = userState;
+    }
+
+    public Set<UserAlert> getUserAlerts() {
+        return userAlerts;
+    }
+
+    public void addUserAlert(UserAlert userAlert) {
+        // Check if not already present
+        for (UserAlert alert : userAlerts) {
+            if (alert.equalsNoId(userAlert)) {
+                return;
+            }
+        }
+
+        userAlerts.add(userAlert);
+    }
+
+    public void editUserAlert(UserAlert userAlert) {
+        for (UserAlert alert : userAlerts) {
+            if (alert.getId() == userAlert.getId()) {
+                userAlerts.remove(alert);
+                userAlerts.add(userAlert);
+                return;
+            }
+        }
+    }
+
+    // Todo return boolean
+    public void deleteUserAlert(long alertId) {
+        UserAlert alertToRemove = null;
+
+        for (UserAlert alert : userAlerts) {
+            if (alert.getId() == alertId) {
+                alertToRemove = alert;
+                break;
+            }
+        }
+
+        if (alertToRemove != null) {
+            userAlerts.remove(alertToRemove);
+        }
     }
 }

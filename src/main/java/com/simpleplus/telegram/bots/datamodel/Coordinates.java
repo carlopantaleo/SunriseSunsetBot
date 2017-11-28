@@ -51,4 +51,12 @@ public class Coordinates {
         result = 31 * result + (longitude != +0.0f ? Float.floatToIntBits(longitude) : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Coordinates{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
+    }
 }

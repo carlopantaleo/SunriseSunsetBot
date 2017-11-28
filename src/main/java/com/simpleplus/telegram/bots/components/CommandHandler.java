@@ -10,6 +10,8 @@ import org.telegram.telegrambots.api.objects.Update;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
+
 public class CommandHandler implements BotBean {
     private static final Logger LOG = Logger.getLogger(CommandHandler.class);
 
@@ -19,6 +21,7 @@ public class CommandHandler implements BotBean {
     private AdminCommandHandler adminCommandHandler;
     private BotScheduler scheduler;
     private Notifier notifier;
+    private UserAlertsManager userAlertsManager;
 
     @Override
     public void init() {
@@ -32,19 +35,26 @@ public class CommandHandler implements BotBean {
                 (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
         this.notifier =
                 (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
+        this.userAlertsManager =
+                (UserAlertsManager) BotContext.getDefaultContext().getBean(UserAlertsManager.class);
     }
 
     public boolean isCommand(Update update) {
-        if (update.getMessage().hasText()) {
-            return update.getMessage().getText().charAt(0) == '/';
+        String text;
+
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            text = update.getMessage().getText();
+        } else if (update.hasCallbackQuery()) {
+            text = update.getCallbackQuery().getData();
         } else {
             return false;
         }
+
+        return text.charAt(0) == '/';
     }
 
-    // TODO: unit test
     public void handleCommand(Update update) {
-        long chatId = update.getMessage().getChatId();
+        long chatId = getChatId(update);
 
         switch (getCommand(update)) {
             case START: {
@@ -95,6 +105,16 @@ public class CommandHandler implements BotBean {
             }
             break;
 
+            case ALERTS: {
+                String commandArguments = getCommandArguments(update).trim();
+                if (userAlertsManager.validateSyntax(commandArguments)) {
+                    userAlertsManager.handleCommand(chatId, commandArguments, getMessageId(update));
+                } else {
+                    userAlertsManager.sendAlertsListAndActions(chatId);
+                }
+            }
+            break;
+
             case ADMIN_COMMAND: {
                 if (adminCommandHandler.isAdminChat(chatId)) {
                     adminCommandHandler.handleCommand(update);
@@ -112,6 +132,16 @@ public class CommandHandler implements BotBean {
         }
     }
 
+    private long getMessageId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getMessageId();
+        } else if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getMessageId();
+        }
+
+        return 0;
+    }
+
     public void handleResume(long chatId) {
         UserState userState = persistenceManager.getUserState(chatId);
 
@@ -119,7 +149,7 @@ public class CommandHandler implements BotBean {
             try {
                 notifier.tryToInstallNotifier(chatId, 5);
                 persistenceManager.setNextStep(chatId);
-                bot.reply(chatId, "The bot has been resumed. You will be notified at sunrise and sunset.");
+                bot.reply(chatId, "The bot has been resumed. You will received notifications again.");
             } catch (ServiceException e) {
                 bot.replyAndLogError(chatId, "ServiceException while resuming chat.", e);
             }
@@ -143,7 +173,15 @@ public class CommandHandler implements BotBean {
 
     @VisibleForTesting
     Command getCommand(Update update) {
-        String text = update.getMessage().getText();
+        String text;
+        if (update.hasMessage()) {
+            text = update.getMessage().getText();
+        } else if (update.hasCallbackQuery()) {
+            text = update.getCallbackQuery().getData();
+        } else {
+            return null;
+        }
+
         Pattern pattern = Pattern.compile("\\/([_a-z]*) ?.*");
         Matcher matcher = pattern.matcher(text);
         String command = "";
@@ -167,6 +205,8 @@ public class CommandHandler implements BotBean {
                 return Command.ADMIN_COMMAND;
             case "support":
                 return Command.SEND_TO_ADMINISTRATORS;
+            case "alerts":
+                return Command.ALERTS;
 
             default:
                 return Command.UNKNOWN_COMMAND;
@@ -175,7 +215,14 @@ public class CommandHandler implements BotBean {
 
     @VisibleForTesting
     String getCommandArguments(Update update) {
-        String text = update.getMessage().getText();
+        String text;
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            text = update.getMessage().getText();
+        } else if (update.hasCallbackQuery()) {
+            text = update.getCallbackQuery().getData();
+        } else {
+            return null;
+        }
         Pattern pattern = Pattern.compile("\\/[_a-z]* ?(.*)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
 
@@ -190,6 +237,7 @@ public class CommandHandler implements BotBean {
         REENTER_LOCATION,
         SET_ADMINISTRATOR,
         SEND_TO_ADMINISTRATORS,
+        ALERTS,
         ADMIN_COMMAND,
         UNKNOWN_COMMAND
     }

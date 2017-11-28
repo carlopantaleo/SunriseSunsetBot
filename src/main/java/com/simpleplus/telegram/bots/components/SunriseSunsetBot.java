@@ -1,19 +1,23 @@
 package com.simpleplus.telegram.bots.components;
 
 
-import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
+import com.simpleplus.telegram.bots.datamodel.UserState;
 import org.apache.log4j.Logger;
+import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.BotSession;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
+import static com.simpleplus.telegram.bots.datamodel.Step.*;
+
 public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
-    private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
     private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
     private Notifier notifier;
     private BotSession botSession;
@@ -21,6 +25,17 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private MessageHandler messageHandler;
     private CommandHandler commandHandler;
     private PropertiesManager propertiesManager;
+    private LocalTime lastGCTime = LocalTime.now();
+
+    public static long getChatId(Update update) {
+        if (update.hasMessage()) {
+            return update.getMessage().getChatId();
+        } else if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getChatId();
+        } else {
+            return 0L;
+        }
+    }
 
     public void init() {
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
@@ -49,10 +64,22 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     public void onUpdateReceived(Update update) {
-        if (!(update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))
+        if (!(update.hasCallbackQuery() ||
+                (update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))) {
             return;
+        }
 
         logMessage(update);
+
+        // If chat was expired, reactivate it
+        UserState userState = persistenceManager.getUserState(getChatId(update));
+        if (userState != null) {
+            if (userState.getStep() == EXPIRED) {
+                persistenceManager.setStep(getChatId(update), RUNNING);
+            } else if (userState.getStep() == STOPPED) {
+                commandHandler.handleResume(getChatId(update));
+            }
+        }
 
         try {
             if (commandHandler.isCommand(update)) {
@@ -61,19 +88,23 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 messageHandler.handleMessage(update);
             }
         } catch (Exception e) {
-            replyAndLogError(update.getMessage().getChatId(), "Exception while handling update.", e);
+            replyAndLogError(getChatId(update), "Exception while handling update.", e);
         }
     }
 
     private void logMessage(Update update) {
-        String message = String.format("Incoming message from chatId %d: ", update.getMessage().getChatId());
+        String message = String.format("Incoming message from chatId %d: ", getChatId(update));
 
-        if (update.getMessage().hasText()) {
-            LOG.info(message + update.getMessage().getText());
-        } else if (update.getMessage().hasLocation()) {
-            LOG.info(message + "(location message) " + update.getMessage().getLocation().toString());
-        } else {
-            LOG.info(message + "(other message type) " + update.getMessage().toString());
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
+                LOG.info(message + update.getMessage().getText());
+            } else if (update.getMessage().hasLocation()) {
+                LOG.info(message + "(location message) " + update.getMessage().getLocation().toString());
+            } else {
+                LOG.info(message + "(other message type) " + update.getMessage().toString());
+            }
+        } else if (update.hasCallbackQuery()) {
+            LOG.info("(callback query) " + update.getCallbackQuery().getData());
         }
     }
 
@@ -86,12 +117,47 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
 
     public void reply(SendMessage messageToSend) {
         long chatId = Long.parseLong(messageToSend.getChatId());
+        reply(messageToSend, chatId, messageToSend.getText());
+
+        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+        gc();
+    }
+
+    public void reply(EditMessageText messageToSend) {
+        long chatId = Long.parseLong(messageToSend.getChatId());
+        reply(messageToSend, chatId, messageToSend.getText());
+
+        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+        gc();
+    }
+
+    private void reply(BotApiMethod messageToSend, long chatId, String text) {
         try {
             execute(messageToSend);
-            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + messageToSend.getText());
+            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + text);
         } catch (TelegramApiException e) {
             persistenceManager.setStep(chatId, Step.EXPIRED);
             LOG.warn("TelegramApiException during reply. Chat flagged as expired.", e);
+        }
+    }
+
+    private void gc() {
+        if (propertiesManager.getProperty("force-gc") != null) {
+            // ...but don't abuse of it.
+            if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 30) {
+                // Get current size of heap in bytes
+                long heapSizeBefore = Runtime.getRuntime().totalMemory();
+                long heapFreeBefore = Runtime.getRuntime().freeMemory();
+                System.gc();
+                lastGCTime = LocalTime.now();
+                long heapSizeAfter = Runtime.getRuntime().totalMemory();
+                long heapFreeAfter = Runtime.getRuntime().freeMemory();
+
+                LOG.info(String.format("Full GC executed.\n" +
+                                "\tHeap before: total = %d, free = %d.\n" +
+                                "\tHeap after: total = %d, free = %d",
+                        heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter));
+            }
         }
     }
 
