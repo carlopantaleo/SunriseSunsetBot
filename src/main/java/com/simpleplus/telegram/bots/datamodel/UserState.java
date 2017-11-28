@@ -69,4 +69,13 @@ public class UserState {
         result = 31 * result + (step != null ? step.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "UserState{" +
+                "coordinates=" + coordinates +
+                ", step=" + step +
+                ", isAdmin=" + isAdmin +
+                '}';
+    }
 }

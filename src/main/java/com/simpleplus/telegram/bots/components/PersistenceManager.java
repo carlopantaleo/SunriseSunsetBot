@@ -117,6 +117,8 @@ public class PersistenceManager implements BotBean {
      * @param userState the {@link UserState}
      */
     public void setUserState(long chatId, UserState userState) {
+        LOG.debug(String.format("Setting UserState on chatId %d: %s", chatId, userState));
+
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
