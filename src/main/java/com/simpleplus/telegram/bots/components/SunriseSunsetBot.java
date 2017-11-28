@@ -78,6 +78,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 persistenceManager.setStep(getChatId(update), RUNNING);
             } else if (userState.getStep() == STOPPED) {
                 commandHandler.handleResume(getChatId(update));
+                return;
             }
         }
 

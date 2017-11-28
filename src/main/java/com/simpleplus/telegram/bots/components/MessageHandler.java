@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
 import static com.simpleplus.telegram.bots.datamodel.Step.EXPIRED;
+import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
 
 public class MessageHandler implements BotBean {
     private static final Logger LOG = Logger.getLogger(MessageHandler.class);
@@ -90,7 +91,7 @@ public class MessageHandler implements BotBean {
             try {
                 scheduler.cancelAllScheduledMessages(chatId);
                 notifier.tryToInstallNotifier(chatId, 5);
-                persistenceManager.setNextStep(chatId);
+                persistenceManager.setStep(chatId, RUNNING);
                 bot.reply(chatId, "Your location has been saved. " +
                         "You will be notified at sunset and sunrise.");
             } catch (ServiceException e) {
