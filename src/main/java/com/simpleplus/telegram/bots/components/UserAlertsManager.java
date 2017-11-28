@@ -267,20 +267,30 @@ public class UserAlertsManager implements BotBean {
 
         // Build the keyboard
         List<InlineKeyboardButton> row = new ArrayList<>();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        int alertsPerRow = (int) Math.ceil((double) orderedUserAlerts.size() /
+                Math.ceil((double) orderedUserAlerts.size() / 8));
         int i = 1;
         for (UserAlert alert : orderedUserAlerts) {
             row.add(new InlineKeyboardButton().setText("#" + i)
                     .setCallbackData("/alerts remove " + alert.getId()));
+
+            // Start a new line if too many buttons
+            if (i % alertsPerRow == 0) {
+                keyboard.add(row);
+                row = new ArrayList<>();
+            }
+
             i++;
         }
 
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        keyboard.add(row);
+        if (row.size() != 0) { // May be an empty row
+            keyboard.add(row);
+        }
+
         keyboardMarkup.setKeyboard(keyboard);
         replyWithEditMessage(chatId, parameters, keyboardMarkup,
                 "Which alert do you want to delete?\n" + getAlertsList(chatId));
-
-
     }
 
     private void replyWithEditMessage(long chatId,
