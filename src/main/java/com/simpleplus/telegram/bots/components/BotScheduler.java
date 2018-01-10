@@ -65,7 +65,7 @@ public class BotScheduler implements BotBean {
 
         try {
             schedule.scheduleAtFixedRate(task, firstTime, period);
-            LOG.info("Task {} scheduled at {} every {} seconds.", task, firstTime, period /1000);
+            LOG.info("Task {} scheduled at {} every {} seconds.", task, firstTime.toString(), period / 1000);
         } catch (IllegalStateException e) {
             LOG.error("IllegalStateException during schedule.", e);
             return ScheduleResult.NOT_SCHEDULED;
