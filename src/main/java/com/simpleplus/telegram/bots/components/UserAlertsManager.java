@@ -3,7 +3,8 @@ package com.simpleplus.telegram.bots.components;
 import com.simpleplus.telegram.bots.datamodel.TimeType;
 import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -28,7 +29,7 @@ public class UserAlertsManager implements BotBean {
      */
     public static final int DRAFT_DELAY = -100;
 
-    private static final Logger LOG = Logger.getLogger(UserAlertsManager.class);
+    private static final Logger LOG = LogManager.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
                     "( civil twilight (?:begin|end)| sunrise| sunset)?" +
@@ -49,7 +50,7 @@ public class UserAlertsManager implements BotBean {
     public Set<UserAlert> getUserAlerts(long chatId) {
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
         if (userAlerts.isEmpty()) {
-            LOG.info(String.format("Going to generate default UserAlerts for chatid %s", chatId));
+            LOG.info(String.format("Going to generate default UserAlerts for chatid {}", chatId));
             return generateAndGetDefaultUserAlerts(chatId);
         }
 

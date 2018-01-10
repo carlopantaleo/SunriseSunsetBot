@@ -4,7 +4,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.simpleplus.telegram.bots.components.tasks.ScheduledMessage;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -12,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BotScheduler implements BotBean {
-    private static final Logger LOG = Logger.getLogger(BotScheduler.class);
+    private static final Logger LOG = LogManager.getLogger(BotScheduler.class);
 
     private Timer schedule = new Timer();
     private SunriseSunsetBot bot;

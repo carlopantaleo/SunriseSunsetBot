@@ -11,7 +11,6 @@ import org.telegram.telegrambots.generics.BotSession;
 public class Main {
 
     public static void main(String[] args) {
-
         ApiContextInitializer.init();
         PropertiesManager.setArgv(args);
         initDefaultBotContext();

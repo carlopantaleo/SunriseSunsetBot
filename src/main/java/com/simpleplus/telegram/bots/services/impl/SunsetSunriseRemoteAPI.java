@@ -5,7 +5,8 @@ import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,7 +23,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
-    private static final Logger LOG = Logger.getLogger(SunsetSunriseRemoteAPI.class);
+    private static final Logger LOG = LogManager.getLogger(SunsetSunriseRemoteAPI.class);
     private static final String BASE_URL = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
 
     @Override

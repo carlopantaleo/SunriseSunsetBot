@@ -3,7 +3,8 @@ package com.simpleplus.telegram.bots.components;
 import com.google.common.annotations.VisibleForTesting;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.objects.Update;
 
 import java.util.Arrays;
@@ -16,16 +17,14 @@ import java.util.stream.Collectors;
 import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
 
 public class AdminCommandHandler extends CommandHandler implements BotBean {
-    private static final Logger LOG = Logger.getLogger(AdminCommandHandler.class);
+    private static final Logger LOG = LogManager.getLogger(AdminCommandHandler.class);
 
     private SunriseSunsetBot bot;
-    private MessageHandler messageHandler;
     private PersistenceManager persistenceManager;
 
     @Override
     public void init() {
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
-        this.messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean(MessageHandler.class);
         this.persistenceManager =
                 (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
     }

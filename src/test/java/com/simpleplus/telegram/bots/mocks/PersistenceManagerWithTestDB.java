@@ -2,7 +2,8 @@ package com.simpleplus.telegram.bots.mocks;
 
 import com.simpleplus.telegram.bots.components.PersistenceManager;
 import com.simpleplus.telegram.bots.datamodel.SavedChat;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -14,7 +15,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class PersistenceManagerWithTestDB extends PersistenceManager {
-    private static final Logger LOG = Logger.getLogger(PersistenceManagerWithTestDB.class);
+    private static final Logger LOG = LogManager.getLogger(PersistenceManagerWithTestDB.class);
 
     @Override
     protected EntityManager createEntityManager() {

@@ -4,7 +4,8 @@ import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -22,7 +23,7 @@ import static com.simpleplus.telegram.bots.datamodel.Step.EXPIRED;
 import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
 
 public class MessageHandler implements BotBean {
-    private static final Logger LOG = Logger.getLogger(MessageHandler.class);
+    private static final Logger LOG = LogManager.getLogger(MessageHandler.class);
     private static final Coordinates DEFAULT_COORDINATE = new Coordinates();
 
     private SunriseSunsetBot bot;

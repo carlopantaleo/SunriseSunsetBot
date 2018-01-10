@@ -1,6 +1,7 @@
 package com.simpleplus.telegram.bots.components;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
  * singleton and there can't exists to instances of the same {@code BotBean} withing the same {@code BotContext}.
  */
 public class BotContext {
-    private static final Logger LOG = Logger.getLogger(BotContext.class);
+    private static final Logger LOG = LogManager.getLogger(BotContext.class);
     private static BotContext defaultContext;
     private Map<String, BotBean> beans = new HashMap<>();
 

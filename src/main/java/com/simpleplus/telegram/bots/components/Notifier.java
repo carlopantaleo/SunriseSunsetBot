@@ -5,7 +5,8 @@ import com.simpleplus.telegram.bots.datamodel.*;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -22,7 +23,7 @@ import static com.simpleplus.telegram.bots.datamodel.Step.RUNNING;
 import static com.simpleplus.telegram.bots.datamodel.Step.TO_ENTER_SUPPORT_MESSAGE;
 
 public class Notifier implements BotBean {
-    private static final Logger LOG = Logger.getLogger(Notifier.class);
+    private static final Logger LOG = LogManager.getLogger(Notifier.class);
 
     private SunriseSunsetBot bot;
     private SunsetSunriseService sunsetSunriseService;

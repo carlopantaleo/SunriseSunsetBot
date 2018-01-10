@@ -4,7 +4,8 @@ import com.simpleplus.telegram.bots.datamodel.SavedChat;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.datamodel.UserState;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.h2.tools.Server;
 
 import javax.persistence.*;
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class PersistenceManager implements BotBean {
-    private static final Logger LOG = Logger.getLogger(PersistenceManager.class);
+    private static final Logger LOG = LogManager.getLogger(PersistenceManager.class);
     private EntityManagerFactory emFactory;
     private PropertiesManager propertiesManager;
     private Server webServer;

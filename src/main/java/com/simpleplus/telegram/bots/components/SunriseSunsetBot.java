@@ -3,7 +3,8 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
@@ -18,7 +19,7 @@ import java.util.UUID;
 import static com.simpleplus.telegram.bots.datamodel.Step.*;
 
 public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean {
-    private static final Logger LOG = Logger.getLogger(SunriseSunsetBot.class);
+    private static final Logger LOG = LogManager.getLogger(SunriseSunsetBot.class);
     private Notifier notifier;
     private BotSession botSession;
     private PersistenceManager persistenceManager;

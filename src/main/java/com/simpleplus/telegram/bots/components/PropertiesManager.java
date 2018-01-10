@@ -1,7 +1,8 @@
 package com.simpleplus.telegram.bots.components;
 
 import org.apache.commons.cli.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.FileInputStream;
@@ -25,7 +26,7 @@ import java.util.Set;
  * will be used.
  */
 public class PropertiesManager implements BotBean {
-    private static final Logger LOG = Logger.getLogger(PropertiesManager.class);
+    private static final Logger LOG = LogManager.getLogger(PropertiesManager.class);
     private static String[] argv;
 
     private Map<String, String> propertiesMap = new HashMap<>();

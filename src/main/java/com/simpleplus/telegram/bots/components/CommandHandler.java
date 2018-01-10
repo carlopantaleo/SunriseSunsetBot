@@ -4,7 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.objects.Update;
 
 import java.util.regex.Matcher;
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
 import static com.simpleplus.telegram.bots.components.SunriseSunsetBot.getChatId;
 
 public class CommandHandler implements BotBean {
-    private static final Logger LOG = Logger.getLogger(CommandHandler.class);
+    private static final Logger LOG = LogManager.getLogger(CommandHandler.class);
 
     private SunriseSunsetBot bot;
     private MessageHandler messageHandler;
