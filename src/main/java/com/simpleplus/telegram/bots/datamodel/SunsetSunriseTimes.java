@@ -10,17 +10,28 @@ public class SunsetSunriseTimes {
     private final LocalTime sunsetTime;
     private final LocalTime sunriseTime;
     private final LocalTime civilTwilightEndTime;
-
     private final LocalTime civilTwilightBeginTime;
+    private final LocalTime nauticalTwilightEndTime;
+    private final LocalTime nauticalTwilightBeginTime;
+    private final LocalTime astronomicalTwilightEndTime;
+    private final LocalTime astronomicalTwilightBeginTime;
 
     public SunsetSunriseTimes(LocalTime sunsetTime,
                               LocalTime sunriseTime,
                               LocalTime civilTwilightEndTime,
-                              LocalTime civilTwilightBeginTime) {
+                              LocalTime civilTwilightBeginTime,
+                              LocalTime nauticalTwilightEndTime,
+                              LocalTime nauticalTwilightBeginTime,
+                              LocalTime astronomicalTwilightEndTime,
+                              LocalTime astronomicalTwilightBeginTime) {
         this.sunsetTime = sunsetTime;
         this.sunriseTime = sunriseTime;
         this.civilTwilightEndTime = civilTwilightEndTime;
         this.civilTwilightBeginTime = civilTwilightBeginTime;
+        this.nauticalTwilightEndTime = nauticalTwilightEndTime;
+        this.nauticalTwilightBeginTime = nauticalTwilightBeginTime;
+        this.astronomicalTwilightEndTime = astronomicalTwilightEndTime;
+        this.astronomicalTwilightBeginTime = astronomicalTwilightBeginTime;
     }
 
     public Date getSunsetTime() {
@@ -37,6 +48,22 @@ public class SunsetSunriseTimes {
 
     public Date getCivilTwilightBeginTime() {
         return getZonedTime(civilTwilightBeginTime);
+    }
+
+    public Date getNauticalTwilightEndTime() {
+        return getZonedTime(nauticalTwilightEndTime);
+    }
+
+    public Date getNauticalTwilightBeginTime() {
+        return getZonedTime(nauticalTwilightBeginTime);
+    }
+
+    public Date getAstronomicalTwilightEndTime() {
+        return getZonedTime(astronomicalTwilightEndTime);
+    }
+
+    public Date getAstronomicalTwilightBeginTime() {
+        return getZonedTime(astronomicalTwilightBeginTime);
     }
 
     /**

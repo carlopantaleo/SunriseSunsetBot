@@ -26,7 +26,8 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final String BASE_URL = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
 
     @Override
-    public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
+    public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate)
+            throws ServiceException {
         String result = callRemoteService(coordinates, localDate);
         LOG.debug(result);
         return parseResult(result);
@@ -39,7 +40,10 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
 
     private SunsetSunriseTimes parseResult(String result) throws ServiceException {
         JSONObject obj = new JSONObject(result);
-        String status, sunsetStr, sunriseStr, civilTwilightBeginStr, civilTwilightEndStr;
+        String status, sunsetStr, sunriseStr,
+                civilTwilightBeginStr, civilTwilightEndStr,
+                nauticalTwilightBeginStr, nauticalTwilightEndStr,
+                astronomicalTwilightBeginStr, astronomicalTwilightEndStr;
 
         try {
             status = obj.getString("status");
@@ -47,6 +51,10 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             sunriseStr = obj.getJSONObject("results").getString("sunrise");
             civilTwilightBeginStr = obj.getJSONObject("results").getString("civil_twilight_begin");
             civilTwilightEndStr = obj.getJSONObject("results").getString("civil_twilight_end");
+            nauticalTwilightBeginStr = obj.getJSONObject("results").getString("nautical_twilight_begin");
+            nauticalTwilightEndStr = obj.getJSONObject("results").getString("nautical_twilight_end");
+            astronomicalTwilightBeginStr = obj.getJSONObject("results").getString("astronomical_twilight_begin");
+            astronomicalTwilightEndStr = obj.getJSONObject("results").getString("astronomical_twilight_end");
         } catch (JSONException e) {
             throw new ServiceException("Internal service error (JSONException)");
         }
@@ -55,18 +63,30 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             throw new ServiceException("Remote service error (" + status + ")");
         }
 
-        LocalTime sunset, sunrise, civilTwilightBegin, civilTwilightEnd;
+        LocalTime sunset, sunrise,
+                civilTwilightBegin, civilTwilightEnd,
+                nauticalTwilightBegin, nauticalTwilightEnd,
+                astronomicalTwilightBegin, astronomicalTwilightEnd;
         try {
             sunset = LocalTime.parse(sunsetStr, DateTimeFormatter.ofPattern("h:m:s a"));
             sunrise = LocalTime.parse(sunriseStr, DateTimeFormatter.ofPattern("h:m:s a"));
             civilTwilightBegin = LocalTime.parse(civilTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
             civilTwilightEnd = LocalTime.parse(civilTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            nauticalTwilightBegin = LocalTime.parse(nauticalTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            nauticalTwilightEnd = LocalTime.parse(nauticalTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            astronomicalTwilightBegin =
+                    LocalTime.parse(astronomicalTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
+            astronomicalTwilightEnd =
+                    LocalTime.parse(astronomicalTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
         } catch (DateTimeParseException e) {
             LOG.error("DateTimeParseException", e);
             throw new ServiceException("Internal service error (DateTimeParseException)");
         }
 
-        return new SunsetSunriseTimes(sunset, sunrise, civilTwilightEnd, civilTwilightBegin);
+        return new SunsetSunriseTimes(sunset, sunrise,
+                civilTwilightEnd, civilTwilightBegin,
+                nauticalTwilightEnd, nauticalTwilightBegin,
+                astronomicalTwilightEnd, astronomicalTwilightBegin);
     }
 
     private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
