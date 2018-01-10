@@ -32,7 +32,7 @@ public class UserAlertsManager implements BotBean {
     private static final Logger LOG = LogManager.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
-                    "( civil twilight (?:begin|end)| sunrise| sunset)?" +
+                    "( (?:civil|nautical|astronomical) twilight (?:begin|end)| sunrise| sunset)?" +
                     "(?: delay (-?[0-9]{1,2}|null))?)";
 
     private PersistenceManager persistenceManager;
@@ -50,7 +50,7 @@ public class UserAlertsManager implements BotBean {
     public Set<UserAlert> getUserAlerts(long chatId) {
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(chatId);
         if (userAlerts.isEmpty()) {
-            LOG.info(String.format("Going to generate default UserAlerts for chatid {}", chatId));
+            LOG.info("Going to generate default UserAlerts for chatid {}", chatId);
             return generateAndGetDefaultUserAlerts(chatId);
         }
 
@@ -119,23 +119,31 @@ public class UserAlertsManager implements BotBean {
 
     private void sendAlertsTypes(long chatId, CommandParameters parameters) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
         // Build the keyboard (adds a default delay (null) as a workaround in order to not overwrite any existing
         // no-delay alert.
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay null"));
         row1.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay null"));
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-        row2.add(new InlineKeyboardButton().setText("Begin of civil twilight")
-                .setCallbackData("/alerts add civil twilight begin delay null"));
-        row2.add(new InlineKeyboardButton().setText("End of civil twilight")
-                .setCallbackData("/alerts add civil twilight end delay null"));
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(row1);
-        keyboard.add(row2);
+
+        addTwilightRow(keyboard, "civil");
+        addTwilightRow(keyboard, "nautical");
+        addTwilightRow(keyboard, "astronomical");
+
         keyboardMarkup.setKeyboard(keyboard);
 
         replyWithEditMessage(chatId, parameters, keyboardMarkup, "When do you want to be alerted?");
+    }
+
+    private void addTwilightRow(List<List<InlineKeyboardButton>> keyboard, String twilightType) {
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(new InlineKeyboardButton().setText("Begin of " + twilightType + " twilight")
+                .setCallbackData("/alerts add " + twilightType + " twilight begin delay null"));
+        row.add(new InlineKeyboardButton().setText("End of " + twilightType + " twilight")
+                .setCallbackData("/alerts add " + twilightType + " twilight end delay null"));
+        keyboard.add(row);
     }
 
     private void sendDelays(long chatId, CommandParameters parameters) {
@@ -345,6 +353,34 @@ public class UserAlertsManager implements BotBean {
                     timeType = TimeType.CIVIL_TWILIGHT_END_TIME;
                 } else if (parameters.delay < 0) {
                     timeType = TimeType.CIVIL_TWILIGHT_END_TIME_ANTICIPATION;
+                }
+                break;
+            case "nautical twilight begin":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION;
+                }
+                break;
+            case "nautical twilight end":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.NAUTICAL_TWILIGHT_END_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION;
+                }
+                break;
+            case "astronomical twilight begin":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION;
+                }
+                break;
+            case "astronomical twilight end":
+                if (parameters.delay == 0) {
+                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_END_TIME;
+                } else if (parameters.delay < 0) {
+                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION;
                 }
                 break;
         }

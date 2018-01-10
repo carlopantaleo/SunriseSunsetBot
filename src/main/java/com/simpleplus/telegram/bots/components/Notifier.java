@@ -153,6 +153,18 @@ public class Notifier implements BotBean {
             case CIVIL_TWILIGHT_END_TIME:
             case CIVIL_TWILIGHT_END_TIME_ANTICIPATION:
                 return times.getCivilTwilightEndTime();
+            case NAUTICAL_TWILIGHT_BEGIN_TIME:
+            case NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
+                return times.getNauticalTwilightBeginTime();
+            case NAUTICAL_TWILIGHT_END_TIME:
+            case NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION:
+                return times.getNauticalTwilightEndTime();
+            case ASTRONOMICAL_TWILIGHT_BEGIN_TIME:
+            case ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
+                return times.getAstronomicalTwilightBeginTime();
+            case ASTRONOMICAL_TWILIGHT_END_TIME:
+            case ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION:
+                return times.getAstronomicalTwilightEndTime();
 
             default:
                 // Should never happen
