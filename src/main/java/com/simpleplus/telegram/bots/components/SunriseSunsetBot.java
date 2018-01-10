@@ -118,19 +118,11 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     public void reply(SendMessage messageToSend) {
-        long chatId = Long.parseLong(messageToSend.getChatId());
-        reply(messageToSend, chatId, messageToSend.getText());
-
-        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
-        gc();
+        reply(messageToSend, Long.parseLong(messageToSend.getChatId()), messageToSend.getText());
     }
 
     public void reply(EditMessageText messageToSend) {
-        long chatId = Long.parseLong(messageToSend.getChatId());
-        reply(messageToSend, chatId, messageToSend.getText());
-
-        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
-        gc();
+        reply(messageToSend, Long.parseLong(messageToSend.getChatId()), messageToSend.getText());
     }
 
     private void reply(BotApiMethod messageToSend, long chatId, String text) {
@@ -141,6 +133,9 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             persistenceManager.setStep(chatId, Step.EXPIRED);
             LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat flagged as expired.", e);
         }
+
+        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
+        gc();
     }
 
     private void gc() {
