@@ -26,7 +26,7 @@ public class BotScheduler implements BotBean {
 
     public ScheduleResult scheduleMessage(long chatId, Date time, String message) {
         if (alreadyScheduled(chatId, time)) {
-            LOG.info("ChatId {}: A message is already scheduled at {}", chatId, time);
+            LOG.info("ChatId {}: A message is already scheduled at {}", chatId, time.toString());
             return ScheduleResult.NOT_TO_SCHEDULE;
         }
 
@@ -35,11 +35,11 @@ public class BotScheduler implements BotBean {
             if (time.after(Date.from(Instant.now().atZone(ZoneId.systemDefault()).toInstant()))) {
                 TimerTask task = new ScheduledMessage(chatId, message);
                 schedule.schedule(task, time);
-                LOG.info("ChatId {}: Message scheduled at {}", chatId, time);
+                LOG.info("ChatId {}: Message scheduled at {}", chatId, time.toString());
                 scheduledMessages.put(chatId, new Task(time, task));
                 return ScheduleResult.SCHEDULED;
             } else {
-                LOG.info("ChatId {}: Message NOT scheduled at {} (date is before now)", chatId, time);
+                LOG.info("ChatId {}: Message NOT scheduled at {} (date is before now)", chatId, time.toString());
                 return ScheduleResult.NOT_SCHEDULED;
             }
         } catch (IllegalStateException e) {
