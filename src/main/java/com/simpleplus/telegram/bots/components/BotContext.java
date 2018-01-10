@@ -39,7 +39,7 @@ public class BotContext {
     public void addBean(Class<? extends BotBean> clazz, Object... beanArgs) {
         try {
             String canonicalName = clazz.getCanonicalName();
-            LOG.debug("Adding bean " + canonicalName);
+            LOG.debug("Adding bean {}.", canonicalName);
 
             if (beanArgs != null) {
                 beans.put(canonicalName, (BotBean) clazz.getConstructors()[0].newInstance(beanArgs));
@@ -60,7 +60,7 @@ public class BotContext {
      */
     public void addBean(Class<? extends BotBean> clazz, BotBean bean) {
         String canonicalName = clazz.getCanonicalName();
-        LOG.debug("Adding already constructed bean " + canonicalName);
+        LOG.debug("Adding already constructed bean {}.", canonicalName);
         beans.put(canonicalName, bean);
     }
 

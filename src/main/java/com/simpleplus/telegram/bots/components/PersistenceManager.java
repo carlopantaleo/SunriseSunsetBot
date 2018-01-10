@@ -38,7 +38,7 @@ public class PersistenceManager implements BotBean {
                         "-webPort",
                         propertiesManager.getPropertyOrDefault("bot-db-port", "8082")
                 ).start();
-                LOG.info(String.format("H2 web server started on port %d.", webServer.getPort()));
+                LOG.info("H2 web server started on port {}.", webServer.getPort());
             } catch (SQLException e) {
                 LOG.error("Cannot create web server.", e);
             }
@@ -118,7 +118,7 @@ public class PersistenceManager implements BotBean {
      * @param userState the {@link UserState}
      */
     public void setUserState(long chatId, UserState userState) {
-        LOG.debug(String.format("Setting UserState on chatId %d: %s", chatId, userState));
+        LOG.debug("ChatId {}: Setting UserState: {}", chatId, userState);
 
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();

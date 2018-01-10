@@ -76,7 +76,7 @@ public class CommandHandler implements BotBean {
 
             case REENTER_LOCATION: {
                 persistenceManager.setStep(chatId, Step.TO_REENTER_LOCATION);
-                LOG.debug(String.format("ChatId[%d] has asked to /change_location.", chatId));
+                LOG.debug("ChatId {}: Asked to /change_location.", chatId);
                 messageHandler.handleMessage(update);
             }
             break;
@@ -86,11 +86,10 @@ public class CommandHandler implements BotBean {
                     UserState userState = persistenceManager.getUserState(chatId);
                     userState.setAdmin(true);
                     persistenceManager.setUserState(chatId, userState);
-                    LOG.info(String.format("Set admin chat for chatId[%d]", chatId));
+                    LOG.info("ChatId {}: Set admin chat", chatId);
                     bot.reply(chatId, "Administration commands are now available.");
                 } else {
-                    LOG.warn(String.format("ChatId[%d] is issuing the /set_administrator command without " +
-                            "a valid token.", chatId));
+                    LOG.warn("ChatId {}: issuing the /set_administrator command without a valid token.", chatId);
                 }
             }
             break;
@@ -122,7 +121,7 @@ public class CommandHandler implements BotBean {
                 } else {
                     bot.reply(chatId,
                             "You are issuing a admin command on a non-admin chat: operation not permitted!");
-                    LOG.warn(String.format("ChatId[%d] is issuing a /admin command on a non-admin chat.", chatId));
+                    LOG.warn("ChatId {}: issuing a /admin command on a non-admin chat.", chatId);
                 }
             }
             break;

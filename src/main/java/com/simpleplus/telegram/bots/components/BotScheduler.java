@@ -26,8 +26,7 @@ public class BotScheduler implements BotBean {
 
     public ScheduleResult scheduleMessage(long chatId, Date time, String message) {
         if (alreadyScheduled(chatId, time)) {
-            LOG.info("A message for chatId[" + Long.toString(chatId) + "] is already " +
-                    "scheduled at [" + time.toString() + "]");
+            LOG.info("ChatId {}: A message is already scheduled at {}", chatId, time);
             return ScheduleResult.NOT_TO_SCHEDULE;
         }
 
@@ -36,12 +35,11 @@ public class BotScheduler implements BotBean {
             if (time.after(Date.from(Instant.now().atZone(ZoneId.systemDefault()).toInstant()))) {
                 TimerTask task = new ScheduledMessage(chatId, message);
                 schedule.schedule(task, time);
-                LOG.info("Message for chatId[" + Long.toString(chatId) + "] scheduled at [" + time.toString() + "]");
+                LOG.info("ChatId {}: Message scheduled at {}", chatId, time);
                 scheduledMessages.put(chatId, new Task(time, task));
                 return ScheduleResult.SCHEDULED;
             } else {
-                LOG.info("Message for chatId[" + Long.toString(chatId) + "] " +
-                        "NOT scheduled at [" + time.toString() + "] (date is before now)");
+                LOG.info("ChatId {}: Message NOT scheduled at {} (date is before now)", chatId, time);
                 return ScheduleResult.NOT_SCHEDULED;
             }
         } catch (IllegalStateException e) {
@@ -67,8 +65,7 @@ public class BotScheduler implements BotBean {
 
         try {
             schedule.scheduleAtFixedRate(task, firstTime, period);
-            LOG.info("Task [" + task.toString() + "] scheduled at [" + firstTime.toString() + "] " +
-                    "every [" + Long.toString(period / 1000) + "] seconds.");
+            LOG.info("Task {} scheduled at {} every {} seconds.", task, firstTime, period /1000);
         } catch (IllegalStateException e) {
             LOG.error("IllegalStateException during schedule.", e);
             return ScheduleResult.NOT_SCHEDULED;
@@ -80,8 +77,8 @@ public class BotScheduler implements BotBean {
     public void cancelAllScheduledMessages(long chatId) {
         List<Task> tasksToStop = scheduledMessages.removeAll(chatId);
         tasksToStop.forEach(s -> s.task.cancel());
-        LOG.debug(String.format("Deleted these scheduled messages for chatId %d: %s", chatId, tasksToStop.toString()));
-        LOG.info(String.format("Deleted %d scheduled messages for chatId %d", tasksToStop.size(), chatId));
+        LOG.debug("Deleted these scheduled messages for chatId {}: {}", chatId, tasksToStop);
+        LOG.info("ChatId {}: Deleted {} scheduled messages.", chatId, tasksToStop.size());
         schedule.purge();
     }
 

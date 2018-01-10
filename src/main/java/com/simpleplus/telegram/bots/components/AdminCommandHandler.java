@@ -100,7 +100,7 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
                         .filter(e -> (e.getValue().isAdmin() && onlyToAdmins) || !onlyToAdmins) // If onlyToAdmins, get only admin chats
                         .collect(Collectors.toMap(s -> s.getKey(), p -> p.getValue()));
 
-        LOG.info("Broadcasting message to " + Integer.toString(userStatesMap.size()) + " users.");
+        LOG.info("Broadcasting message to {} users.", userStatesMap.size());
 
         for (Map.Entry<Long, UserState> entry : userStatesMap.entrySet()) {
             bot.reply(entry.getKey(), message);

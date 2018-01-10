@@ -196,8 +196,7 @@ public class UserAlertsManager implements BotBean {
 
     private void handleEdit(long chatId, CommandParameters parameters) {
         if (parameters.alertId != 0) {
-            LOG.info(String.format("Going to edit alert %d for chatId %d and reschedule all alerts",
-                    parameters.alertId, chatId));
+            LOG.info("ChatId {}: Going to edit alert {} and reschedule all alerts.", chatId, parameters.alertId);
             UserAlert editedUserAlert = getEditedUserAlert(chatId, parameters);
             if (editedUserAlert != null) {
                 persistenceManager.editUserAlert(editedUserAlert);
@@ -218,7 +217,7 @@ public class UserAlertsManager implements BotBean {
 
     private void handleRemove(long chatId, CommandParameters parameters) {
         if (parameters.alertId != 0) {
-            LOG.info(String.format("Going to remove alert %d for chatId %d", parameters.alertId, chatId));
+            LOG.info("ChatId {}: Going to remove alert {}.", chatId, parameters.alertId);
             persistenceManager.deleteUserAlert(chatId, parameters.alertId);
 
             replyWithEditMessage(chatId, parameters, null, "Alert has been deleted.");

@@ -55,7 +55,7 @@ public class Notifier implements BotBean {
                 for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
                     if (alert.getDelay() == DRAFT_DELAY) {
                         persistenceManager.deleteUserAlert(chatId, alert.getId());
-                        LOG.info(String.format("Deleted draft alert #%d", alert.getId()));
+                        LOG.info("Deleted draft alert #{}", alert.getId());
                     }
                 }
             }
@@ -93,7 +93,8 @@ public class Notifier implements BotBean {
         for (UserAlert alert : userAlertsManager.getUserAlerts(chatId)) {
             try {
                 if (alert.getDelay() != DRAFT_DELAY) {
-                    timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(), alert.getDelay());
+                    timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(),
+                            alert.getDelay());
                 }
             } catch (IllegalStateException e) {
                 bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for " +
@@ -123,8 +124,7 @@ public class Notifier implements BotBean {
             result = scheduler.scheduleMessage(chatId, datetimeTomorrow, formatMessage(timeType, delay));
 
             if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-                LOG.warn(String.format("%s message not scheduled even for time [%s]",
-                        timeType.name(), datetimeTomorrow.toString()));
+                LOG.warn("{} message not scheduled even for time {}", timeType.name(), datetimeTomorrow.toString());
             }
         }
 

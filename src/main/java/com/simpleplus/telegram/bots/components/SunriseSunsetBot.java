@@ -95,7 +95,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     private void logMessage(Update update) {
-        String message = String.format("Incoming message from chatId %d: ", getChatId(update));
+        String message = String.format("ChatId %d: Incoming message: ", getChatId(update));
 
         if (update.hasMessage()) {
             if (update.getMessage().hasText()) {
@@ -136,10 +136,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private void reply(BotApiMethod messageToSend, long chatId, String text) {
         try {
             execute(messageToSend);
-            LOG.info("Sent message to chatId[" + Long.toString(chatId) + "]. Message: " + text);
+            LOG.info("ChatId {}: Outgoing message: {}", chatId, text);
         } catch (TelegramApiException e) {
             persistenceManager.setStep(chatId, Step.EXPIRED);
-            LOG.warn("TelegramApiException during reply. Chat flagged as expired.", e);
+            LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat flagged as expired.", e);
         }
     }
 
@@ -155,10 +155,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 long heapSizeAfter = Runtime.getRuntime().totalMemory();
                 long heapFreeAfter = Runtime.getRuntime().freeMemory();
 
-                LOG.info(String.format("Full GC executed.\n" +
-                                "\tHeap before: total = %d, free = %d.\n" +
-                                "\tHeap after: total = %d, free = %d",
-                        heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter));
+                LOG.info("Full GC executed.\n" +
+                                "\tHeap before: total = {}, free = {}.\n" +
+                                "\tHeap after: total = {}, free = {}.",
+                        heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter);
             }
         }
     }
