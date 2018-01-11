@@ -61,13 +61,12 @@ public class SavedChat {
         for (UserAlert alert : userAlerts) {
             if (alert.getId() == userAlert.getId()) {
                 userAlerts.remove(alert);
-                userAlerts.add(userAlert);
+                addUserAlert(userAlert);
                 return;
             }
         }
     }
 
-    // Todo return boolean
     public void deleteUserAlert(long alertId) {
         UserAlert alertToRemove = null;
 

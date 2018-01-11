@@ -224,6 +224,26 @@ public class UserAlertsManager implements BotBean {
         }
     }
 
+    private void handleAdd(long chatId, CommandParameters parameters) {
+        if (parameters.hasAlertType()) {
+            addAppropriateUserAlert(chatId, parameters);
+
+            try {
+                if (parameters.delay != DRAFT_DELAY) {
+                    notifier.tryToInstallNotifiers(chatId, 5);
+                } else {
+                    sendDelays(chatId, parameters);
+                }
+            } catch (ServiceException e) {
+                bot.reply(chatId, "Your alert has been added, however we are encountering some " +
+                        "technical difficulties and it may not be fired for today.");
+                LOG.error("ServiceException while trying to install notifier on just created alert.", e);
+            }
+        } else {
+            sendAlertsTypes(chatId, parameters);
+        }
+    }
+
     private void handleRemove(long chatId, CommandParameters parameters) {
         if (parameters.alertId != 0) {
             LOG.info("ChatId {}: Going to remove alert {} and reschedule all alerts.", chatId, parameters.alertId);
@@ -250,26 +270,6 @@ public class UserAlertsManager implements BotBean {
         } catch (Exception e) {
             bot.reply(chatId, errorFeedbackMessage);
             LOG.error(logMessage, e);
-        }
-    }
-
-    private void handleAdd(long chatId, CommandParameters parameters) {
-        if (parameters.hasAlertType()) {
-            addAppropriateUserAlert(chatId, parameters);
-
-            try {
-                if (parameters.delay != DRAFT_DELAY) {
-                    notifier.tryToInstallNotifiers(chatId, 5);
-                } else {
-                    sendDelays(chatId, parameters);
-                }
-            } catch (ServiceException e) {
-                bot.reply(chatId, "Your alert has been added, however we are encountering some " +
-                        "technical difficulties and it may not be fired for today.");
-                LOG.error("ServiceException while trying to install notifier on just created alert.", e);
-            }
-        } else {
-            sendAlertsTypes(chatId, parameters);
         }
     }
 
