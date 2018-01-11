@@ -38,6 +38,7 @@ public class UserAlertsManager implements BotBean {
     private PersistenceManager persistenceManager;
     private SunriseSunsetBot bot;
     private Notifier notifier;
+    private BotScheduler scheduler;
 
     @Override
     public void init() {
@@ -45,6 +46,7 @@ public class UserAlertsManager implements BotBean {
                 (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         this.bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
         this.notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
+        this.scheduler = (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
     }
 
     public Set<UserAlert> getUserAlerts(long chatId) {
@@ -212,14 +214,10 @@ public class UserAlertsManager implements BotBean {
             if (editedUserAlert != null) {
                 persistenceManager.editUserAlert(editedUserAlert);
 
-                try {
-                    notifier.tryToInstallNotifier(chatId, 5);
-                    replyWithEditMessage(chatId, parameters, null, "Alert has been created.");
-                } catch (ServiceException e) {
-                    bot.reply(chatId, "Your alert has been saved, however we are encountering some " +
-                            "technical difficulties and it may not be fired for today.");
-                    LOG.error("ServiceException while trying to install notifier on just edited alert.", e);
-                }
+                reinstallNotifiers(chatId, parameters, "Alert has been created.",
+                        "Your alert has been saved, however we are encountering some " +
+                                "technical difficulties and it may not be fired for today.",
+                        "ServiceException while trying to install notifier on just edited alert.");
             } else {
                 bot.reply(chatId, "An error occurred. For further information, please contact support.");
             }
@@ -228,12 +226,30 @@ public class UserAlertsManager implements BotBean {
 
     private void handleRemove(long chatId, CommandParameters parameters) {
         if (parameters.alertId != 0) {
-            LOG.info("ChatId {}: Going to remove alert {}.", chatId, parameters.alertId);
+            LOG.info("ChatId {}: Going to remove alert {} and reschedule all alerts.", chatId, parameters.alertId);
             persistenceManager.deleteUserAlert(chatId, parameters.alertId);
+            scheduler.cancelAllScheduledMessages(chatId);
 
-            replyWithEditMessage(chatId, parameters, null, "Alert has been deleted.");
+            reinstallNotifiers(chatId, parameters, "Alert has been deleted.",
+                    "Your alert has been deleted, however we are encountering some " +
+                            "technical difficulties and it may still be fired for today.",
+                    "ServiceException while trying to install notifier on just deleted alert.");
         } else {
             sendAlertsDeletionList(chatId, parameters);
+        }
+    }
+
+    private void reinstallNotifiers(long chatId,
+                                    CommandParameters parameters,
+                                    String correctFeedbackMessage,
+                                    String errorFeedbackMessage,
+                                    String logMessage) {
+        try {
+            notifier.tryToInstallNotifier(chatId, 5);
+            replyWithEditMessage(chatId, parameters, null, correctFeedbackMessage);
+        } catch (Exception e) {
+            bot.reply(chatId, errorFeedbackMessage);
+            LOG.error(logMessage, e);
         }
     }
 
