@@ -15,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.simpleplus.telegram.bots.datamodel.TimeType.*;
+
 /**
  * This component handles user alerts. It:
  * <ul>
@@ -32,7 +34,7 @@ public class UserAlertsManager implements BotBean {
     private static final Logger LOG = LogManager.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
-                    "( (?:civil|nautical|astronomical) twilight (?:begin|end)| sunrise| sunset)?" +
+                    "( (?:begin|end) of (?:civil|nautical|astronomical) twilight| sunrise| sunset)?" +
                     "(?: delay (-?[0-9]{1,2}|null))?)";
 
     private PersistenceManager persistenceManager;
@@ -145,9 +147,9 @@ public class UserAlertsManager implements BotBean {
     private void addTwilightRow(List<List<InlineKeyboardButton>> keyboard, String twilightType) {
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add(new InlineKeyboardButton().setText("Begin of " + twilightType + " twilight")
-                .setCallbackData("/alerts add " + twilightType + " twilight begin delay null"));
+                .setCallbackData("/alerts add begin of " + twilightType + " twilight delay null"));
         row.add(new InlineKeyboardButton().setText("End of " + twilightType + " twilight")
-                .setCallbackData("/alerts add " + twilightType + " twilight end delay null"));
+                .setCallbackData("/alerts add end of " + twilightType + " twilight delay null"));
         keyboard.add(row);
     }
 
@@ -360,67 +362,64 @@ public class UserAlertsManager implements BotBean {
     }
 
     private TimeType getAppropriateTimeType(CommandParameters parameters) {
-        TimeType timeType = TimeType.DEFAULT;
+        TimeType timeType = DEFAULT;
+
         switch (parameters.alertType) {
             case "sunrise":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.SUNRISE_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.SUNRISE_TIME_ANTICIPATION;
-                }
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        SUNRISE_TIME,
+                        SUNRISE_TIME_ANTICIPATION);
                 break;
             case "sunset":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.SUNSET_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.SUNSET_TIME_ANTICIPATION;
-                }
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        SUNSET_TIME,
+                        SUNSET_TIME_ANTICIPATION);
                 break;
-            case "civil twilight begin":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.CIVIL_TWILIGHT_BEGIN_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION;
-                }
+            case "begin of civil twilight":
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        CIVIL_TWILIGHT_BEGIN_TIME,
+                        CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION);
                 break;
-            case "civil twilight end":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.CIVIL_TWILIGHT_END_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.CIVIL_TWILIGHT_END_TIME_ANTICIPATION;
-                }
+            case "end of civil twilight":
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        CIVIL_TWILIGHT_END_TIME,
+                        CIVIL_TWILIGHT_END_TIME_ANTICIPATION);
                 break;
-            case "nautical twilight begin":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION;
-                }
+            case "begin of nautical twilight":
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        NAUTICAL_TWILIGHT_BEGIN_TIME,
+                        NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION);
                 break;
-            case "nautical twilight end":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.NAUTICAL_TWILIGHT_END_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION;
-                }
+            case "end of nautical twilight":
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        NAUTICAL_TWILIGHT_END_TIME,
+                        NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION);
                 break;
-            case "astronomical twilight begin":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION;
-                }
+            case "begin of astronomical twilight":
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        ASTRONOMICAL_TWILIGHT_BEGIN_TIME,
+                        ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION);
                 break;
-            case "astronomical twilight end":
-                if (parameters.delay == 0) {
-                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_END_TIME;
-                } else if (parameters.delay < 0) {
-                    timeType = TimeType.ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION;
-                }
+            case "end of astronomical twilight":
+                timeType = getTimeTypeFromDelay(parameters.delay,
+                        ASTRONOMICAL_TWILIGHT_END_TIME,
+                        ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION);
                 break;
         }
 
         return timeType;
+    }
+
+    private TimeType getTimeTypeFromDelay(long delay,
+                                          TimeType timeIfDelayEq0,
+                                          TimeType timeIfDelayLt0) {
+        if (delay == 0) {
+            return timeIfDelayEq0;
+        } else if (delay < 0) {
+            return timeIfDelayLt0;
+        }
+
+        return DEFAULT;
     }
 
     private CommandParameters extractParameters(String commandArguments) {
