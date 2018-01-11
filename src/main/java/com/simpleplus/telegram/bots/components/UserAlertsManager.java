@@ -228,7 +228,6 @@ public class UserAlertsManager implements BotBean {
         if (parameters.alertId != 0) {
             LOG.info("ChatId {}: Going to remove alert {} and reschedule all alerts.", chatId, parameters.alertId);
             persistenceManager.deleteUserAlert(chatId, parameters.alertId);
-            scheduler.cancelAllScheduledMessages(chatId);
 
             reinstallNotifiers(chatId, parameters, "Alert has been deleted.",
                     "Your alert has been deleted, however we are encountering some " +
@@ -245,6 +244,7 @@ public class UserAlertsManager implements BotBean {
                                     String errorFeedbackMessage,
                                     String logMessage) {
         try {
+            scheduler.cancelAllScheduledMessages(chatId);
             notifier.tryToInstallNotifier(chatId, 5);
             replyWithEditMessage(chatId, parameters, null, correctFeedbackMessage);
         } catch (Exception e) {
