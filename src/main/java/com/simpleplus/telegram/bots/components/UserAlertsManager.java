@@ -217,7 +217,7 @@ public class UserAlertsManager implements BotBean {
                 reinstallNotifiers(chatId, parameters, "Alert has been created.",
                         "Your alert has been saved, however we are encountering some " +
                                 "technical difficulties and it may not be fired for today.",
-                        "ServiceException while trying to install notifier on just edited alert.");
+                        "ServiceException while trying to install notifiers on just edited alert.");
             } else {
                 bot.reply(chatId, "An error occurred. For further information, please contact support.");
             }
@@ -232,7 +232,7 @@ public class UserAlertsManager implements BotBean {
             reinstallNotifiers(chatId, parameters, "Alert has been deleted.",
                     "Your alert has been deleted, however we are encountering some " +
                             "technical difficulties and it may still be fired for today.",
-                    "ServiceException while trying to install notifier on just deleted alert.");
+                    "ServiceException while trying to install notifiers on just deleted alert.");
         } else {
             sendAlertsDeletionList(chatId, parameters);
         }
@@ -245,7 +245,7 @@ public class UserAlertsManager implements BotBean {
                                     String logMessage) {
         try {
             scheduler.cancelAllScheduledMessages(chatId);
-            notifier.tryToInstallNotifier(chatId, 5);
+            notifier.tryToInstallNotifiers(chatId, 5);
             replyWithEditMessage(chatId, parameters, null, correctFeedbackMessage);
         } catch (Exception e) {
             bot.reply(chatId, errorFeedbackMessage);
@@ -259,7 +259,7 @@ public class UserAlertsManager implements BotBean {
 
             try {
                 if (parameters.delay != DRAFT_DELAY) {
-                    notifier.tryToInstallNotifier(chatId, 5);
+                    notifier.tryToInstallNotifiers(chatId, 5);
                 } else {
                     sendDelays(chatId, parameters);
                 }

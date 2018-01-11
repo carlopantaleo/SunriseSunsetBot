@@ -147,7 +147,7 @@ public class CommandHandler implements BotBean {
 
         if (userState.getStep() == Step.STOPPED) {
             try {
-                notifier.tryToInstallNotifier(chatId, 5);
+                notifier.tryToInstallNotifiers(chatId, 5);
                 persistenceManager.setNextStep(chatId);
                 bot.reply(chatId, "The bot has been resumed. You will received notifications again.");
             } catch (ServiceException e) {

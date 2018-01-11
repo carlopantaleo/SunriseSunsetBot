@@ -91,7 +91,7 @@ public class MessageHandler implements BotBean {
             setLocation(chatId, location);
             try {
                 scheduler.cancelAllScheduledMessages(chatId);
-                notifier.tryToInstallNotifier(chatId, 5);
+                notifier.tryToInstallNotifiers(chatId, 5);
                 persistenceManager.setStep(chatId, RUNNING);
                 bot.reply(chatId, "Your location has been saved. " +
                         "You will be notified at sunset and sunrise.");
