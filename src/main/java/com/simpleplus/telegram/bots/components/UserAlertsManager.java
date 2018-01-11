@@ -93,8 +93,11 @@ public class UserAlertsManager implements BotBean {
                 .filter(alert -> alert.getDelay() != DRAFT_DELAY)
                 .collect(Collectors.toList());
 
-        StringBuilder builder = new StringBuilder();
+        if (orderedUserAlerts.isEmpty()) {
+            return "No alerts defined. Click 'Add...' to add one.";
+        }
 
+        StringBuilder builder = new StringBuilder();
         int i = 1;
         for (UserAlert alert : orderedUserAlerts) {
             builder.append("#")
