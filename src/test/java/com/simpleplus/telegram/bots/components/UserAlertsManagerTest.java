@@ -52,8 +52,8 @@ public class UserAlertsManagerTest {
         assertTrue(userAlertsManager.validateSyntax("add end of civil twilight delay -4"));
         assertTrue(userAlertsManager.validateSyntax("add end of civil twilight delay -4"));
         assertTrue(userAlertsManager.validateSyntax("add end of civil twilight delay null"));
-        assertTrue(userAlertsManager.validateSyntax("add end of nautical twilight end delay null"));
-        assertTrue(userAlertsManager.validateSyntax("add end of astronomical twilight end delay null"));
+        assertTrue(userAlertsManager.validateSyntax("add end of nautical twilight delay null"));
+        assertTrue(userAlertsManager.validateSyntax("add end of astronomical twilight delay null"));
         assertTrue(userAlertsManager.validateSyntax("add"));
         assertTrue(userAlertsManager.validateSyntax("remove 5"));
         assertTrue(userAlertsManager.validateSyntax("remove"));
