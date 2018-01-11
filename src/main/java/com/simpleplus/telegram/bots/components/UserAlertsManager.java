@@ -210,7 +210,7 @@ public class UserAlertsManager implements BotBean {
     private void handleEdit(long chatId, CommandParameters parameters) {
         if (parameters.alertId != 0) {
             LOG.info("ChatId {}: Going to edit alert {} and reschedule all alerts.", chatId, parameters.alertId);
-            UserAlert editedUserAlert = getEditedUserAlert(chatId, parameters);
+            UserAlert editedUserAlert = createEditedUserAlert(chatId, parameters);
             if (editedUserAlert != null) {
                 persistenceManager.editUserAlert(editedUserAlert);
 
@@ -273,7 +273,7 @@ public class UserAlertsManager implements BotBean {
         }
     }
 
-    private UserAlert getEditedUserAlert(long chatId, CommandParameters parameters) {
+    private UserAlert createEditedUserAlert(long chatId, CommandParameters parameters) {
         for (UserAlert alert : persistenceManager.getUserAlerts(chatId)) {
             if (alert.getId() == parameters.alertId) {
                 parameters.alertType = alert.getTimeType().getReadableName().toLowerCase();
