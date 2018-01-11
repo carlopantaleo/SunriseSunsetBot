@@ -5,6 +5,7 @@ import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.datamodel.UserState;
+import com.simpleplus.telegram.bots.mocks.SunriseSunsetBotMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +16,7 @@ import static org.junit.Assert.*;
 public class UserAlertsManagerTest {
     private PersistenceManager persistenceManager;
     private UserAlertsManager userAlertsManager;
-    private CommandHandler commandHandler;
+    private SunriseSunsetBot bot;
 
 
     @Before
@@ -23,7 +24,7 @@ public class UserAlertsManagerTest {
         MainTest.initDefaultBotContext();
         persistenceManager = (PersistenceManager) BotContext.getDefaultContext().getBean(PersistenceManager.class);
         userAlertsManager = (UserAlertsManager) BotContext.getDefaultContext().getBean(UserAlertsManager.class);
-        commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean(CommandHandler.class);
+        bot = (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
     }
 
     @Test
@@ -71,6 +72,7 @@ public class UserAlertsManagerTest {
 
         userAlertsManager.handleCommand(testChatId, "add sunrise delay null", 1L);
         userAlertsManager.handleCommand(testChatId, "add sunrise delay null", 1L);
+        assertNotEquals("Alert already exists.", ((SunriseSunsetBotMock)bot).getLastTextMessage());
 
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(testChatId);
         assertEquals(1, userAlerts.size());
@@ -104,5 +106,6 @@ public class UserAlertsManagerTest {
         userAlertsManager.handleCommand(testChatId, "edit " + (maxUserAlert + 1) + " delay 0", 1L);
         userAlerts = persistenceManager.getUserAlerts(testChatId);
         assertEquals(1, userAlerts.size());
+        assertEquals("Alert already exists.", ((SunriseSunsetBotMock)bot).getLastTextMessage());
     }
 }

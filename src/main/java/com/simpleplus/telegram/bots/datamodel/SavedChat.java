@@ -46,25 +46,34 @@ public class SavedChat {
         return userAlerts;
     }
 
-    public void addUserAlert(UserAlert userAlert) {
+    public boolean addUserAlert(UserAlert userAlert) {
         // Check if not already present
         for (UserAlert alert : userAlerts) {
             if (alert.equalsNoId(userAlert)) {
-                return;
+                return false;
             }
         }
 
         userAlerts.add(userAlert);
+        return true;
     }
 
-    public void editUserAlert(UserAlert userAlert) {
+    /**
+     * This is not a real edit, but rather a remove + add. It may happen that, when performing the add, an equal
+     * {@code userAlert} already exists: in this case, {@code false} is returned.
+     *
+     * @param userAlert the {@link UserAlert}.
+     * @return {@code false} if edit has gone wrong, {@code true} otherwise.
+     */
+    public boolean editUserAlert(UserAlert userAlert) {
         for (UserAlert alert : userAlerts) {
             if (alert.getId() == userAlert.getId()) {
                 userAlerts.remove(alert);
-                addUserAlert(userAlert);
-                return;
+                return addUserAlert(userAlert);
             }
         }
+
+        return false;
     }
 
     public void deleteUserAlert(long alertId) {

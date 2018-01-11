@@ -212,7 +212,11 @@ public class UserAlertsManager implements BotBean {
             LOG.info("ChatId {}: Going to edit alert {} and reschedule all alerts.", chatId, parameters.alertId);
             UserAlert editedUserAlert = createEditedUserAlert(chatId, parameters);
             if (editedUserAlert != null) {
-                persistenceManager.editUserAlert(editedUserAlert);
+                boolean edited = persistenceManager.editUserAlert(editedUserAlert);
+                if (!edited) {
+                    replyWithEditMessage(chatId, parameters, "Alert already exists.");
+                    return;
+                }
 
                 reinstallNotifiers(chatId, parameters, "Alert has been created.",
                         "Your alert has been saved, however we are encountering some " +
@@ -226,7 +230,11 @@ public class UserAlertsManager implements BotBean {
 
     private void handleAdd(long chatId, CommandParameters parameters) {
         if (parameters.hasAlertType()) {
-            addAppropriateUserAlert(chatId, parameters);
+            boolean added = addAppropriateUserAlert(chatId, parameters);
+            if (!added && parameters.delay != DRAFT_DELAY /* Threat draft alerts separately */) {
+                replyWithEditMessage(chatId, parameters, "Alert already exists.");
+                return;
+            }
 
             try {
                 if (parameters.delay != DRAFT_DELAY) {
@@ -335,12 +343,20 @@ public class UserAlertsManager implements BotBean {
         bot.reply(messageToSend);
     }
 
-    private void addAppropriateUserAlert(long chatId, CommandParameters parameters) {
+    private void replyWithEditMessage(long chatId,
+                                      CommandParameters parameters,
+                                      String text) {
+        replyWithEditMessage(chatId, parameters, null, text);
+    }
+
+    private boolean addAppropriateUserAlert(long chatId, CommandParameters parameters) {
         TimeType timeType = getAppropriateTimeType(parameters);
 
         if (timeType != TimeType.DEFAULT) {
-            persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
+            return persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
         }
+
+        return true;
     }
 
     private TimeType getAppropriateTimeType(CommandParameters parameters) {
