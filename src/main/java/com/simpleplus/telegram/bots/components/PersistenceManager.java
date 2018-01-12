@@ -24,6 +24,8 @@ public class PersistenceManager implements BotBean {
     private PropertiesManager propertiesManager;
     private Server webServer;
 
+    // TODO: use a TCP database (and not an embedded one) for better manageability.
+
     public void init() {
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
         createEMFactory();
