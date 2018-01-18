@@ -24,6 +24,8 @@ public class PersistenceManager implements BotBean {
     private PropertiesManager propertiesManager;
     private Server webServer;
 
+    // TODO: use a TCP database (and not an embedded one) for better manageability.
+
     public void init() {
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
         createEMFactory();
@@ -195,17 +197,19 @@ public class PersistenceManager implements BotBean {
      *
      * @param userAlert the {@link UserAlert} to be added
      */
-    public void addUserAlert(UserAlert userAlert) {
+    public boolean addUserAlert(UserAlert userAlert) {
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
         transaction.begin();
         SavedChat savedChat = getSavedChat(userAlert.getChatId());
-        savedChat.addUserAlert(userAlert);
+        boolean res = savedChat.addUserAlert(userAlert);
         em.merge(savedChat);
         em.flush();
         transaction.commit();
         em.close();
+
+        return res;
     }
 
     /**
@@ -227,16 +231,18 @@ public class PersistenceManager implements BotBean {
     /**
      * Edits a {@link UserAlert} from the {@link SavedChat} to which it's associated.
      */
-    public void editUserAlert(UserAlert userAlert) {
+    public boolean editUserAlert(UserAlert userAlert) {
         EntityManager em = createEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
         transaction.begin();
         SavedChat savedChat = getSavedChat(userAlert.getChatId());
-        savedChat.editUserAlert(userAlert);
+        boolean res = savedChat.editUserAlert(userAlert);
         em.merge(savedChat);
         em.flush();
         transaction.commit();
         em.close();
+
+        return res;
     }
 }

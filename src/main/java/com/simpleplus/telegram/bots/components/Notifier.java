@@ -47,7 +47,7 @@ public class Notifier implements BotBean {
             if (userState.getValue().getStep().in(RUNNING, TO_ENTER_SUPPORT_MESSAGE)) {
                 Long chatId = userState.getKey();
                 try {
-                    tryToInstallNotifier(chatId, 5);
+                    tryToInstallNotifiers(chatId, 5);
                 } catch (ServiceException e) {
                     bot.replyAndLogError(chatId, "ServiceException during installAllNotifiers", e);
                 }
@@ -68,25 +68,25 @@ public class Notifier implements BotBean {
      * @param chatId        the chat ID.
      * @param numberOfTimes number of retries.
      */
-    public void tryToInstallNotifier(Long chatId, int numberOfTimes) throws ServiceException {
+    public void tryToInstallNotifiers(Long chatId, int numberOfTimes) throws ServiceException {
         for (int i = 0; i < numberOfTimes; i++) {
             try {
-                installNotifier(chatId);
+                installNotifiers(chatId);
                 return;
             } catch (ServiceException e) {
-                LOG.warn("ServiceException during tryToInstallNotifier (attempt " +
+                LOG.warn("ServiceException during tryToInstallNotifiers (attempt " +
                         Integer.toString(i) + ")... Sleeping 5 seconds.", e);
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e1) {
-                    LOG.error("InterruptedException while sleeping in tryToInstallNotifier.", e1);
+                    LOG.error("InterruptedException while sleeping in tryToInstallNotifiers.", e1);
                 }
             }
         }
         throw new ServiceException("Cannot install notifier: service not available.");
     }
 
-    private void installNotifier(long chatId) throws ServiceException {
+    private void installNotifiers(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
         SunsetSunriseTimes timesTomorrow = null; // Deferred initialization: a call to a REST service is expensive
 

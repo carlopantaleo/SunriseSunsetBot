@@ -34,7 +34,7 @@ public class NotifierTest {
         persistenceManager.setUserState(101L,
                 new UserState(new Coordinates(0, 0), Step.RUNNING, false));
 
-        notifier.tryToInstallNotifier(101L, 5);
+        notifier.tryToInstallNotifiers(101L, 5);
 
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(101L);
         assertEquals(2, userAlerts.size());
