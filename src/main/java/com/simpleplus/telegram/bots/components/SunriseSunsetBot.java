@@ -27,7 +27,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private MessageHandler messageHandler;
     private CommandHandler commandHandler;
     private PropertiesManager propertiesManager;
-    private LocalTime lastGCTime = LocalTime.now();
 
     public static long getChatId(Update update) {
         if (update.hasMessage()) {
@@ -139,29 +138,6 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                         "Error was {} - {}", chatId, ex.getErrorCode(), ex.getApiResponse());
             } else {
                 LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat NOT flagged as expired.", e);
-            }
-        }
-
-        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
-        gc();
-    }
-
-    private void gc() {
-        if (propertiesManager.getProperty("force-gc") != null) {
-            // ...but don't abuse of it.
-            if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 30) {
-                // Get current size of heap in bytes
-                long heapSizeBefore = Runtime.getRuntime().totalMemory();
-                long heapFreeBefore = Runtime.getRuntime().freeMemory();
-                System.gc();
-                lastGCTime = LocalTime.now();
-                long heapSizeAfter = Runtime.getRuntime().totalMemory();
-                long heapFreeAfter = Runtime.getRuntime().freeMemory();
-
-                LOG.info("Full GC executed.\n" +
-                                "\tHeap before: total = {}, free = {}.\n" +
-                                "\tHeap after: total = {}, free = {}.",
-                        heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter);
             }
         }
     }
