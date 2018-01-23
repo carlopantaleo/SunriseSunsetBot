@@ -11,6 +11,7 @@ import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.generics.BotSession;
 
 import java.time.LocalTime;
@@ -130,8 +131,15 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             execute(messageToSend);
             LOG.info("ChatId {}: Outgoing message: {}", chatId, text);
         } catch (TelegramApiException e) {
-            persistenceManager.setStep(chatId, Step.EXPIRED);
-            LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat flagged as expired.", e);
+            if (e instanceof TelegramApiRequestException) {
+                TelegramApiRequestException ex = (TelegramApiRequestException) e;
+                persistenceManager.setStep(chatId, Step.EXPIRED);
+                LOG.warn("ChatId {}: TelegramApiRequestException during reply. " +
+                        "Chat flagged as expired.\n\t" +
+                        "Error was {} - {}", chatId, ex.getErrorCode(), ex.getApiResponse());
+            } else {
+                LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat NOT flagged as expired.", e);
+            }
         }
 
         // This is a good moment to call the garbage collector (experimental for limited hardware machines).
