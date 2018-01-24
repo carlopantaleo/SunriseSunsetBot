@@ -20,36 +20,34 @@ import java.util.Set;
 
 public class PersistenceManager implements BotBean {
     private static final Logger LOG = LogManager.getLogger(PersistenceManager.class);
-    private EntityManagerFactory emFactory;
     private PropertiesManager propertiesManager;
-    private Server webServer;
+    private Server tcpServer;
 
-    // TODO: use a TCP database (and not an embedded one) for better manageability.
+    protected EntityManagerFactory emFactory;
 
     public void init() {
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
+        startEmbeddedTCPServer();
         createEMFactory();
-        startEmbeddedWebServer();
     }
 
-    private void startEmbeddedWebServer() {
-        if (propertiesManager.getProperty("embed-web-server") != null) {
-            try {
-                webServer = Server.createWebServer(
-                        "-webAllowOthers",
-                        "-webPort",
-                        propertiesManager.getPropertyOrDefault("bot-db-port", "8082")
-                ).start();
-                LOG.info("H2 web server started on port {}.", webServer.getPort());
-            } catch (SQLException e) {
-                LOG.error("Cannot create web server.", e);
-            }
+    private void startEmbeddedTCPServer() {
+        try {
+            tcpServer = Server.createTcpServer(
+                    "-tcpAllowOthers",
+                    "-pgAllowOthers",
+                    "-tcpPort", propertiesManager.getPropertyOrDefault("bot-db-port", "8082")
+            ).start();
+            LOG.info("H2 TCP server started on port {}.", tcpServer.getPort());
+        } catch (SQLException e) {
+            LOG.error("Cannot create TCP server.", e);
         }
     }
 
-    private void createEMFactory() {
+    protected void createEMFactory() {
         Map<String, String> persistenceMap = new HashMap<>();
-        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:./" +
+        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:tcp://localhost:" +
+                propertiesManager.getPropertyOrDefault("bot-db-port", "8082") + "/" +
                 propertiesManager.getPropertyOrDefault("bot-database", "db"));
         persistenceMap.put("javax.persistence.jdbc.user",
                 propertiesManager.getPropertyOrDefault("bot-db-user", "sa"));
@@ -59,8 +57,8 @@ public class PersistenceManager implements BotBean {
     }
 
     public void shutDown() {
-        if (webServer != null) {
-            webServer.shutdown();
+        if (tcpServer != null) {
+            tcpServer.shutdown();
         }
     }
 
