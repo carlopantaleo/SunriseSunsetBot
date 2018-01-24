@@ -104,6 +104,13 @@ public class AdminCommandHandler extends CommandHandler implements BotBean {
 
         for (Map.Entry<Long, UserState> entry : userStatesMap.entrySet()) {
             bot.reply(entry.getKey(), message);
+
+            // To avoid hitting Telegram Bot API limits, we force a delay between messages.
+            try {
+                Thread.sleep(35);
+            } catch (InterruptedException e) {
+                LOG.error("InterruptedException while waiting before sending next broadcast message.", e);
+            }
         }
     }
 
