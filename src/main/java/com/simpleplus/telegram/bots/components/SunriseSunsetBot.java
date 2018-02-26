@@ -14,7 +14,8 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.generics.BotSession;
 
-import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.simpleplus.telegram.bots.datamodel.Step.*;
@@ -27,6 +28,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private MessageHandler messageHandler;
     private CommandHandler commandHandler;
     private PropertiesManager propertiesManager;
+    private Map<Long, Integer> exceptionCountMap = new HashMap<>();
 
     public static long getChatId(Update update) {
         if (update.hasMessage()) {
@@ -129,17 +131,38 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         try {
             execute(messageToSend);
             LOG.info("ChatId {}: Outgoing message: {}", chatId, text);
-        } catch (TelegramApiException e) {
-            if (e instanceof TelegramApiRequestException) {
-                TelegramApiRequestException ex = (TelegramApiRequestException) e;
+        } catch (TelegramApiRequestException e) {
+            LOG.warn("ChatId {}: TelegramApiRequestException during reply. " +
+                    "Error was {} - {}", chatId, e.getErrorCode(), e.getApiResponse());
+
+            if (reachedMaxExceptionCount(chatId)) {
                 persistenceManager.setStep(chatId, Step.EXPIRED);
-                LOG.warn("ChatId {}: TelegramApiRequestException during reply. " +
-                        "Chat flagged as expired.\n\t" +
-                        "Error was {} - {}", chatId, ex.getErrorCode(), ex.getApiResponse());
+                LOG.warn("ChatId {}: Reached maximum number of exceptions. Chat flagged as expired.", chatId);
             } else {
-                LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat NOT flagged as expired.", e);
+                incrementExceptionCount(chatId);
             }
+        } catch (TelegramApiException e) {
+            LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat NOT flagged as expired.", e);
         }
+    }
+
+    private void incrementExceptionCount(long chatId) {
+        Integer exceptionCount = exceptionCountMap.get(chatId);
+        if (exceptionCount == null) {
+            exceptionCount = 0;
+        }
+        exceptionCount++;
+
+        exceptionCountMap.put(chatId, exceptionCount);
+        LOG.info("ChatId {}: Incremented exception count to {}.", chatId, exceptionCount);
+    }
+
+    private boolean reachedMaxExceptionCount(long chatId) {
+        Integer maxExceptions =
+                Integer.valueOf(propertiesManager.getPropertyOrDefault("max-exceptions-for-chat", "3"));
+        Integer exceptionCount = exceptionCountMap.get(chatId);
+
+        return exceptionCount != null && exceptionCount <= maxExceptions;
     }
 
     public void replyAndLogError(long chatId, String message, Throwable e) {
