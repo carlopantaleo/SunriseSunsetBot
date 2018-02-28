@@ -162,7 +162,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
                 Integer.valueOf(propertiesManager.getPropertyOrDefault("max-exceptions-for-chat", "3"));
         Integer exceptionCount = exceptionCountMap.get(chatId);
 
-        return exceptionCount != null && exceptionCount <= maxExceptions;
+        return exceptionCount != null && exceptionCount >= maxExceptions;
     }
 
     public void replyAndLogError(long chatId, String message, Throwable e) {
