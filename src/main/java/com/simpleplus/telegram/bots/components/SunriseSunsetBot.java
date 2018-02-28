@@ -11,9 +11,11 @@ import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.generics.BotSession;
 
-import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.simpleplus.telegram.bots.datamodel.Step.*;
@@ -26,7 +28,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     private MessageHandler messageHandler;
     private CommandHandler commandHandler;
     private PropertiesManager propertiesManager;
-    private LocalTime lastGCTime = LocalTime.now();
+    private Map<Long, Integer> exceptionCountMap = new HashMap<>();
 
     public static long getChatId(Update update) {
         if (update.hasMessage()) {
@@ -129,33 +131,38 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         try {
             execute(messageToSend);
             LOG.info("ChatId {}: Outgoing message: {}", chatId, text);
-        } catch (TelegramApiException e) {
-            persistenceManager.setStep(chatId, Step.EXPIRED);
-            LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat flagged as expired.", e);
-        }
+        } catch (TelegramApiRequestException e) {
+            LOG.warn("ChatId {}: TelegramApiRequestException during reply. " +
+                    "Error was {} - {}", chatId, e.getErrorCode(), e.getApiResponse());
 
-        // This is a good moment to call the garbage collector (experimental for limited hardware machines).
-        gc();
+            if (reachedMaxExceptionCount(chatId)) {
+                persistenceManager.setStep(chatId, Step.EXPIRED);
+                LOG.warn("ChatId {}: Reached maximum number of exceptions. Chat flagged as expired.", chatId);
+            } else {
+                incrementExceptionCount(chatId);
+            }
+        } catch (TelegramApiException e) {
+            LOG.warn("ChatId " + chatId + ": TelegramApiException during reply. Chat NOT flagged as expired.", e);
+        }
     }
 
-    private void gc() {
-        if (propertiesManager.getProperty("force-gc") != null) {
-            // ...but don't abuse of it.
-            if (Math.abs(lastGCTime.getMinute() - LocalTime.now().getMinute()) > 30) {
-                // Get current size of heap in bytes
-                long heapSizeBefore = Runtime.getRuntime().totalMemory();
-                long heapFreeBefore = Runtime.getRuntime().freeMemory();
-                System.gc();
-                lastGCTime = LocalTime.now();
-                long heapSizeAfter = Runtime.getRuntime().totalMemory();
-                long heapFreeAfter = Runtime.getRuntime().freeMemory();
-
-                LOG.info("Full GC executed.\n" +
-                                "\tHeap before: total = {}, free = {}.\n" +
-                                "\tHeap after: total = {}, free = {}.",
-                        heapSizeBefore, heapFreeBefore, heapSizeAfter, heapFreeAfter);
-            }
+    private void incrementExceptionCount(long chatId) {
+        Integer exceptionCount = exceptionCountMap.get(chatId);
+        if (exceptionCount == null) {
+            exceptionCount = 0;
         }
+        exceptionCount++;
+
+        exceptionCountMap.put(chatId, exceptionCount);
+        LOG.info("ChatId {}: Incremented exception count to {}.", chatId, exceptionCount);
+    }
+
+    private boolean reachedMaxExceptionCount(long chatId) {
+        Integer maxExceptions =
+                Integer.valueOf(propertiesManager.getPropertyOrDefault("max-exceptions-for-chat", "3"));
+        Integer exceptionCount = exceptionCountMap.get(chatId);
+
+        return exceptionCount != null && exceptionCount >= maxExceptions;
     }
 
     public void replyAndLogError(long chatId, String message, Throwable e) {

@@ -149,7 +149,7 @@ public class CommandHandler implements BotBean {
             try {
                 notifier.tryToInstallNotifiers(chatId, 5);
                 persistenceManager.setNextStep(chatId);
-                bot.reply(chatId, "The bot has been resumed. You will received notifications again.");
+                bot.reply(chatId, "The bot has been resumed. You will receive notifications again.");
             } catch (ServiceException e) {
                 bot.replyAndLogError(chatId, "ServiceException while resuming chat.", e);
             }

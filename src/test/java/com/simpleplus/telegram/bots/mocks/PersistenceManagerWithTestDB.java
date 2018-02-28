@@ -12,7 +12,9 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PersistenceManagerWithTestDB extends PersistenceManager {
     private static final Logger LOG = LogManager.getLogger(PersistenceManagerWithTestDB.class);
@@ -20,6 +22,15 @@ public class PersistenceManagerWithTestDB extends PersistenceManager {
     @Override
     protected EntityManager createEntityManager() {
         return Persistence.createEntityManagerFactory("h2-test").createEntityManager();
+    }
+
+    @Override
+    protected void createEMFactory() {
+        Map<String, String> persistenceMap = new HashMap<>();
+        persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:mem:");
+        persistenceMap.put("javax.persistence.jdbc.user", "sa");
+        persistenceMap.put("javax.persistence.jdbc.password", "");
+        emFactory = Persistence.createEntityManagerFactory("h2", persistenceMap);
     }
 
     public void cleanup() {
