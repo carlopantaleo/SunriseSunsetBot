@@ -74,10 +74,10 @@ public class Notifier implements BotBean {
                 installNotifiers(chatId);
                 return;
             } catch (ServiceException e) {
-                LOG.warn("ServiceException during tryToInstallNotifiers (attempt " +
-                        Integer.toString(i) + ")... Sleeping 5 seconds.", e);
+                LOG.warn("ServiceException during tryToInstallNotifiers (attempt " + Integer.toString(i) +
+                         ")... Sleeping 60 seconds.", e);
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(60000);
                 } catch (InterruptedException e1) {
                     LOG.error("InterruptedException while sleeping in tryToInstallNotifiers.", e1);
                 }
