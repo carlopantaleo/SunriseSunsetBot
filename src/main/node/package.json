@@ -1,0 +1,30 @@
+{
+  "name": "sunrisesunsetbot-js-api",
+  "version": "1.0.0",
+  "description": "A Node module which exposes a REST API to caluclate sunrise and sunset times.",
+  "main": "sunrisesunsetbot-js-api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlopantaleo/SunriseSunsetBot.git"
+  },
+  "keywords": [
+    "sunrisesunsetbot",
+    "sunrise",
+    "sunset",
+    "calculator",
+    "rest-api"
+  ],
+  "author": "Carlo Pantaleo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/carlopantaleo/SunriseSunsetBot/issues"
+  },
+  "homepage": "https://github.com/carlopantaleo/SunriseSunsetBot#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "suncalc": "^1.8.0"
+  }
+}

@@ -5,3 +5,4 @@ logs
 .idea
 target
 bot.properties
+node_modules
