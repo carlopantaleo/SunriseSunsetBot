@@ -12,7 +12,7 @@ app.get('/json/:lat/:lng/:date', (request, response) => {
 
     if (request.params.lat === undefined || request.params.lng === undefined || request.params.date === undefined) {
         res.message = "Not all request params specified.";
-        reply(res);
+        response.json(res);
         return;
     }
 
@@ -20,7 +20,7 @@ app.get('/json/:lat/:lng/:date', (request, response) => {
     let longitude = Number(request.params.lng);
     if (isNaN(latitude) || isNaN(longitude)) {
         res.message = "Latitude or Longitude are not valid numbers.";
-        reply(res);
+        response.json(res);
         return;
     }
 
@@ -28,11 +28,7 @@ app.get('/json/:lat/:lng/:date', (request, response) => {
 
     res.results = SunCalc.getTimes(theDate, latitude, longitude);
     res.status = "OK";
-    reply(res);
-
-    function reply(json) {
-        response.send(JSON.stringify(json));
-    }
+    response.json(res);
 });
 
 app.listen(port, (err) => {
