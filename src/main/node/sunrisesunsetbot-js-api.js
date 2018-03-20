@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const port = 8500;
 
-app.get('/json/:lat/:lng/:date', (request, response) => {
+app.get('/json/sun/:lat/:lng/:date', (request, response) => {
     let res = {
         status: "KO",
         message: "",
