@@ -4,8 +4,7 @@ const app = express();
 const port = 8500;
 
 app.use(function (request, response, next) {
-    console.log(new Date().toString() +
-        ` Incoming request: ${request.method} ${request.url}`);
+    log(`Incoming request: ${request.method} ${request.url}`);
     next();
 });
 
@@ -39,8 +38,12 @@ app.get('/json/sun/:lat/:lng/:date', (request, response) => {
 
 app.listen(port, (err) => {
     if (err) {
-        return console.log('Something bad happened', err);
+        return log("Something bad happened", err);
     }
 
-    console.log(new Date().toString() + ` Server is listening on ${port}`);
+    log(`Server is listening on ${port}`);
 });
+
+function log(text) {
+    console.log(new Date().toISOString().slice(0,19) + " " + text);
+}
