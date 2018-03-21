@@ -232,7 +232,7 @@ public class UserAlertsManager implements BotBean {
 
     private void handleAdd(long chatId, CommandParameters parameters) {
         if (parameters.hasAlertType()) {
-            boolean added = addAppropriateUserAlert(chatId, parameters);
+            boolean added = addAppropriatedUserAlert(chatId, parameters);
             if (!added && parameters.delay != DRAFT_DELAY /* Threat draft alerts separately */) {
                 replyWithEditMessage(chatId, parameters, "Alert already exists.");
                 return;
@@ -288,7 +288,7 @@ public class UserAlertsManager implements BotBean {
             if (alert.getId() == parameters.alertId) {
                 parameters.alertType = alert.getTimeType().getReadableName().toLowerCase();
                 alert.setDelay(parameters.delay);
-                alert.setTimeType(getAppropriateTimeType(parameters));
+                alert.setTimeType(getAppropriatedTimeType(parameters));
                 return alert;
             }
         }
@@ -351,8 +351,8 @@ public class UserAlertsManager implements BotBean {
         replyWithEditMessage(chatId, parameters, null, text);
     }
 
-    private boolean addAppropriateUserAlert(long chatId, CommandParameters parameters) {
-        TimeType timeType = getAppropriateTimeType(parameters);
+    private boolean addAppropriatedUserAlert(long chatId, CommandParameters parameters) {
+        TimeType timeType = getAppropriatedTimeType(parameters);
 
         if (timeType != TimeType.DEFAULT) {
             return persistenceManager.addUserAlert(new UserAlert(chatId, timeType, parameters.delay));
@@ -361,7 +361,7 @@ public class UserAlertsManager implements BotBean {
         return true;
     }
 
-    private TimeType getAppropriateTimeType(CommandParameters parameters) {
+    private TimeType getAppropriatedTimeType(CommandParameters parameters) {
         TimeType timeType = DEFAULT;
 
         switch (parameters.alertType) {

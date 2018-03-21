@@ -9,10 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Date;
 import java.util.Map;
 
@@ -140,36 +137,13 @@ public class Notifier implements BotBean {
     }
 
     private Date getDateTimeFromTimeType(SunsetSunriseTimes times, TimeType timeType) {
-        switch (timeType) {
-            case SUNRISE_TIME:
-            case SUNRISE_TIME_ANTICIPATION:
-                return times.getSunriseTime();
-            case SUNSET_TIME_ANTICIPATION:
-            case SUNSET_TIME:
-                return times.getSunsetTime();
-            case CIVIL_TWILIGHT_BEGIN_TIME:
-            case CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
-                return times.getCivilTwilightBeginTime();
-            case CIVIL_TWILIGHT_END_TIME:
-            case CIVIL_TWILIGHT_END_TIME_ANTICIPATION:
-                return times.getCivilTwilightEndTime();
-            case NAUTICAL_TWILIGHT_BEGIN_TIME:
-            case NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
-                return times.getNauticalTwilightBeginTime();
-            case NAUTICAL_TWILIGHT_END_TIME:
-            case NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION:
-                return times.getNauticalTwilightEndTime();
-            case ASTRONOMICAL_TWILIGHT_BEGIN_TIME:
-            case ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION:
-                return times.getAstronomicalTwilightBeginTime();
-            case ASTRONOMICAL_TWILIGHT_END_TIME:
-            case ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION:
-                return times.getAstronomicalTwilightEndTime();
-
-            default:
-                // Should never happen
-                return Date.from(Instant.now());
+        LocalDateTime dateTime = times.getTime(timeType.getInternalName());
+        if (dateTime == null) {
+            // Should never happen
+            return Date.from(Instant.now());
         }
+
+        return Date.from(dateTime.toInstant(ZoneOffset.UTC));
     }
 
     public void scheduleDailyAllNotifiersInstaller() {

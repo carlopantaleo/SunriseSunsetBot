@@ -12,11 +12,11 @@ import java.time.LocalTime;
 public class SunriseSunsetServiceMock implements SunsetSunriseService, BotBean {
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate) throws ServiceException {
-        return new SunsetSunriseTimes(LocalTime.NOON, LocalTime.MIDNIGHT, null, null, null, null, null, null);
+        return new SunsetSunriseTimes();
     }
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates) throws ServiceException {
-        return new SunsetSunriseTimes(LocalTime.NOON, LocalTime.MIDNIGHT, null, null, null, null, null, null);
+        return new SunsetSunriseTimes();
     }
 }

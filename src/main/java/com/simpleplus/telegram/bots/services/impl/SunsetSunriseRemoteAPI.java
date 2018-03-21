@@ -1,5 +1,8 @@
 package com.simpleplus.telegram.bots.services.impl;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simpleplus.telegram.bots.components.BotBean;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
@@ -17,14 +20,16 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
+import java.util.Map;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final Logger LOG = LogManager.getLogger(SunsetSunriseRemoteAPI.class);
-    private static final String BASE_URL = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f&date=%s";
+    private static final String BASE_URL = "http://127.0.0.1:8500/json/sun/%f/%f/%s";
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate)
@@ -40,53 +45,27 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     }
 
     private SunsetSunriseTimes parseResult(String result) throws ServiceException {
-        String status, sunsetStr, sunriseStr, civilTwilightBeginStr, civilTwilightEndStr, nauticalTwilightBeginStr,
-                nauticalTwilightEndStr, astronomicalTwilightBeginStr, astronomicalTwilightEndStr;
+        SunsetSunriseTimes times = new SunsetSunriseTimes();
 
         try {
-            JSONObject obj = new JSONObject(result);
+            APIResponse response = new ObjectMapper().readValue(result, APIResponse.class);
 
-            status = obj.getString("status");
-            sunsetStr = obj.getJSONObject("results").getString("sunset");
-            sunriseStr = obj.getJSONObject("results").getString("sunrise");
-            civilTwilightBeginStr = obj.getJSONObject("results").getString("civil_twilight_begin");
-            civilTwilightEndStr = obj.getJSONObject("results").getString("civil_twilight_end");
-            nauticalTwilightBeginStr = obj.getJSONObject("results").getString("nautical_twilight_begin");
-            nauticalTwilightEndStr = obj.getJSONObject("results").getString("nautical_twilight_end");
-            astronomicalTwilightBeginStr = obj.getJSONObject("results").getString("astronomical_twilight_begin");
-            astronomicalTwilightEndStr = obj.getJSONObject("results").getString("astronomical_twilight_end");
-        } catch (JSONException e) {
-            throw new ServiceException("Internal service error (JSONException)");
+            if (response.status == null || !"OK".equals(response.status)) {
+                throw new ServiceException("Remote service error: " + response.message);
+            }
+
+            for (Map.Entry<String, LocalDateTime> entry : response.results.entrySet()) {
+                times.putTime(entry.getKey(), entry.getValue());
+            }
+        } catch (IOException e) {
+            throw new ServiceException("Internal service error (" + e.getMessage() + ")", e);
         }
 
-        if (!"OK".equals(status)) {
-            throw new ServiceException("Remote service error (" + status + ")");
-        }
-
-        LocalTime sunset, sunrise, civilTwilightBegin, civilTwilightEnd, nauticalTwilightBegin, nauticalTwilightEnd,
-                astronomicalTwilightBegin, astronomicalTwilightEnd;
-        try {
-            sunset = LocalTime.parse(sunsetStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            sunrise = LocalTime.parse(sunriseStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            civilTwilightBegin = LocalTime.parse(civilTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            civilTwilightEnd = LocalTime.parse(civilTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            nauticalTwilightBegin = LocalTime.parse(nauticalTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            nauticalTwilightEnd = LocalTime.parse(nauticalTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            astronomicalTwilightBegin =
-                    LocalTime.parse(astronomicalTwilightBeginStr, DateTimeFormatter.ofPattern("h:m:s a"));
-            astronomicalTwilightEnd =
-                    LocalTime.parse(astronomicalTwilightEndStr, DateTimeFormatter.ofPattern("h:m:s a"));
-        } catch (DateTimeParseException e) {
-            LOG.error("DateTimeParseException", e);
-            throw new ServiceException("Internal service error (DateTimeParseException)");
-        }
-
-        return new SunsetSunriseTimes(sunset, sunrise, civilTwilightEnd, civilTwilightBegin, nauticalTwilightEnd,
-                nauticalTwilightBegin, astronomicalTwilightEnd, astronomicalTwilightBegin);
+        return times;
     }
 
     private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         try {
             URL url = new URL(String
@@ -100,11 +79,11 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
                 throw new ServiceException("HTTP Error " + conn.getResponseCode());
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
             String output;
             while ((output = br.readLine()) != null) {
-                result = result.concat(output);
+                result = result.append(output);
             }
 
             conn.disconnect();
@@ -114,6 +93,12 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             throw new ServiceException("IO Error");
         }
 
-        return result;
+        return result.toString();
+    }
+
+    public static class APIResponse {
+        String status;
+        String message;
+        Map<String, LocalDateTime> results;
     }
 }
