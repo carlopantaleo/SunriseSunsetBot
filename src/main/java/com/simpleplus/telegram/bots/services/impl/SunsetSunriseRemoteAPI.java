@@ -1,8 +1,7 @@
 package com.simpleplus.telegram.bots.services.impl;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.simpleplus.telegram.bots.components.BotBean;
 import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.SunsetSunriseTimes;
@@ -10,20 +9,16 @@ import com.simpleplus.telegram.bots.exceptions.ServiceException;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -48,7 +43,9 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
         SunsetSunriseTimes times = new SunsetSunriseTimes();
 
         try {
-            APIResponse response = new ObjectMapper().readValue(result, APIResponse.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            APIResponse response = objectMapper.readValue(result, APIResponse.class);
 
             if (response.status == null || !"OK".equals(response.status)) {
                 throw new ServiceException("Remote service error: " + response.message);
@@ -71,7 +68,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             URL url = new URL(String
                     .format(Locale.ROOT, BASE_URL, coordinates.getLatitude(), coordinates.getLongitude(),
                             localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
@@ -97,8 +94,32 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     }
 
     public static class APIResponse {
-        String status;
-        String message;
-        Map<String, LocalDateTime> results;
+        private String status;
+        private String message;
+        private Map<String, LocalDateTime> results;
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public Map<String, LocalDateTime> getResults() {
+            return results;
+        }
+
+        public void setResults(Map<String, LocalDateTime> results) {
+            this.results = results;
+        }
     }
 }
