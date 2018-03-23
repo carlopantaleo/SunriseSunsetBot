@@ -3,6 +3,7 @@ package com.simpleplus.telegram.bots.components;
 import com.simpleplus.telegram.bots.datamodel.TimeType;
 import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
+import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -18,16 +19,13 @@ import java.util.stream.Collectors;
 import static com.simpleplus.telegram.bots.datamodel.TimeType.*;
 
 /**
- * This component handles user alerts. It:
- * <ul>
- * <li>Handles {@code /alert} commands.</li>
- * <li>Serves {@code UserAlert}s for a specific user.</li>
- * </ul>
+ * This component handles user alerts. It: <ul> <li>Handles {@code /alert} commands.</li> <li>Serves {@code UserAlert}s
+ * for a specific user.</li> </ul>
  */
 public class UserAlertsManager implements BotBean {
     /**
-     * When issuing '/alerts add <something> delay null', the alert gets saved with a draft delay,
-     * so that it's persisted but not scheduled.
+     * When issuing '/alerts add <something> delay null', the alert gets saved with a draft delay, so that it's
+     * persisted but not scheduled.
      */
     public static final int DRAFT_DELAY = -100;
 
@@ -36,6 +34,25 @@ public class UserAlertsManager implements BotBean {
             "(?:(add|remove|edit)( [0-9]+)?" +
                     "( (?:begin|end) of (?:civil|nautical|astronomical) twilight| sunrise| sunset)?" +
                     "(?: delay (-?[0-9]{1,2}|null))?)";
+    private static final ImmutableMap<String, TimeTypesTuple> TIMES_TUPLE =
+            new ImmutableMap.Builder<String, TimeTypesTuple>()
+                    .put("sunrise", TimeTypesTuple.of(SUNRISE_TIME, SUNRISE_TIME_ANTICIPATION))
+                    .put("sunset", TimeTypesTuple.of(SUNSET_TIME, SUNSET_TIME_ANTICIPATION))
+                    .put("begin of civil twilight",
+                            TimeTypesTuple.of(CIVIL_TWILIGHT_BEGIN_TIME, CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION))
+                    .put("end of civil twilight",
+                            TimeTypesTuple.of(CIVIL_TWILIGHT_END_TIME, CIVIL_TWILIGHT_END_TIME_ANTICIPATION))
+                    .put("begin of nautical twilight",
+                            TimeTypesTuple.of(NAUTICAL_TWILIGHT_BEGIN_TIME, NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION))
+                    .put("end of nautical twilight",
+                            TimeTypesTuple.of(NAUTICAL_TWILIGHT_END_TIME, NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION))
+                    .put("begin of astronomical twilight",
+                            TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_BEGIN_TIME,
+                                    ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION))
+                    .put("end of astronomical twilight",
+                            TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_END_TIME,
+                                    ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION))
+                    .build();
 
     private PersistenceManager persistenceManager;
     private SunriseSunsetBot bot;
@@ -362,52 +379,12 @@ public class UserAlertsManager implements BotBean {
     }
 
     private TimeType getAppropriatedTimeType(CommandParameters parameters) {
-        TimeType timeType = DEFAULT;
-
-        switch (parameters.alertType) {
-            case "sunrise":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        SUNRISE_TIME,
-                        SUNRISE_TIME_ANTICIPATION);
-                break;
-            case "sunset":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        SUNSET_TIME,
-                        SUNSET_TIME_ANTICIPATION);
-                break;
-            case "begin of civil twilight":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        CIVIL_TWILIGHT_BEGIN_TIME,
-                        CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION);
-                break;
-            case "end of civil twilight":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        CIVIL_TWILIGHT_END_TIME,
-                        CIVIL_TWILIGHT_END_TIME_ANTICIPATION);
-                break;
-            case "begin of nautical twilight":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        NAUTICAL_TWILIGHT_BEGIN_TIME,
-                        NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION);
-                break;
-            case "end of nautical twilight":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        NAUTICAL_TWILIGHT_END_TIME,
-                        NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION);
-                break;
-            case "begin of astronomical twilight":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        ASTRONOMICAL_TWILIGHT_BEGIN_TIME,
-                        ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION);
-                break;
-            case "end of astronomical twilight":
-                timeType = getTimeTypeFromDelay(parameters.delay,
-                        ASTRONOMICAL_TWILIGHT_END_TIME,
-                        ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION);
-                break;
+        TimeTypesTuple times = TIMES_TUPLE.get(parameters.alertType);
+        if (times != null) {
+            return getTimeTypeFromDelay(parameters.delay, times.time, times.anticipation);
+        } else {
+            return DEFAULT;
         }
-
-        return timeType;
     }
 
     private TimeType getTimeTypeFromDelay(long delay,
@@ -455,6 +432,20 @@ public class UserAlertsManager implements BotBean {
 
         public boolean hasAlertId() {
             return alertId != 0;
+        }
+    }
+
+    private static class TimeTypesTuple {
+        private final TimeType time;
+        private final TimeType anticipation;
+
+        private TimeTypesTuple(TimeType time, TimeType anticipation) {
+            this.time = time;
+            this.anticipation = anticipation;
+        }
+
+        public static TimeTypesTuple of(TimeType time, TimeType anticipation) {
+            return new TimeTypesTuple(time, anticipation);
         }
     }
 }

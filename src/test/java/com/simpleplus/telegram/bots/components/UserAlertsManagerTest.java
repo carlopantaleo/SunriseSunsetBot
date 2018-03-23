@@ -1,10 +1,7 @@
 package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.MainTest;
-import com.simpleplus.telegram.bots.datamodel.Coordinates;
-import com.simpleplus.telegram.bots.datamodel.Step;
-import com.simpleplus.telegram.bots.datamodel.UserAlert;
-import com.simpleplus.telegram.bots.datamodel.UserState;
+import com.simpleplus.telegram.bots.datamodel.*;
 import com.simpleplus.telegram.bots.mocks.SunriseSunsetBotMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +69,7 @@ public class UserAlertsManagerTest {
 
         userAlertsManager.handleCommand(testChatId, "add sunrise delay null", 1L);
         userAlertsManager.handleCommand(testChatId, "add sunrise delay null", 1L);
-        assertNotEquals("Alert already exists.", ((SunriseSunsetBotMock)bot).getLastTextMessage());
+        assertNotEquals("Alert already exists.", ((SunriseSunsetBotMock) bot).getLastTextMessage());
 
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(testChatId);
         assertEquals(1, userAlerts.size());
@@ -106,6 +103,86 @@ public class UserAlertsManagerTest {
         userAlertsManager.handleCommand(testChatId, "edit " + (maxUserAlert + 1) + " delay 0", 1L);
         userAlerts = persistenceManager.getUserAlerts(testChatId);
         assertEquals(1, userAlerts.size());
-        assertEquals("Alert already exists.", ((SunriseSunsetBotMock)bot).getLastTextMessage());
+        assertEquals("Alert already exists.", ((SunriseSunsetBotMock) bot).getLastTextMessage());
+    }
+
+    @Test
+    public void getAppropriatedTimeTypeWorks() throws Exception {
+        long iChatId = 104;
+        for (int i = 0; i < 16; i++) {
+            persistenceManager.setUserState(iChatId + i, new UserState(
+                    new Coordinates(0, 0),
+                    Step.RUNNING,
+                    false
+            ));
+        }
+
+        userAlertsManager.handleCommand(iChatId, "add sunrise delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add sunrise delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add sunset delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add sunset delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add begin of civil twilight delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add begin of civil twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add end of civil twilight delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add end of civil twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add begin of nautical twilight delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add begin of nautical twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add end of nautical twilight delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add end of nautical twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add begin of astronomical twilight delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add begin of astronomical twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add end of astronomical twilight delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId, "add end of astronomical twilight delay -5", 1L);
+
+        iChatId = 104;
+        Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNRISE_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNRISE_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNSET_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNSET_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_BEGIN_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts,
+                new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_END_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts,
+                new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts,
+                new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_END_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts,
+                new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(
+                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts,
+                new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(
+                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts,
+                new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+    }
+
+    private boolean setContainsUserAlert(Set<UserAlert> set, UserAlert expected) {
+        for (UserAlert userAlert : set) {
+            if (userAlert.equalsNoId(expected)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
