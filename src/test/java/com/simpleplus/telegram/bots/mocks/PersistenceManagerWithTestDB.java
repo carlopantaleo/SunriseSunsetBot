@@ -25,6 +25,12 @@ public class PersistenceManagerWithTestDB extends PersistenceManager {
     }
 
     @Override
+    public void init() {
+        createEMFactory();
+    }
+
+
+    @Override
     protected void createEMFactory() {
         Map<String, String> persistenceMap = new HashMap<>();
         persistenceMap.put("javax.persistence.jdbc.url", "jdbc:h2:mem:");
