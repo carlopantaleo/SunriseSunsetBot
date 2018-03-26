@@ -4,7 +4,8 @@
   "description": "A Node module which exposes a REST API to caluclate sunrise and sunset times.",
   "main": "sunrisesunsetbot-js-api.js",
   "scripts": {
-    "start": "node sunrisesunsetbot-js-api.js"
+    "start": "node sunrisesunsetbot-js-api.js",
+    "debug": "node %NODE_DEBUG_OPTION% sunrisesunsetbot-js-api.js"
   },
   "repository": {
     "type": "git",
