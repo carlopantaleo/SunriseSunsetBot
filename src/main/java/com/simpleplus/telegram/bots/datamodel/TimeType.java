@@ -24,42 +24,42 @@ public enum TimeType {
     CIVIL_TWILIGHT_BEGIN_TIME(
             "Civil twilight has begun.",
             "Begin of civil twilight",
-            "dusk"
+            "dawn"
     ),
     CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION(
             "Civil twilight begins in %d minutes.",
             "Begin of civil twilight",
-            "dusk"
+            "dawn"
     ),
     CIVIL_TWILIGHT_END_TIME(
             "Civil twilight has ended.",
             "End of civil twilight",
-            "dawn"
+            "dusk"
     ),
     CIVIL_TWILIGHT_END_TIME_ANTICIPATION(
             "Civil twilight ends in %d minutes.",
             "End of civil twilight",
-            "dawn"
+            "dusk"
     ),
     NAUTICAL_TWILIGHT_BEGIN_TIME(
             "Nautical twilight has begun.",
             "Begin of nautical twilight",
-            "nauticalDusk"
+            "nauticalDawn"
     ),
     NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION(
             "Nautical twilight begins in %d minutes.",
             "Begin of nautical twilight",
-            "nauticalDusk"
+            "nauticalDawn"
     ),
     NAUTICAL_TWILIGHT_END_TIME(
             "Nautical twilight has ended.",
             "End of nautical twilight",
-            "nauticalDawn"
+            "nauticalDusk"
     ),
     NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION(
             "Nautical twilight ends in %d minutes.",
             "End of nautical twilight",
-            "nauticalDawn"
+            "nauticalDusk"
     ),
     ASTRONOMICAL_TWILIGHT_BEGIN_TIME(
             "Astronomical twilight has begun.",
