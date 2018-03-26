@@ -16,29 +16,27 @@ app.get('/json/sun/:lat/:lng/:date', (request, response) => {
     };
 
     if (request.params.lat === undefined || request.params.lng === undefined || request.params.date === undefined) {
-        res.message = "Not all request params specified.";
-        response.json(res);
-        return;
+        return error(response, "Not all request params specified.");
     }
 
     let latitude = Number(request.params.lat);
     let longitude = Number(request.params.lng);
     if (isNaN(latitude) || isNaN(longitude)) {
-        res.message = "Latitude or Longitude are not valid numbers.";
-        response.json(res);
-        return;
+        return error(response, "Latitude or Longitude are not valid numbers.");
     }
 
     let theDate = new Date(request.params.date);
+    if (theDate.toString() === "Invalid Date") {
+        return error(response, "Invalid date. Please specify a date in valid ISO format.");
+    }
 
-    res.results = SunCalc.getTimes(theDate, latitude, longitude);
-    res.status = "OK";
-    response.json(res);
+    let results = SunCalc.getTimes(theDate, latitude, longitude);
+    success(response, results);
 });
 
 app.listen(port, (err) => {
     if (err) {
-        return log("Something bad happened", err);
+        return log(`Something bad happened. Error: ${err}`);
     }
 
     log(`Server is listening on ${port}`);
@@ -46,4 +44,25 @@ app.listen(port, (err) => {
 
 function log(text) {
     console.log(new Date().toISOString().slice(0,19) + " " + text);
+}
+
+function error(response, text) {
+    let res = {
+        status: "KO",
+        message: text,
+        results: {}
+    };
+
+    response.status(400);
+    response.json(res);
+}
+
+function success(response, results) {
+    let res = {
+        status: "OK",
+        message: "",
+        results: results
+    };
+
+    response.json(res);
 }
