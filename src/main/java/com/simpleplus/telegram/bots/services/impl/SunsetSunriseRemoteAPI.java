@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
@@ -61,13 +62,21 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
         return times;
     }
 
+    /**
+     * Calls the remote API and returns the response string.
+     *
+     * @param localDate the date which will be passed to the service. Please note that since it is a non-zoned date,
+     *                  prior to passing it to the API, it will be converted to a zoned one with system-default time
+     *                  zone (assuming start of day as time).
+     */
     private String callRemoteService(Coordinates coordinates, LocalDate localDate) throws ServiceException {
         StringBuilder result = new StringBuilder();
 
         try {
-            URL url = new URL(String
-                    .format(Locale.ROOT, BASE_URL, coordinates.getLatitude(), coordinates.getLongitude(),
-                            localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));
+            URL url = new URL(String.format(Locale.ROOT, BASE_URL,
+                    coordinates.getLatitude(),
+                    coordinates.getLongitude(),
+                    localDate.atStartOfDay(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_DATE)));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
