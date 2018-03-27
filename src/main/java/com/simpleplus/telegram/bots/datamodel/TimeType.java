@@ -12,12 +12,12 @@ public enum TimeType {
             "sunrise"
     ),
     SUNSET_TIME(
-            "Sunset has begun.",
+            "The sun is setting.",
             "Sunset",
             "sunset"
     ),
     SUNSET_TIME_ANTICIPATION(
-            "Sunset begins in %d minutes.",
+            "The sun is setting in %d minutes.",
             "Sunset",
             "sunset"
     ),
