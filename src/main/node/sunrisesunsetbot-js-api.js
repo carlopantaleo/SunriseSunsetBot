@@ -1,7 +1,7 @@
 const SunCalc = require('suncalc');
 const express = require('express');
 const app = express();
-const port = 8500;
+const port = process.argv[2] || 8500;
 
 app.use(function (request, response, next) {
     log(`Incoming request: ${request.method} ${request.url}`);
