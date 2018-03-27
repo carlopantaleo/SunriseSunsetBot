@@ -51,6 +51,8 @@ public class UserAlertsManagerTest {
         assertTrue(userAlertsManager.validateSyntax("add end of civil twilight delay null"));
         assertTrue(userAlertsManager.validateSyntax("add end of nautical twilight delay null"));
         assertTrue(userAlertsManager.validateSyntax("add end of astronomical twilight delay null"));
+        assertTrue(userAlertsManager.validateSyntax("add begin of golden hour delay null"));
+        assertTrue(userAlertsManager.validateSyntax("add end of golden hour delay null"));
         assertTrue(userAlertsManager.validateSyntax("add"));
         assertTrue(userAlertsManager.validateSyntax("remove 5"));
         assertTrue(userAlertsManager.validateSyntax("remove"));
@@ -180,16 +182,13 @@ public class UserAlertsManagerTest {
                 new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
-//        assertTrue(
-//                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN, 0)));
-//        assertTrue(setContainsUserAlert(userAlerts,
-//                new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN_ANTICIPATION, -5)));
-//        iChatId++;
-//        userAlerts = persistenceManager.getUserAlerts(iChatId);
-//        assertTrue(
-//                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END, 0)));
-//        assertTrue(setContainsUserAlert(userAlerts,
-//                new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END_ANTICIPATION, -5)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN, 0)));
+        assertTrue(
+                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END_ANTICIPATION, -5)));
     }
 
     private boolean setContainsUserAlert(Set<UserAlert> set, UserAlert expected) {

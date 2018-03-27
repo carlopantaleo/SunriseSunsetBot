@@ -32,8 +32,8 @@ public class UserAlertsManager implements BotBean {
     private static final Logger LOG = LogManager.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
-                    "( (?:begin|end) of (?:civil|nautical|astronomical) twilight| sunrise| sunset)?" +
-                    "(?: delay (-?[0-9]{1,2}|null))?)";
+            "( (?:begin|end) of (?:(?:civil|nautical|astronomical) twilight|golden hour)| sunrise| sunset)?" +
+            "(?: delay (-?[0-9]{1,2}|null))?)";
     private static final ImmutableMap<String, TimeTypesTuple> TIMES_TUPLE =
             new ImmutableMap.Builder<String, TimeTypesTuple>()
                     .put("sunrise", TimeTypesTuple.of(SUNRISE_TIME, SUNRISE_TIME_ANTICIPATION))
