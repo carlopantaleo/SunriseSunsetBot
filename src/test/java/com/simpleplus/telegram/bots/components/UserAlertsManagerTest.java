@@ -109,7 +109,7 @@ public class UserAlertsManagerTest {
     @Test
     public void getAppropriatedTimeTypeWorks() throws Exception {
         long iChatId = 104;
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 18; i++) {
             persistenceManager.setUserState(iChatId + i, new UserState(
                     new Coordinates(0, 0),
                     Step.RUNNING,
@@ -132,7 +132,11 @@ public class UserAlertsManagerTest {
         userAlertsManager.handleCommand(iChatId, "add begin of astronomical twilight delay 0", 1L);
         userAlertsManager.handleCommand(iChatId++, "add begin of astronomical twilight delay -5", 1L);
         userAlertsManager.handleCommand(iChatId, "add end of astronomical twilight delay 0", 1L);
-        userAlertsManager.handleCommand(iChatId, "add end of astronomical twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add end of astronomical twilight delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add begin of golden hour delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add begin of golden hour delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add end of golden hour delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId, "add end of golden hour delay -5", 1L);
 
         iChatId = 104;
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(iChatId);
@@ -174,6 +178,18 @@ public class UserAlertsManagerTest {
                 setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
                 new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+//        assertTrue(
+//                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN, 0)));
+//        assertTrue(setContainsUserAlert(userAlerts,
+//                new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN_ANTICIPATION, -5)));
+//        iChatId++;
+//        userAlerts = persistenceManager.getUserAlerts(iChatId);
+//        assertTrue(
+//                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END, 0)));
+//        assertTrue(setContainsUserAlert(userAlerts,
+//                new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END_ANTICIPATION, -5)));
     }
 
     private boolean setContainsUserAlert(Set<UserAlert> set, UserAlert expected) {

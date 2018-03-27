@@ -52,6 +52,12 @@ public class UserAlertsManager implements BotBean {
                     .put("end of astronomical twilight",
                             TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_END_TIME,
                                     ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION))
+                    .put("begin of golden hour",
+                            TimeTypesTuple.of(GOLDEN_HOUR_BEGIN,
+                                    GOLDEN_HOUR_BEGIN_ANTICIPATION))
+                    .put("end of golden hour",
+                            TimeTypesTuple.of(GOLDEN_HOUR_END,
+                                    GOLDEN_HOUR_END_ANTICIPATION))
                     .build();
 
     private PersistenceManager persistenceManager;
@@ -147,14 +153,21 @@ public class UserAlertsManager implements BotBean {
 
         // Build the keyboard (adds a default delay (null) as a workaround in order to not overwrite any existing
         // no-delay alert.
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay null"));
-        row1.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay null"));
-        keyboard.add(row1);
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay null"));
+        row.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay null"));
+        keyboard.add(row);
 
         addTwilightRow(keyboard, "civil");
         addTwilightRow(keyboard, "nautical");
         addTwilightRow(keyboard, "astronomical");
+
+        row = new ArrayList<>();
+        row.add(new InlineKeyboardButton().setText("Begin of golden hour")
+                .setCallbackData("/alerts add begin of golden hour delay null"));
+        row.add(new InlineKeyboardButton().setText("End of golden hour")
+                .setCallbackData("/alerts add end of golden hour delay null"));
+        keyboard.add(row);
 
         keyboardMarkup.setKeyboard(keyboard);
 

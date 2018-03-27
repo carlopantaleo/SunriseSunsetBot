@@ -81,6 +81,26 @@ public enum TimeType {
             "End of astronomical twilight",
             "night"
     ),
+    GOLDEN_HOUR_BEGIN(
+            "Golden hour has begun.",
+            "Begin of golden hour",
+            "goldenHour"
+    ),
+    GOLDEN_HOUR_BEGIN_ANTICIPATION(
+            "Golden hour begins in %d minutes.",
+            "Begin of golden hour",
+            "goldenHour"
+    ),
+    GOLDEN_HOUR_END(
+            "Golden hour has ended.",
+            "End of golden hour",
+            "goldenHourEnd"
+    ),
+    GOLDEN_HOUR_END_ANTICIPATION(
+            "Golden hour ends in %d minutes.",
+            "End of golden hour",
+            "goldenHourEnd"
+    ),
     DEFAULT("Invalid.", "Invalid", "invalid");
 
     private String message;
