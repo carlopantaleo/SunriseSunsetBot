@@ -2,15 +2,20 @@
 [![Build Status](https://travis-ci.org/carlopantaleo/SunriseSunsetBot.svg?branch=master)](https://travis-ci.org/carlopantaleo/SunriseSunsetBot)
 
 A Telegram bot that alerts you at sunrise and sunset, based on your location. Sunrise and sunset times are provided by
-the excellent API by [sunrise-sunset.org](http://sunrise-sunset.org).
+the excellent JavaScript library [SuncCalc](https://github.com/mourner/suncalc).
 
 #### How does it work?
 1. Start the bot (the official registered bot on Telegram is `@SunriseSunset_bot`).
 2. Send your location if you are using a mobile client, or send your coordinates if location messages are not supported
 by your client.
 3. Every day at sunrise and sunset you will receive an alert message.
-4. Use the `/alerts` command to manage your alert messages: you can choose to be alerted also at civil twilight begin
-and end and you can choose to receive the notification in advance with respect to the actual event.
+4. Use the `/alerts` command to manage your alert messages: you can choose to be alerted also at:
+   - civil twilight begin/end
+   - astronomical twilight begin/end
+   - nautical twilight begin/end
+   - golden hour begin/end
+
+   and you can choose to receive the notification in advance with respect to the actual event.
 
 Got a problem? Found a bug? Send a `/support` message and get in touch with us!
 
