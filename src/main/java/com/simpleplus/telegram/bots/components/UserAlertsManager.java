@@ -32,8 +32,8 @@ public class UserAlertsManager implements BotBean {
     private static final Logger LOG = LogManager.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
-            "( (?:begin|end) of (?:(?:civil|nautical|astronomical) twilight|golden hour)| sunrise| sunset)?" +
-            "(?: delay (-?[0-9]{1,2}|null))?)";
+                    "( (?:begin|end) of (?:(?:civil|nautical|astronomical) twilight|golden hour)| sunrise| sunset)?" +
+                    "(?: delay (-?[0-9]{1,2}|null))?)";
     private static final ImmutableMap<String, TimeTypesTuple> TIMES_TUPLE =
             new ImmutableMap.Builder<String, TimeTypesTuple>()
                     .put("sunrise", TimeTypesTuple.of(SUNRISE_TIME, SUNRISE_TIME_ANTICIPATION))
@@ -148,39 +148,36 @@ public class UserAlertsManager implements BotBean {
     }
 
     private void sendAlertsTypes(long chatId, CommandParameters parameters) {
+        List<List<InlineKeyboardButton>> keyboard = buildAddAlertsKeyboard();
+
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        // Build the keyboard (adds a default delay (null) as a workaround in order to not overwrite any existing
-        // no-delay alert.
-        List<InlineKeyboardButton> row = new ArrayList<>();
-        row.add(new InlineKeyboardButton().setText("Sunrise").setCallbackData("/alerts add sunrise delay null"));
-        row.add(new InlineKeyboardButton().setText("Sunset").setCallbackData("/alerts add sunset delay null"));
-        keyboard.add(row);
-
-        addTwilightRow(keyboard, "civil");
-        addTwilightRow(keyboard, "nautical");
-        addTwilightRow(keyboard, "astronomical");
-
-        row = new ArrayList<>();
-        row.add(new InlineKeyboardButton().setText("Begin of golden hour")
-                .setCallbackData("/alerts add begin of golden hour delay null"));
-        row.add(new InlineKeyboardButton().setText("End of golden hour")
-                .setCallbackData("/alerts add end of golden hour delay null"));
-        keyboard.add(row);
-
         keyboardMarkup.setKeyboard(keyboard);
 
         replyWithEditMessage(chatId, parameters, keyboardMarkup, "When do you want to be alerted?");
     }
 
-    private void addTwilightRow(List<List<InlineKeyboardButton>> keyboard, String twilightType) {
+    private List<List<InlineKeyboardButton>> buildAddAlertsKeyboard() {
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        int col = 0;
         List<InlineKeyboardButton> row = new ArrayList<>();
-        row.add(new InlineKeyboardButton().setText("Begin of " + twilightType + " twilight")
-                .setCallbackData("/alerts add begin of " + twilightType + " twilight delay null"));
-        row.add(new InlineKeyboardButton().setText("End of " + twilightType + " twilight")
-                .setCallbackData("/alerts add end of " + twilightType + " twilight delay null"));
-        keyboard.add(row);
+
+        for (Map.Entry<String, TimeTypesTuple> entry : TIMES_TUPLE.entrySet()) {
+            InlineKeyboardButton button = new InlineKeyboardButton()
+                    .setText(entry.getValue().time.getReadableName())
+                    .setCallbackData(String.format("/alerts add %s delay null", entry.getKey()));
+            row.add(button);
+            LOG.debug("Added button on row {}, col {}, button {}", keyboard.size() + 1, row.size(), button);
+
+            col++;
+
+            // Two buttons per row
+            if (col % 2 == 0) {
+                keyboard.add(row);
+                row = new ArrayList<>();
+            }
+        }
+
+        return keyboard;
     }
 
     private void sendDelays(long chatId, CommandParameters parameters) {
@@ -236,7 +233,6 @@ public class UserAlertsManager implements BotBean {
                     break;
             }
         }
-
     }
 
     private void handleEdit(long chatId, CommandParameters parameters) {

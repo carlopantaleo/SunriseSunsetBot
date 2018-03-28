@@ -5,7 +5,11 @@ import com.simpleplus.telegram.bots.datamodel.*;
 import com.simpleplus.telegram.bots.mocks.SunriseSunsetBotMock;
 import org.junit.Before;
 import org.junit.Test;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -58,6 +62,7 @@ public class UserAlertsManagerTest {
         assertTrue(userAlertsManager.validateSyntax("remove"));
         assertFalse(userAlertsManager.validateSyntax("remove 5L"));
         assertTrue(userAlertsManager.validateSyntax("edit 5 sunset delay 7"));
+        assertTrue(userAlertsManager.validateSyntax("edit 5 delay 7"));
     }
 
     @Test
@@ -105,7 +110,45 @@ public class UserAlertsManagerTest {
         userAlertsManager.handleCommand(testChatId, "edit " + (maxUserAlert + 1) + " delay 0", 1L);
         userAlerts = persistenceManager.getUserAlerts(testChatId);
         assertEquals(1, userAlerts.size());
-        assertEquals("Alert already exists.", ((SunriseSunsetBotMock) bot).getLastTextMessage());
+        assertEquals("Alert already exists.", ((SunriseSunsetBotMock) bot).getLastTextMessage().getText());
+    }
+
+    @Test
+    public void addAlertsKeyboardIsSentCorrectly() throws Exception {
+        long testChatId = 200L;
+        persistenceManager.setUserState(testChatId, new UserState(
+                new Coordinates(0, 0),
+                Step.RUNNING,
+                false
+        ));
+
+        userAlertsManager.handleCommand(testChatId, "add", 1L);
+        SunriseSunsetBotMock bot = (SunriseSunsetBotMock) this.bot;
+        SendMessage lastMessage = bot.getLastTextMessage();
+        InlineKeyboardMarkup replyMarkup = (InlineKeyboardMarkup) lastMessage.getReplyMarkup();
+        List<List<InlineKeyboardButton>> keyboard = replyMarkup.getKeyboard();
+
+        assertEquals(TimeType.SUNRISE_TIME.getReadableName(), keyboard.get(0).get(0).getText());
+        assertEquals(TimeType.SUNSET_TIME.getReadableName(), keyboard.get(0).get(1).getText());
+        assertEquals(TimeType.CIVIL_TWILIGHT_BEGIN_TIME.getReadableName(), keyboard.get(1).get(0).getText());
+        assertEquals(TimeType.CIVIL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(1).get(1).getText());
+        assertEquals(TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME.getReadableName(), keyboard.get(2).get(0).getText());
+        assertEquals(TimeType.NAUTICAL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(2).get(1).getText());
+        assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME.getReadableName(), keyboard.get(3).get(0).getText());
+        assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(3).get(1).getText());
+        assertEquals(TimeType.GOLDEN_HOUR_BEGIN.getReadableName(), keyboard.get(4).get(0).getText());
+        assertEquals(TimeType.GOLDEN_HOUR_END.getReadableName(), keyboard.get(4).get(1).getText());
+
+        assertEquals("/alerts add sunrise delay null", keyboard.get(0).get(0).getCallbackData());
+        assertEquals("/alerts add sunset delay null", keyboard.get(0).get(1).getCallbackData());
+        assertEquals("/alerts add begin of civil twilight delay null", keyboard.get(1).get(0).getCallbackData());
+        assertEquals("/alerts add end of civil twilight delay null", keyboard.get(1).get(1).getCallbackData());
+        assertEquals("/alerts add begin of nautical twilight delay null", keyboard.get(2).get(0).getCallbackData());
+        assertEquals("/alerts add end of nautical twilight delay null", keyboard.get(2).get(1).getCallbackData());
+        assertEquals("/alerts add begin of astronomical twilight delay null", keyboard.get(3).get(0).getCallbackData());
+        assertEquals("/alerts add end of astronomical twilight delay null", keyboard.get(3).get(1).getCallbackData());
+        assertEquals("/alerts add begin of golden hour delay null", keyboard.get(4).get(0).getCallbackData());
+        assertEquals("/alerts add end of golden hour delay null", keyboard.get(4).get(1).getCallbackData());
     }
 
     @Test

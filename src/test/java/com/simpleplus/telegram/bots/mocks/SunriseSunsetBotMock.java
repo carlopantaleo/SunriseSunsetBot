@@ -8,29 +8,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SunriseSunsetBotMock extends SunriseSunsetBot {
-    private List<String> sentMessages = new ArrayList<>();
+    private List<SendMessage> sentMessages = new ArrayList<>();
 
     @Override
     public void reply(SendMessage messageToSend) {
-        sentMessages.add(messageToSend.getText());
+        sentMessages.add(messageToSend);
     }
 
     @Override
     public void reply(long chatId, String message) {
-        sentMessages.add(message);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText(message);
+        sentMessages.add(sendMessage);
     }
 
     @Override
     public void reply(EditMessageText messageToSend) {
-        sentMessages.add(messageToSend.getText());
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText(messageToSend.getText());
+        sendMessage.setReplyToMessageId(messageToSend.getMessageId());
+        sendMessage.setReplyMarkup(messageToSend.getReplyMarkup());
+        sentMessages.add(sendMessage);
     }
 
-    public List<String> getSentMessages() {
+    public List<SendMessage> getSentMessages() {
         return sentMessages;
     }
 
-    public String getLastTextMessage() {
-        return sentMessages.size() > 0 ? sentMessages.get(sentMessages.size() - 1) : "";
+    public SendMessage getLastTextMessage() {
+        return sentMessages.size() > 0 ? sentMessages.get(sentMessages.size() - 1) : null;
     }
 
     @Override

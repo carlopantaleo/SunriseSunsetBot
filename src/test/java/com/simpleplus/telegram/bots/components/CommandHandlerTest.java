@@ -221,11 +221,11 @@ public class CommandHandlerTest {
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.RUNNING, userState.getStep());
 
-        List<String> sentMessages = sunriseSunsetBot.getSentMessages();
+        List<SendMessage> sentMessages = sunriseSunsetBot.getSentMessages();
         assertEquals(3, sentMessages.size());
-        assertTrue(sentMessages.get(0).contains("Ok, send me your message for support"));
-        assertTrue(sentMessages.get(1).contains("Support request from chatId"));
-        assertTrue(sentMessages.get(2).contains("Message to support sent."));
+        assertTrue(sentMessages.get(0).getText().contains("Ok, send me your message for support"));
+        assertTrue(sentMessages.get(1).getText().contains("Support request from chatId"));
+        assertTrue(sentMessages.get(2).getText().contains("Message to support sent."));
     }
 
     @Test
@@ -251,9 +251,9 @@ public class CommandHandlerTest {
         UserState userState = persistenceManager.getUserState(101L);
         assertEquals(Step.RUNNING, userState.getStep());
 
-        List<String> sentMessages = sunriseSunsetBot.getSentMessages();
+        List<SendMessage> sentMessages = sunriseSunsetBot.getSentMessages();
         assertEquals(2, sentMessages.size());
-        assertTrue(sentMessages.get(0).contains("Support request from chatId"));
-        assertTrue(sentMessages.get(1).contains("Message to support sent."));
+        assertTrue(sentMessages.get(0).getText().contains("Support request from chatId"));
+        assertTrue(sentMessages.get(1).getText().contains("Message to support sent."));
     }
 }
