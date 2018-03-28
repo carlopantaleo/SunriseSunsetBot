@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}|%p{length=3}|[%l] %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="ERROR">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <Logger name="com.simpleplus.telegram.bots" level="DEBUG"
+                additivity="false">
+            <Appender-ref ref="Console" level="DEBUG" />
+        </Logger>
+    </Loggers>
+</Configuration>
