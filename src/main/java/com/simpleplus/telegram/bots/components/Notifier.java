@@ -116,7 +116,7 @@ public class Notifier implements BotBean {
                 timesTomorrow = calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
             }
 
-            Date datetimeTomorrow = DateUtils.addDays(getDateTimeFromTimeType(timesTomorrow, timeType), 1);
+            Date datetimeTomorrow = getDateTimeFromTimeType(timesTomorrow, timeType);
             datetimeTomorrow = DateUtils.addMinutes(datetimeTomorrow, (int) delay);
             result = scheduler.scheduleMessage(chatId, datetimeTomorrow, formatMessage(timeType, delay));
 

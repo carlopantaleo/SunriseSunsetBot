@@ -43,7 +43,7 @@ app.listen(port, (err) => {
 });
 
 function log(text) {
-    console.log(new Date().toISOString().slice(0,19) + " " + text);
+    console.log(new Date().toISOString().slice(0, 23) + " " + text);
 }
 
 function error(response, text) {
@@ -53,6 +53,7 @@ function error(response, text) {
         results: {}
     };
 
+    log(`Response: 400 - ${text}`);
     response.status(400);
     response.json(res);
 }
@@ -64,5 +65,6 @@ function success(response, results) {
         results: results
     };
 
+    log(`Response: 200`);
     response.json(res);
 }

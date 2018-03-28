@@ -76,7 +76,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             URL url = new URL(String.format(Locale.ROOT, BASE_URL,
                     coordinates.getLatitude(),
                     coordinates.getLongitude(),
-                    localDate.atStartOfDay(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_DATE)));
+                    localDate.atStartOfDay(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
