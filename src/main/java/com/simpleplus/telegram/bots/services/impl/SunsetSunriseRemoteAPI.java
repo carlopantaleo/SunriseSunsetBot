@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
     private static final Logger LOG = LogManager.getLogger(SunsetSunriseRemoteAPI.class);
-    private static final String BASE_URL = "http://127.0.0.1:8500/json/sun/%f/%f/%s";
+    private static final String BASE_URL = "http://127.0.0.1:8500/json/%f/%f/%s";
 
     @Override
     public SunsetSunriseTimes getSunsetSunriseTimes(Coordinates coordinates, LocalDate localDate)
@@ -48,7 +48,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
             objectMapper.registerModule(new JavaTimeModule());
             APIResponse response = objectMapper.readValue(result, APIResponse.class);
 
-            if (response.status == null || !"OK".equals(response.status)) {
+            if (!"OK".equals(response.status)) {
                 throw new ServiceException("Remote service error: " + response.message);
             }
 

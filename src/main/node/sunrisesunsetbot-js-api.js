@@ -8,7 +8,7 @@ app.use(function (request, response, next) {
     next();
 });
 
-app.get('/json/sun/:lat/:lng/:date', (request, response) => {
+app.get('/json/:lat/:lng/:date', (request, response) => {
     let res = {
         status: "KO",
         message: "",
@@ -30,8 +30,15 @@ app.get('/json/sun/:lat/:lng/:date', (request, response) => {
         return error(response, "Invalid date. Please specify a date in valid ISO format.");
     }
 
-    let results = SunCalc.getTimes(theDate, latitude, longitude);
-    success(response, results);
+    let resultsSun = SunCalc.getTimes(theDate, latitude, longitude);
+
+    let tmpResultsMoon = SunCalc.getMoonTimes(theDate, latitude, longitude);
+    let resultsMoon = {
+        moonRise: tmpResultsMoon.rise || null,
+        moonSet: tmpResultsMoon.set || null
+    };
+
+    success(response, {...resultsSun, ...resultsMoon});
 });
 
 app.listen(port, (err) => {
