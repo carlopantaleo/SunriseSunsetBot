@@ -9,7 +9,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 
@@ -72,7 +75,7 @@ public class Notifier implements BotBean {
                 return;
             } catch (ServiceException e) {
                 LOG.warn("ServiceException during tryToInstallNotifiers (attempt " + Integer.toString(i) +
-                         ")... Sleeping 60 seconds.", e);
+                        ")... Sleeping 60 seconds.", e);
                 try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e1) {
@@ -85,13 +88,12 @@ public class Notifier implements BotBean {
 
     private void installNotifiers(long chatId) throws ServiceException {
         SunsetSunriseTimes times = calculateSunriseAndSunset(chatId);
-        SunsetSunriseTimes timesTomorrow = null; // Deferred initialization: a call to a REST service is expensive
+        SunsetSunriseTimes timesTomorrow = calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
 
         for (UserAlert alert : userAlertsManager.getUserAlerts(chatId)) {
             try {
                 if (alert.getDelay() != DRAFT_DELAY) {
-                    timesTomorrow = scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(),
-                            alert.getDelay());
+                    scheduleMessage(chatId, times, timesTomorrow, alert.getTimeType(), alert.getDelay());
                 }
             } catch (IllegalStateException e) {
                 bot.replyAndLogError(chatId, "IllegalStateException while scheduling message for " +
@@ -100,23 +102,29 @@ public class Notifier implements BotBean {
         }
     }
 
-    private @Nullable
-    SunsetSunriseTimes scheduleMessage(long chatId,
-                                       SunsetSunriseTimes times,
-                                       @Nullable SunsetSunriseTimes timesTomorrow,
-                                       TimeType timeType,
-                                       long delay) throws ServiceException {
-        Date datetime = DateUtils.addMinutes(getDateTimeFromTimeType(times, timeType), (int) delay);
+    private void scheduleMessage(long chatId,
+                                 SunsetSunriseTimes times,
+                                 SunsetSunriseTimes timesTomorrow,
+                                 TimeType timeType,
+                                 long delay) {
+        Date datetime = getDateTimeFromTimeType(times, timeType);
+        if (datetime == null) {
+            // Cannot schedule, this time is not applicable for the given coordinates
+            return;
+        }
+
+        datetime = DateUtils.addMinutes(datetime, (int) delay);
         BotScheduler.ScheduleResult result =
                 scheduler.scheduleMessage(chatId, datetime, formatMessage(timeType, delay));
 
         // If message is not scheduled, we try to calculate the sunrise time for the following day and re-schedule.
         if (result.in(NOT_SCHEDULED, NOT_TO_SCHEDULE)) {
-            if (timesTomorrow == null) {
-                timesTomorrow = calculateSunriseAndSunset(chatId, LocalDate.now().plusDays(1));
+            Date datetimeTomorrow = getDateTimeFromTimeType(timesTomorrow, timeType);
+            if (datetimeTomorrow == null) {
+                // Cannot schedule, this time is not applicable for the given coordinates
+                return;
             }
 
-            Date datetimeTomorrow = getDateTimeFromTimeType(timesTomorrow, timeType);
             datetimeTomorrow = DateUtils.addMinutes(datetimeTomorrow, (int) delay);
             result = scheduler.scheduleMessage(chatId, datetimeTomorrow, formatMessage(timeType, delay));
 
@@ -124,8 +132,6 @@ public class Notifier implements BotBean {
                 LOG.warn("{} message not scheduled even for time {}", timeType.name(), datetimeTomorrow.toString());
             }
         }
-
-        return timesTomorrow;
     }
 
     private String formatMessage(TimeType timeType, long delay) {
@@ -136,11 +142,11 @@ public class Notifier implements BotBean {
         }
     }
 
-    private Date getDateTimeFromTimeType(SunsetSunriseTimes times, TimeType timeType) {
+    private @Nullable
+    Date getDateTimeFromTimeType(SunsetSunriseTimes times, TimeType timeType) {
         LocalDateTime dateTime = times.getTime(timeType.getInternalName());
         if (dateTime == null) {
-            // Should never happen
-            return Date.from(Instant.now());
+            return null;
         }
 
         return Date.from(dateTime.toInstant(ZoneOffset.UTC));
