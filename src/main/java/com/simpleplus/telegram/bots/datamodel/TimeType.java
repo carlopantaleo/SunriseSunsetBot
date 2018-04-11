@@ -101,6 +101,26 @@ public enum TimeType {
             "End of golden hour",
             "goldenHourEnd"
     ),
+    MOONRISE(
+            "The moon is rising.",
+            "Moonrise",
+            "moonRise"
+    ),
+    MOONRISE_ANTICIPATION(
+            "The moon is rising in %d minutes.",
+            "Moonrise",
+            "moonRise"
+    ),
+    MOONSET(
+            "The moon is setting.",
+            "Moonset",
+            "moonSet"
+    ),
+    MOONSET_ANTICIPATION(
+            "The moon is setting in %d minutes.",
+            "Moonset",
+            "moonSet"
+    ),
     DEFAULT("Invalid.", "Invalid", "invalid");
 
     private String message;

@@ -138,6 +138,8 @@ public class UserAlertsManagerTest {
         assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(3).get(1).getText());
         assertEquals(TimeType.GOLDEN_HOUR_BEGIN.getReadableName(), keyboard.get(4).get(0).getText());
         assertEquals(TimeType.GOLDEN_HOUR_END.getReadableName(), keyboard.get(4).get(1).getText());
+        assertEquals(TimeType.MOONRISE.getReadableName(), keyboard.get(5).get(0).getText());
+        assertEquals(TimeType.MOONSET.getReadableName(), keyboard.get(5).get(1).getText());
 
         assertEquals("/alerts add sunrise delay null", keyboard.get(0).get(0).getCallbackData());
         assertEquals("/alerts add sunset delay null", keyboard.get(0).get(1).getCallbackData());
@@ -149,12 +151,14 @@ public class UserAlertsManagerTest {
         assertEquals("/alerts add end of astronomical twilight delay null", keyboard.get(3).get(1).getCallbackData());
         assertEquals("/alerts add begin of golden hour delay null", keyboard.get(4).get(0).getCallbackData());
         assertEquals("/alerts add end of golden hour delay null", keyboard.get(4).get(1).getCallbackData());
+        assertEquals("/alerts add moonrise delay null", keyboard.get(5).get(0).getCallbackData());
+        assertEquals("/alerts add moonset delay null", keyboard.get(5).get(1).getCallbackData());
     }
 
     @Test
     public void getAppropriatedTimeTypeWorks() throws Exception {
         long iChatId = 104;
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < 12; i++) {
             persistenceManager.setUserState(iChatId + i, new UserState(
                     new Coordinates(0, 0),
                     Step.RUNNING,
@@ -181,7 +185,11 @@ public class UserAlertsManagerTest {
         userAlertsManager.handleCommand(iChatId, "add begin of golden hour delay 0", 1L);
         userAlertsManager.handleCommand(iChatId++, "add begin of golden hour delay -5", 1L);
         userAlertsManager.handleCommand(iChatId, "add end of golden hour delay 0", 1L);
-        userAlertsManager.handleCommand(iChatId, "add end of golden hour delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add end of golden hour delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add moonrise delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId++, "add moonrise delay -5", 1L);
+        userAlertsManager.handleCommand(iChatId, "add moonset delay 0", 1L);
+        userAlertsManager.handleCommand(iChatId, "add moonset delay -5", 1L);
 
         iChatId = 104;
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(iChatId);
@@ -232,6 +240,14 @@ public class UserAlertsManagerTest {
         userAlerts = persistenceManager.getUserAlerts(iChatId);
         assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END, 0)));
         assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_END_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.MOONRISE, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.MOONRISE_ANTICIPATION, -5)));
+        iChatId++;
+        userAlerts = persistenceManager.getUserAlerts(iChatId);
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.MOONSET, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.MOONSET_ANTICIPATION, -5)));
     }
 
     private boolean setContainsUserAlert(Set<UserAlert> set, UserAlert expected) {
