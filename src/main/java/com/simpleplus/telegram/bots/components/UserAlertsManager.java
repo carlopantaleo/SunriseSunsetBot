@@ -32,38 +32,33 @@ public class UserAlertsManager implements BotBean {
     private static final Logger LOG = LogManager.getLogger(UserAlertsManager.class);
     private static final String COMMAND_REGEX =
             "(?:(add|remove|edit)( [0-9]+)?" +
-                    "( (?:begin|end) of (?:(?:civil|nautical|astronomical) twilight|golden hour)| sunrise| sunset| moonrise| moonset)?" +
+                    "( (?:begin|end) of (?:(?:civil|nautical|astronomical) twilight|golden hour)| sunrise| sunset| " +
+                    "moonrise| moonset)?" +
                     "(?: delay (-?[0-9]{1,2}|null))?)";
     private static final ImmutableMap<String, TimeTypesTuple> TIMES_TUPLE =
             new ImmutableMap.Builder<String, TimeTypesTuple>()
-                    .put("sunrise", TimeTypesTuple.of(SUNRISE_TIME, SUNRISE_TIME_ANTICIPATION))
-                    .put("sunset", TimeTypesTuple.of(SUNSET_TIME, SUNSET_TIME_ANTICIPATION))
+                    .put("sunrise", TimeTypesTuple.of(SUNRISE, SUNRISE_ANTICIPATION))
+                    .put("sunset", TimeTypesTuple.of(SUNSET, SUNSET_ANTICIPATION))
                     .put("begin of civil twilight",
-                            TimeTypesTuple.of(CIVIL_TWILIGHT_BEGIN_TIME, CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION))
+                            TimeTypesTuple.of(CIVIL_TWILIGHT_BEGIN, CIVIL_TWILIGHT_BEGIN_ANTICIPATION))
                     .put("end of civil twilight",
-                            TimeTypesTuple.of(CIVIL_TWILIGHT_END_TIME, CIVIL_TWILIGHT_END_TIME_ANTICIPATION))
+                            TimeTypesTuple.of(CIVIL_TWILIGHT_END, CIVIL_TWILIGHT_END_ANTICIPATION))
                     .put("begin of nautical twilight",
-                            TimeTypesTuple.of(NAUTICAL_TWILIGHT_BEGIN_TIME, NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION))
+                            TimeTypesTuple.of(NAUTICAL_TWILIGHT_BEGIN, NAUTICAL_TWILIGHT_BEGIN_ANTICIPATION))
                     .put("end of nautical twilight",
-                            TimeTypesTuple.of(NAUTICAL_TWILIGHT_END_TIME, NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION))
+                            TimeTypesTuple.of(NAUTICAL_TWILIGHT_END, NAUTICAL_TWILIGHT_END_ANTICIPATION))
                     .put("begin of astronomical twilight",
-                            TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_BEGIN_TIME,
-                                    ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION))
+                            TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_BEGIN, ASTRONOMICAL_TWILIGHT_BEGIN_ANTICIPATION))
                     .put("end of astronomical twilight",
-                            TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_END_TIME,
-                                    ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION))
+                            TimeTypesTuple.of(ASTRONOMICAL_TWILIGHT_END, ASTRONOMICAL_TWILIGHT_END_ANTICIPATION))
                     .put("begin of golden hour",
-                            TimeTypesTuple.of(GOLDEN_HOUR_BEGIN,
-                                    GOLDEN_HOUR_BEGIN_ANTICIPATION))
+                            TimeTypesTuple.of(GOLDEN_HOUR_BEGIN, GOLDEN_HOUR_BEGIN_ANTICIPATION))
                     .put("end of golden hour",
-                            TimeTypesTuple.of(GOLDEN_HOUR_END,
-                                    GOLDEN_HOUR_END_ANTICIPATION))
+                            TimeTypesTuple.of(GOLDEN_HOUR_END, GOLDEN_HOUR_END_ANTICIPATION))
                     .put("moonrise",
-                            TimeTypesTuple.of(MOONRISE,
-                                    MOONRISE_ANTICIPATION))
+                            TimeTypesTuple.of(MOONRISE, MOONRISE_ANTICIPATION))
                     .put("moonset",
-                            TimeTypesTuple.of(MOONSET,
-                                    MOONSET_ANTICIPATION))
+                            TimeTypesTuple.of(MOONSET, MOONSET_ANTICIPATION))
                     .build();
 
     private PersistenceManager persistenceManager;
@@ -91,8 +86,8 @@ public class UserAlertsManager implements BotBean {
     }
 
     private Set<UserAlert> generateAndGetDefaultUserAlerts(long chatId) {
-        persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNRISE_TIME, 0));
-        persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNSET_TIME, 0));
+        persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNRISE, 0));
+        persistenceManager.addUserAlert(new UserAlert(chatId, TimeType.SUNSET, 0));
         return persistenceManager.getUserAlerts(chatId);
     }
 

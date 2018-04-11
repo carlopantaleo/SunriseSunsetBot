@@ -1,82 +1,82 @@
 package com.simpleplus.telegram.bots.datamodel;
 
 public enum TimeType {
-    SUNRISE_TIME(
+    SUNRISE(
             "The sun is rising.",
             "Sunrise",
             "sunrise"
     ),
-    SUNRISE_TIME_ANTICIPATION(
+    SUNRISE_ANTICIPATION(
             "The sun is rising in %d minutes.",
             "Sunrise",
             "sunrise"
     ),
-    SUNSET_TIME(
+    SUNSET(
             "The sun is setting.",
             "Sunset",
             "sunset"
     ),
-    SUNSET_TIME_ANTICIPATION(
+    SUNSET_ANTICIPATION(
             "The sun is setting in %d minutes.",
             "Sunset",
             "sunset"
     ),
-    CIVIL_TWILIGHT_BEGIN_TIME(
+    CIVIL_TWILIGHT_BEGIN(
             "Civil twilight has begun.",
             "Begin of civil twilight",
             "dawn"
     ),
-    CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION(
+    CIVIL_TWILIGHT_BEGIN_ANTICIPATION(
             "Civil twilight begins in %d minutes.",
             "Begin of civil twilight",
             "dawn"
     ),
-    CIVIL_TWILIGHT_END_TIME(
+    CIVIL_TWILIGHT_END(
             "Civil twilight has ended.",
             "End of civil twilight",
             "dusk"
     ),
-    CIVIL_TWILIGHT_END_TIME_ANTICIPATION(
+    CIVIL_TWILIGHT_END_ANTICIPATION(
             "Civil twilight ends in %d minutes.",
             "End of civil twilight",
             "dusk"
     ),
-    NAUTICAL_TWILIGHT_BEGIN_TIME(
+    NAUTICAL_TWILIGHT_BEGIN(
             "Nautical twilight has begun.",
             "Begin of nautical twilight",
             "nauticalDawn"
     ),
-    NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION(
+    NAUTICAL_TWILIGHT_BEGIN_ANTICIPATION(
             "Nautical twilight begins in %d minutes.",
             "Begin of nautical twilight",
             "nauticalDawn"
     ),
-    NAUTICAL_TWILIGHT_END_TIME(
+    NAUTICAL_TWILIGHT_END(
             "Nautical twilight has ended.",
             "End of nautical twilight",
             "nauticalDusk"
     ),
-    NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION(
+    NAUTICAL_TWILIGHT_END_ANTICIPATION(
             "Nautical twilight ends in %d minutes.",
             "End of nautical twilight",
             "nauticalDusk"
     ),
-    ASTRONOMICAL_TWILIGHT_BEGIN_TIME(
+    ASTRONOMICAL_TWILIGHT_BEGIN(
             "Astronomical twilight has begun.",
             "Begin of astronomical twilight",
             "nightEnd"
     ),
-    ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION(
+    ASTRONOMICAL_TWILIGHT_BEGIN_ANTICIPATION(
             "Astronomical twilight begins in %d minutes.",
             "Begin of astronomical twilight",
             "nightEnd"
     ),
-    ASTRONOMICAL_TWILIGHT_END_TIME(
+    ASTRONOMICAL_TWILIGHT_END(
             "Astronomical twilight has ended.",
             "End of astronomical twilight",
             "night"
     ),
-    ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION(
+    ASTRONOMICAL_TWILIGHT_END_ANTICIPATION(
             "Astronomical twilight ends in %d minutes.",
             "End of astronomical twilight",
             "night"

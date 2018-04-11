@@ -128,14 +128,14 @@ public class UserAlertsManagerTest {
         InlineKeyboardMarkup replyMarkup = (InlineKeyboardMarkup) lastMessage.getReplyMarkup();
         List<List<InlineKeyboardButton>> keyboard = replyMarkup.getKeyboard();
 
-        assertEquals(TimeType.SUNRISE_TIME.getReadableName(), keyboard.get(0).get(0).getText());
-        assertEquals(TimeType.SUNSET_TIME.getReadableName(), keyboard.get(0).get(1).getText());
-        assertEquals(TimeType.CIVIL_TWILIGHT_BEGIN_TIME.getReadableName(), keyboard.get(1).get(0).getText());
-        assertEquals(TimeType.CIVIL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(1).get(1).getText());
-        assertEquals(TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME.getReadableName(), keyboard.get(2).get(0).getText());
-        assertEquals(TimeType.NAUTICAL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(2).get(1).getText());
-        assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME.getReadableName(), keyboard.get(3).get(0).getText());
-        assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_END_TIME.getReadableName(), keyboard.get(3).get(1).getText());
+        assertEquals(TimeType.SUNRISE.getReadableName(), keyboard.get(0).get(0).getText());
+        assertEquals(TimeType.SUNSET.getReadableName(), keyboard.get(0).get(1).getText());
+        assertEquals(TimeType.CIVIL_TWILIGHT_BEGIN.getReadableName(), keyboard.get(1).get(0).getText());
+        assertEquals(TimeType.CIVIL_TWILIGHT_END.getReadableName(), keyboard.get(1).get(1).getText());
+        assertEquals(TimeType.NAUTICAL_TWILIGHT_BEGIN.getReadableName(), keyboard.get(2).get(0).getText());
+        assertEquals(TimeType.NAUTICAL_TWILIGHT_END.getReadableName(), keyboard.get(2).get(1).getText());
+        assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_BEGIN.getReadableName(), keyboard.get(3).get(0).getText());
+        assertEquals(TimeType.ASTRONOMICAL_TWILIGHT_END.getReadableName(), keyboard.get(3).get(1).getText());
         assertEquals(TimeType.GOLDEN_HOUR_BEGIN.getReadableName(), keyboard.get(4).get(0).getText());
         assertEquals(TimeType.GOLDEN_HOUR_END.getReadableName(), keyboard.get(4).get(1).getText());
         assertEquals(TimeType.MOONRISE.getReadableName(), keyboard.get(5).get(0).getText());
@@ -193,44 +193,44 @@ public class UserAlertsManagerTest {
 
         iChatId = 104;
         Set<UserAlert> userAlerts = persistenceManager.getUserAlerts(iChatId);
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNRISE_TIME, 0)));
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNRISE_TIME_ANTICIPATION, -5)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNRISE, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNRISE_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNSET_TIME, 0)));
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNSET_TIME_ANTICIPATION, -5)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNSET, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.SUNSET_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_BEGIN_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_BEGIN, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
-                new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_BEGIN_TIME_ANTICIPATION, -5)));
+                new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_BEGIN_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_END_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_END, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
-                new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+                new UserAlert(iChatId, TimeType.CIVIL_TWILIGHT_END_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_BEGIN, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
-                new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION, -5)));
+                new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_BEGIN_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
-        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_END_TIME, 0)));
+        assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_END, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
-                new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+                new UserAlert(iChatId, TimeType.NAUTICAL_TWILIGHT_END_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
         assertTrue(
-                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME, 0)));
+                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_BEGIN, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
-                new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_TIME_ANTICIPATION, -5)));
+                new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_BEGIN_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
         assertTrue(
-                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME, 0)));
+                setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END, 0)));
         assertTrue(setContainsUserAlert(userAlerts,
-                new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_TIME_ANTICIPATION, -5)));
+                new UserAlert(iChatId, TimeType.ASTRONOMICAL_TWILIGHT_END_ANTICIPATION, -5)));
         iChatId++;
         userAlerts = persistenceManager.getUserAlerts(iChatId);
         assertTrue(setContainsUserAlert(userAlerts, new UserAlert(iChatId, TimeType.GOLDEN_HOUR_BEGIN, 0)));

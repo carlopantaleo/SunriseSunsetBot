@@ -40,7 +40,7 @@ public class NotifierTest {
         assertEquals(2, userAlerts.size());
 
         UserAlert[] userAlertsArr = userAlerts.toArray(new UserAlert[2]);
-        Set<TimeType> expectedTimes = Sets.newHashSet(TimeType.SUNRISE_TIME, TimeType.SUNSET_TIME);
+        Set<TimeType> expectedTimes = Sets.newHashSet(TimeType.SUNRISE, TimeType.SUNSET);
         Set<TimeType> savedTimes = Sets.newHashSet(userAlertsArr[0].getTimeType(), userAlertsArr[1].getTimeType());
         assertEquals(101L, userAlertsArr[0].getChatId());
         assertEquals(101L, userAlertsArr[1].getChatId());
