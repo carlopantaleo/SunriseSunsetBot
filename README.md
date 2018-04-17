@@ -14,6 +14,7 @@ by your client.
    - astronomical twilight begin/end
    - nautical twilight begin/end
    - golden hour begin/end
+   - moonrise and moonset
 
    and you can choose to receive the notification in advance with respect to the actual event.
 
