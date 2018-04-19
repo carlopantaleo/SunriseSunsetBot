@@ -3,6 +3,8 @@ package com.simpleplus.telegram.bots.components;
 
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
@@ -46,6 +48,27 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
         messageHandler = (MessageHandler) BotContext.getDefaultContext().getBean(MessageHandler.class);
         commandHandler = (CommandHandler) BotContext.getDefaultContext().getBean(CommandHandler.class);
         propertiesManager = (PropertiesManager) BotContext.getDefaultContext().getBean(PropertiesManager.class);
+
+        initProxy();
+    }
+
+    private void initProxy() {
+        String proxyHost = propertiesManager.getProperty("proxy-host");
+        boolean useSocks = propertiesManager.getProperty("use-socks") != null;
+        final int timeout = 75 * 1000;
+        if (proxyHost != null) {
+            if (useSocks) {
+                System.getProperties().put("socksProxyHost", proxyHost);
+                System.getProperties()
+                        .put("socksProxyPort", propertiesManager.getPropertyOrDefault("proxy-port", "80"));
+            } else {
+                RequestConfig requestConfig = RequestConfig.custom().setProxy(new HttpHost(proxyHost,
+                        Integer.parseInt(propertiesManager.getPropertyOrDefault("proxy-port", "80"))))
+                        .setSocketTimeout(timeout).setConnectionRequestTimeout(timeout).setConnectTimeout(timeout)
+                        .build();
+                this.getOptions().setRequestConfig(requestConfig);
+            }
+        }
     }
 
     public void start() {
@@ -68,7 +91,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
 
     public void onUpdateReceived(Update update) {
         if (!(update.hasCallbackQuery() ||
-                (update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))) {
+              (update.hasMessage() && (update.getMessage().hasText() || update.getMessage().hasLocation())))) {
             return;
         }
 
@@ -113,9 +136,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     public void reply(long chatId, String message) {
-        SendMessage messageToSend = new SendMessage()
-                .setChatId(chatId)
-                .setText(message);
+        SendMessage messageToSend = new SendMessage().setChatId(chatId).setText(message);
         reply(messageToSend);
     }
 
@@ -132,8 +153,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
             execute(messageToSend);
             LOG.info("ChatId {}: Outgoing message: {}", chatId, text);
         } catch (TelegramApiRequestException e) {
-            LOG.warn("ChatId {}: TelegramApiRequestException during reply. " +
-                    "Error was {} - {}", chatId, e.getErrorCode(), e.getApiResponse());
+            LOG.warn("ChatId {}: TelegramApiRequestException during reply. " + "Error was {} - {}", chatId,
+                    e.getErrorCode(), e.getApiResponse());
 
             if (reachedMaxExceptionCount(chatId)) {
                 persistenceManager.setStep(chatId, Step.EXPIRED);
@@ -158,8 +179,7 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     private boolean reachedMaxExceptionCount(long chatId) {
-        Integer maxExceptions =
-                Integer.valueOf(propertiesManager.getPropertyOrDefault("max-exceptions-for-chat", "3"));
+        Integer maxExceptions = Integer.valueOf(propertiesManager.getPropertyOrDefault("max-exceptions-for-chat", "3"));
         Integer exceptionCount = exceptionCountMap.get(chatId);
 
         return exceptionCount != null && exceptionCount >= maxExceptions;
@@ -168,8 +188,8 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     public void replyAndLogError(long chatId, String message, Throwable e) {
         String errorUUID = UUID.randomUUID().toString();
         LOG.error(message + " (" + errorUUID + ")", e);
-        reply(chatId, "Oops, something went wrong. But don't worry, we are already working on it!\n" +
-                "Problem ID: " + errorUUID);
+        reply(chatId, "Oops, something went wrong. But don't worry, we are already working on it!\n" + "Problem ID: " +
+                      errorUUID);
     }
 
     public String getBotUsername() {
