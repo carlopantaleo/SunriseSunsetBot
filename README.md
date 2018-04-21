@@ -31,9 +31,12 @@ The following are in order of priority, from higher to lower. If you would like 
 features are a good starting point!
 * Possibility to send the name of the city instead of the coordinates.
 * Support for multiple locations.
-* Optional alerts also for moonrise and moonset.
 
 ...and many more!
+
+##### Internal TODOs
+* Broadcast filtering (only send broadcast message to chat with RUNNING status).
+* Banned chats list (banned chatIDs are ignored by the bot).
 
 #### Contributions
 Contributions are welcome. Feel free to send a pull request, but please note that any pull request containing any bot
