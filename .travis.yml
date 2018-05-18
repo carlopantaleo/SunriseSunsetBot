@@ -29,6 +29,8 @@ matrix:
       install: . ./install-jdk.sh -F 11 -L GPL
   allow_failures:
     - env: JDK='Oracle JDK 10'
+    - env: JDK='Oracle JDK 11'
+    - env: JDK='OpenJDK 11'
 
 install: mvn help:all-profiles install -e -Dgpg.skip
 script: mvn help:all-profiles clean compile test -e
