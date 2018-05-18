@@ -44,11 +44,11 @@ public class BotContext {
             if (beanArgs != null) {
                 beans.put(canonicalName, (BotBean) clazz.getConstructors()[0].newInstance(beanArgs));
             } else {
-                beans.put(canonicalName, clazz.newInstance());
+                beans.put(canonicalName, clazz.getDeclaredConstructor().newInstance());
             }
-        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-            LOG.fatal("Unable to instantiate class " + clazz.toString() + ": InstantiationException.", e);
-            throw new Error("Failed to initialise BotContext.", e);
+        } catch (Exception e) {
+            LOG.fatal("Unable to instantiate class " + clazz.toString() + ".", e);
+            throw new Error("Failed to initialize BotContext.", e);
         }
     }
 

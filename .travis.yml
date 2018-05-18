@@ -1,9 +1,37 @@
 language: java
 
-jdk:
-  - oraclejdk8
-  - openjdk8
-  - oraclejdk9
+before_install:
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+  - sudo apt-get -qq update
+  - sudo apt-get install -y --only-upgrade maven
 
-install: mvn install -Dgpg.skip
-script: mvn clean compile test
+matrix:
+  include:
+# 8
+    - env: JDK='Oracle JDK 8'
+      jdk: oraclejdk8
+    - env: JDK='OpenJDK 8'
+      jdk: openjdk8
+# 9
+    - env: JDK='Oracle JDK 9'
+      jdk: oraclejdk9
+    - env: JDK='OpenJDK 9'
+      install: . ./install-jdk.sh -F 9
+# 10
+    - env: JDK='Oracle JDK 10'
+      jdk: oraclejdk10
+    - env: JDK='OpenJDK 10'
+      install: . ./install-jdk.sh -F 10 -L GPL
+# 11
+    - env: JDK='Oracle JDK 11'
+      install: . ./install-jdk.sh -F 11 -L BCL
+    - env: JDK='OpenJDK 11'
+      install: . ./install-jdk.sh -F 11 -L GPL
+  allow_failures:
+    - env: JDK='Oracle JDK 10'
+
+install: mvn help:all-profiles install -e -Dgpg.skip
+script: mvn help:all-profiles clean compile test -e
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
