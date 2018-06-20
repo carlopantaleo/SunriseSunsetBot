@@ -19,7 +19,7 @@ matrix:
       install: . ./install-jdk.sh -F 9
 # 10
     - env: JDK='Oracle JDK 10'
-      install: . ./install-jdk.sh -F 10 -L BCL
+      jdk: oraclejdk10
     - env: JDK='OpenJDK 10'
       install: . ./install-jdk.sh -F 10 -L GPL
 # 11
@@ -27,9 +27,14 @@ matrix:
       install: . ./install-jdk.sh -F 11 -L BCL
     - env: JDK='OpenJDK 11'
       install: . ./install-jdk.sh -F 11 -L GPL
+# Early Access
+    - env: JDK='Oracle JDK EA'
+      install: . ./install-jdk.sh -F ea -L BCL
+    - env: JDK='OpenJDK EA'
+      install: . ./install-jdk.sh -F ea -L GPL
   allow_failures:
-    - env: JDK='Oracle JDK 11'
-    - env: JDK='OpenJDK 11'
+    - env: JDK='Oracle JDK EA'
+    - env: JDK='OpenJDK EA'
 
 install: mvn help:all-profiles install -e -Dgpg.skip
 
