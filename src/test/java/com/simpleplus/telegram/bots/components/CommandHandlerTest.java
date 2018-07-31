@@ -10,8 +10,8 @@ import com.simpleplus.telegram.bots.mocks.SunriseSunsetBotMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
