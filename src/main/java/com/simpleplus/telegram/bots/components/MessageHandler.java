@@ -173,8 +173,8 @@ public class MessageHandler implements BotBean {
 
     private void handleStartRestartChat(long chatId, boolean isChatNew) {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.\n" +
-                "Tip: hit the 'Send Location' button below, or send me your coordinates " +
-                "like '15.44286; -5.3362'.";
+                "Tip: hit the 'Send Location' button below. Otherwise you can send me your coordinates " +
+                "like '15.44286; -5.3362', or the name of your city.";
         SendMessage messageToSend = new SendMessage()
                 .setChatId(chatId)
                 .setText(message);
