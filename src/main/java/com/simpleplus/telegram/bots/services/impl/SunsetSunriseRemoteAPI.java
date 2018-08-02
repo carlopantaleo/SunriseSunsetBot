@@ -85,11 +85,11 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
                 throw new ServiceException("HTTP Error " + conn.getResponseCode());
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-            String output;
-            while ((output = br.readLine()) != null) {
-                result = result.append(output);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String output;
+                while ((output = br.readLine()) != null) {
+                    result = result.append(output);
+                }
             }
 
             conn.disconnect();
