@@ -4,6 +4,7 @@ import com.simpleplus.telegram.bots.datamodel.Coordinates;
 import com.simpleplus.telegram.bots.datamodel.Step;
 import com.simpleplus.telegram.bots.datamodel.UserState;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
+import com.simpleplus.telegram.bots.services.NamedLocationToCoordinatesService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -31,6 +32,7 @@ public class MessageHandler implements BotBean {
     private Notifier notifier;
     private BotScheduler scheduler;
     private AdminCommandHandler adminCommandHandler;
+    private NamedLocationToCoordinatesService locationToCoordinatesService;
 
     @Override
     public void init() {
@@ -39,6 +41,8 @@ public class MessageHandler implements BotBean {
         notifier = (Notifier) BotContext.getDefaultContext().getBean(Notifier.class);
         scheduler = (BotScheduler) BotContext.getDefaultContext().getBean(BotScheduler.class);
         adminCommandHandler = (AdminCommandHandler) BotContext.getDefaultContext().getBean(AdminCommandHandler.class);
+        locationToCoordinatesService = (NamedLocationToCoordinatesService) BotContext.getDefaultContext()
+                .getBean(NamedLocationToCoordinatesService.class);
     }
 
     public void handleMessage(Update update) {
@@ -112,6 +116,16 @@ public class MessageHandler implements BotBean {
 
     private @Nullable
     Coordinates parseLocation(String text) {
+        Coordinates coordinates = parseGpsLocation(text);
+
+        if (coordinates == null) {
+            coordinates = parseNamedLocation(text);
+        }
+
+        return coordinates;
+    }
+
+    private Coordinates parseGpsLocation(String text) {
         Pattern pattern = Pattern.compile("['\"]?(-?[0-9]*[.,][-0-9]*)[ .,;a-zA-Z]*(-?[0-9]*[.,][-0-9]*)['\"]?");
         Matcher matcher = pattern.matcher(text);
 
@@ -134,6 +148,15 @@ public class MessageHandler implements BotBean {
         }
 
         return new Coordinates(latitude, longitude);
+    }
+
+    private Coordinates parseNamedLocation(String text) {
+        try {
+            return locationToCoordinatesService.findCoordinates(text);
+        } catch (ServiceException e) {
+            LOG.error("Could not parse named location: Service Exception.");
+            return null;
+        }
     }
 
     private boolean isChatNew(long chatId) {

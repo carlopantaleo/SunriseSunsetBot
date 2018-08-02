@@ -7,6 +7,7 @@ import javax.persistence.Embeddable;
 public class Coordinates {
     private float latitude;
     private float longitude;
+    private String description;
 
     public Coordinates(float latitude, float longitude) {
         this.latitude = latitude;
@@ -34,6 +35,14 @@ public class Coordinates {
         return latitude;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,11 +61,11 @@ public class Coordinates {
         return result;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "Coordinates{" +
                 "latitude=" + latitude +
                 ", longitude=" + longitude +
+                ", description='" + description + '\'' +
                 '}';
     }
 }
