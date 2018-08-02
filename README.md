@@ -7,7 +7,7 @@ the excellent JavaScript library [SuncCalc](https://github.com/mourner/suncalc).
 #### How does it work?
 1. Start the bot (the official registered bot on Telegram is `@SunriseSunset_bot`).
 2. Send your location if you are using a mobile client, or send your coordinates if location messages are not supported
-by your client.
+by your client. You may even send the name of your city and your coordinates will be set based on a best-guess.
 3. Every day at sunrise and sunset you will receive an alert message.
 4. Use the `/alerts` command to manage your alert messages: you can choose to be alerted also at:
    - civil twilight begin/end
@@ -30,7 +30,6 @@ Got a problem? Found a bug? Send a `/support` message and get in touch with us!
 #### Upcoming features
 The following are in order of priority, from higher to lower. If you would like to contribute to this bot, these
 features are a good starting point!
-* Possibility to send the name of the city instead of the coordinates.
 * Support for multiple locations.
 
 ...and many more!
