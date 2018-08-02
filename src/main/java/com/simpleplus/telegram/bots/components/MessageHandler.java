@@ -97,8 +97,11 @@ public class MessageHandler implements BotBean {
                 scheduler.cancelAllScheduledMessages(chatId);
                 notifier.tryToInstallNotifiers(chatId, 5);
                 persistenceManager.setStep(chatId, RUNNING);
-                bot.reply(chatId, "Your location has been saved. " +
-                        "You will be notified at sunset and sunrise.");
+                bot.reply(chatId, "Your location " +
+                        (location.getDescription() != null ? "(" + location.getDescription() + ") " : "") +
+                        "has been saved. " +
+                        "You will receive alerts at sunset and sunrise.\n" +
+                        "Tip: use the /alerts command to customize your alerts!");
             } catch (ServiceException e) {
                 bot.replyAndLogError(chatId, "ServiceException during onUpdateReceived.", e);
             }
