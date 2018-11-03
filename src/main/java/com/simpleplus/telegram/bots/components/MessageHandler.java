@@ -157,7 +157,7 @@ public class MessageHandler implements BotBean {
         try {
             return locationToCoordinatesService.findCoordinates(text);
         } catch (ServiceException e) {
-            LOG.error("Could not parse named location: Service Exception.");
+            LOG.error("Could not parse named location: Service Exception.", e);
             return null;
         }
     }
