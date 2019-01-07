@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Iterables;
 import com.simpleplus.telegram.bots.components.BotBean;
 import com.simpleplus.telegram.bots.components.BotContext;
 import com.simpleplus.telegram.bots.components.PropertiesManager;
@@ -99,7 +98,10 @@ public class GooglePlacesAPI implements NamedLocationToCoordinatesService, BotBe
             throw new ServiceException("IO Error");
         }
 
-        return result.toString();
+        String strResult = result.toString();
+        LOG.debug("API response: {}", strResult);
+
+        return strResult;
     }
 
 
