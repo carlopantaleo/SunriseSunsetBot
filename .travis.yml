@@ -25,6 +25,9 @@ matrix:
       install: . ./install-jdk.sh -F 11 -L BCL
     - env: JDK='OpenJDK 11'
       install: . ./install-jdk.sh -F 11 -L GPL
+# 12
+    - env: JDK='OpenJDK 12'
+      install: . ./install-jdk.sh -F 12 -L GPL
 # Early Access
     - env: JDK='Oracle JDK EA'
       install: . ./install-jdk.sh -F ea -L BCL
@@ -33,6 +36,7 @@ matrix:
   allow_failures:
     - env: JDK='Oracle JDK EA'
     - env: JDK='OpenJDK EA'
+    - env: JDK='OpenJDK 12'
 
 install: mvn help:all-profiles install -e -Dgpg.skip
 
