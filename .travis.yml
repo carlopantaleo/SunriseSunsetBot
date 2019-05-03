@@ -43,12 +43,9 @@ matrix:
       install: . ./install-jdk.sh --url https://api.adoptopenjdk.net/v2/binary/releases/openjdk12?openjdk_impl=openj9&os=linux&arch=x64&release=latest&type=jdk&heap_size=normal
 
 # Early Access
-    - env: JDK='Oracle JDK EA'
-      install: . ./install-jdk.sh -F ea -L BCL
     - env: JDK='OpenJDK EA'
       install: . ./install-jdk.sh -F ea -L GPL
   allow_failures:
-    - env: JDK='Oracle JDK EA'
     - env: JDK='OpenJDK EA'
     - env: JDK='OpenJDK 12'
     - env: JDK='OpenJDK 12 OpenJ9'
