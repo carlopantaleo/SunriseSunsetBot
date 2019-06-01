@@ -96,7 +96,7 @@ public class SunsetSunriseRemoteAPI implements SunsetSunriseService, BotBean {
         } catch (MalformedURLException e) {
             LOG.error("MalformedURLException", e);
         } catch (IOException e) {
-            throw new ServiceException("IO Error");
+            throw new ServiceException("IO Error", e);
         }
 
         return result.toString();
