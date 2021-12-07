@@ -1,5 +1,5 @@
 # SunriseSunsetBot
-[![Build Status](https://travis-ci.org/carlopantaleo/SunriseSunsetBot.svg?branch=master)](https://travis-ci.org/carlopantaleo/SunriseSunsetBot)
+[![Java CI with Maven](https://github.com/carlopantaleo/SunriseSunsetBot/actions/workflows/maven.yml/badge.svg)](https://github.com/carlopantaleo/SunriseSunsetBot/actions/workflows/maven.yml)
 
 A Telegram bot that alerts you at sunrise and sunset, based on your location. Sunrise and sunset times are provided by
 the excellent JavaScript library [SuncCalc](https://github.com/mourner/suncalc).
