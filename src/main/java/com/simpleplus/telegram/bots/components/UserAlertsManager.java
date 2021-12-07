@@ -1,9 +1,9 @@
 package com.simpleplus.telegram.bots.components;
 
+import com.google.common.collect.ImmutableMap;
 import com.simpleplus.telegram.bots.datamodel.TimeType;
 import com.simpleplus.telegram.bots.datamodel.UserAlert;
 import com.simpleplus.telegram.bots.exceptions.ServiceException;
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -100,8 +100,8 @@ public class UserAlertsManager implements BotBean {
 
         // Build the keyboard
         List<InlineKeyboardButton> row = new ArrayList<>();
-        row.add(new InlineKeyboardButton().setText("Add...").setCallbackData("/alerts add"));
-        row.add(new InlineKeyboardButton().setText("Delete...").setCallbackData("/alerts remove"));
+        row.add(InlineKeyboardButton.builder().text("Add...").callbackData("/alerts add").build());
+        row.add(InlineKeyboardButton.builder().text("Delete...").callbackData("/alerts remove").build());
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(row);
         keyboardMarkup.setKeyboard(keyboard);
@@ -109,7 +109,7 @@ public class UserAlertsManager implements BotBean {
         // Build the message
         SendMessage messageToSend = new SendMessage();
         messageToSend.setReplyMarkup(keyboardMarkup);
-        messageToSend.setChatId(chatId);
+        messageToSend.setChatId(String.valueOf(chatId));
         messageToSend.setText(getAlertsList(chatId));
 
         bot.reply(messageToSend);
@@ -163,9 +163,10 @@ public class UserAlertsManager implements BotBean {
         List<InlineKeyboardButton> row = new ArrayList<>();
 
         for (Map.Entry<String, TimeTypesTuple> entry : TIMES_TUPLE.entrySet()) {
-            InlineKeyboardButton button = new InlineKeyboardButton()
-                    .setText(entry.getValue().time.getReadableName())
-                    .setCallbackData(String.format("/alerts add %s delay null", entry.getKey()));
+            InlineKeyboardButton button = InlineKeyboardButton.builder()
+                    .text(entry.getValue().time.getReadableName())
+                    .callbackData(String.format("/alerts add %s delay null", entry.getKey()))
+                    .build();
             row.add(button);
             LOG.debug("Added button on row {}, col {}, button {}", keyboard.size() + 1, row.size(), button);
 
@@ -192,19 +193,31 @@ public class UserAlertsManager implements BotBean {
 
         // Build the keyboard
         List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(new InlineKeyboardButton().setText("No, thanks")
-                .setCallbackData(String.format("/alerts edit %d delay 0", id)));
+        row1.add(InlineKeyboardButton.builder()
+                .text("No, thanks")
+                .callbackData(String.format("/alerts edit %d delay 0", id))
+                .build());
         List<InlineKeyboardButton> row2 = new ArrayList<>();
-        row2.add(new InlineKeyboardButton().setText("5m")
-                .setCallbackData(String.format("/alerts edit %d delay -5", id)));
-        row2.add(new InlineKeyboardButton().setText("10m")
-                .setCallbackData(String.format("/alerts edit %d delay -10", id)));
-        row2.add(new InlineKeyboardButton().setText("15m")
-                .setCallbackData(String.format("/alerts edit %d delay -15", id)));
-        row2.add(new InlineKeyboardButton().setText("30m")
-                .setCallbackData(String.format("/alerts edit %d delay -30", id)));
-        row2.add(new InlineKeyboardButton().setText("1h")
-                .setCallbackData(String.format("/alerts edit %d delay -60", id)));
+        row2.add(InlineKeyboardButton.builder()
+                .text("5m")
+                .callbackData(String.format("/alerts edit %d delay -5", id))
+                .build());
+        row2.add(InlineKeyboardButton.builder()
+                .text("10m")
+                .callbackData(String.format("/alerts edit %d delay -10", id))
+                .build());
+        row2.add(InlineKeyboardButton.builder()
+                .text("15m")
+                .callbackData(String.format("/alerts edit %d delay -15", id))
+                .build());
+        row2.add(InlineKeyboardButton.builder()
+                .text("30m")
+                .callbackData(String.format("/alerts edit %d delay -30", id))
+                .build());
+        row2.add(InlineKeyboardButton.builder()
+                .text("1h")
+                .callbackData(String.format("/alerts edit %d delay -60", id))
+                .build());
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(row1);
         keyboard.add(row2);
@@ -325,7 +338,7 @@ public class UserAlertsManager implements BotBean {
     private void sendAlertsDeletionList(long chatId, CommandParameters parameters) {
         List<UserAlert> orderedUserAlerts = persistenceManager.getUserAlerts(chatId).stream()
                 .sorted(Comparator.comparingLong(UserAlert::getId))
-                .collect(Collectors.toList());
+                .toList();
 
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
@@ -336,8 +349,10 @@ public class UserAlertsManager implements BotBean {
                 Math.ceil((double) orderedUserAlerts.size() / 8));
         int i = 1;
         for (UserAlert alert : orderedUserAlerts) {
-            row.add(new InlineKeyboardButton().setText("#" + i)
-                    .setCallbackData("/alerts remove " + alert.getId()));
+            row.add(InlineKeyboardButton.builder()
+                    .text("#" + i)
+                    .callbackData("/alerts remove " + alert.getId())
+                    .build());
 
             // Start a new line if too many buttons
             if (i % alertsPerRow == 0) {
@@ -363,7 +378,7 @@ public class UserAlertsManager implements BotBean {
                                       String text) {
         EditMessageText messageToSend = new EditMessageText();
         messageToSend.setReplyMarkup(keyboardMarkup);
-        messageToSend.setChatId(chatId);
+        messageToSend.setChatId(String.valueOf(chatId));
         if (parameters.messageId != 0) {
             messageToSend.setMessageId((int) parameters.messageId);
         }

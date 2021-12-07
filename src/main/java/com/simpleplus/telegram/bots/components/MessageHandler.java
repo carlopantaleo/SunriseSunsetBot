@@ -149,9 +149,10 @@ public class MessageHandler implements BotBean {
         String message = (isChatNew ? "Welcome! " : "") + "Please send me your location.\n" +
                 "Tip: hit the 'Send Location' button below, or send me your coordinates " +
                 "like '15.44286; -5.3362'.";
-        SendMessage messageToSend = new SendMessage()
-                .setChatId(chatId)
-                .setText(message);
+        SendMessage messageToSend =SendMessage.builder()
+                .chatId(String.valueOf(chatId))
+                .text(message)
+                .build();
         addSendLocationInlineKeyboard(messageToSend);
         bot.reply(messageToSend);
 
@@ -166,11 +167,12 @@ public class MessageHandler implements BotBean {
     }
 
     private void addSendLocationInlineKeyboard(SendMessage messageToSend) {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup()
-                .setOneTimeKeyboard(true)
-                .setResizeKeyboard(true);
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
+                .oneTimeKeyboard(true)
+                .resizeKeyboard(true)
+                .build();
         KeyboardRow row = new KeyboardRow();
-        row.add(new KeyboardButton().setText("Send Location").setRequestLocation(true));
+        row.add(KeyboardButton.builder().text("Send Location").requestLocation(true).build());
         List<KeyboardRow> rows = new ArrayList<>();
         rows.add(row);
         keyboardMarkup.setKeyboard(rows);

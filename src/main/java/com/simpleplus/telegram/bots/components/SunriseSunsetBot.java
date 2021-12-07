@@ -136,7 +136,10 @@ public class SunriseSunsetBot extends TelegramLongPollingBot implements BotBean 
     }
 
     public void reply(long chatId, String message) {
-        SendMessage messageToSend = new SendMessage().setChatId(chatId).setText(message);
+        SendMessage messageToSend = SendMessage.builder()
+                .chatId(String.valueOf(chatId))
+                .text(message)
+                .build();
         reply(messageToSend);
     }
 

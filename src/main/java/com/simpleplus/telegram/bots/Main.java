@@ -3,23 +3,22 @@ package com.simpleplus.telegram.bots;
 import com.simpleplus.telegram.bots.components.*;
 import com.simpleplus.telegram.bots.services.SunsetSunriseService;
 import com.simpleplus.telegram.bots.services.impl.SunsetSunriseRemoteAPI;
-import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.BotSession;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Main {
 
     public static void main(String[] args) {
-        ApiContextInitializer.init();
         PropertiesManager.setArgv(args);
         initDefaultBotContext();
 
-        TelegramBotsApi botsApi = new TelegramBotsApi();
-        SunriseSunsetBot sunriseSunsetBot =
-                (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
-
         try {
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            SunriseSunsetBot sunriseSunsetBot =
+                    (SunriseSunsetBot) BotContext.getDefaultContext().getBean(SunriseSunsetBot.class);
+
             BotSession session = botsApi.registerBot(sunriseSunsetBot);
             sunriseSunsetBot.setBotSession(session);
             sunriseSunsetBot.start();

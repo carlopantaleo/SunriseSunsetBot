@@ -63,7 +63,7 @@ public class PropertiesManager implements BotBean {
     }
 
     private void setPropertiesFromPropertiesFile() {
-        CommandLineParser parser = new DefaultParser();
+        CommandLineParser parser = new GnuParser();
         String botPropertiesPath = null;
 
         try {
@@ -105,7 +105,7 @@ public class PropertiesManager implements BotBean {
 
     private void setPropertiesFromArgv() {
         Options options = getDeclaredOptions();
-        CommandLineParser parser = new DefaultParser();
+        CommandLineParser parser = new GnuParser();
 
         try {
             CommandLine line = parser.parse(options, argv);
@@ -123,36 +123,12 @@ public class PropertiesManager implements BotBean {
     }
 
     private Options getDeclaredOptions() {
-        Options options = new Options();
-        options.addOption(Option.builder("n")
-                .longOpt("bot-name")
-                .desc("Bot name as registered on Telegram")
-                .hasArg()
-                .argName("NAME")
-                .build());
-        options.addOption(Option.builder("t")
-                .longOpt("bot-token")
-                .desc("Bot token provided by Telegram")
-                .hasArg()
-                .argName("TOKEN")
-                .build());
-        options.addOption(Option.builder("p")
-                .longOpt("bot-properties-path")
-                .desc("bot.properties path")
-                .hasArg()
-                .argName("PATH")
-                .build());
-        options.addOption(Option.builder("d")
-                .longOpt("bot-database")
-                .desc("bot database name")
-                .hasArg()
-                .argName("NAME")
-                .build());
-        options.addOption(Option.builder()
-                .longOpt("embed-web-server")
-                .desc("start embedded H2 web server")
-                .build());
-        return options;
+        return new Options()
+                .addOption(new Option("n", "bot-name", true, "Bot name as registered on Telegram"))
+                .addOption(new Option("t", "bot-token", true, "Bot token provided by Telegram"))
+                .addOption(new Option("p", "bot-properties-path", true, "bot.properties path"))
+                .addOption(new Option("d", "bot-database", true, "bot database name"))
+                .addOption(new Option("w", "embed-web-server", false, "start embedded H2 web server"));
     }
 
     public String getProperty(String property) {

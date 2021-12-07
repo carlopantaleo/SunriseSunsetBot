@@ -12,8 +12,8 @@ import java.io.Serializable;
 @Entity
 public class UserAlert implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Column(name = "CHAT_ID")
     private long chatId;
