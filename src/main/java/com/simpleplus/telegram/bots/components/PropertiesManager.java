@@ -63,7 +63,7 @@ public class PropertiesManager implements BotBean {
     }
 
     private void setPropertiesFromPropertiesFile() {
-        CommandLineParser parser = new GnuParser();
+        CommandLineParser parser = new DefaultParser();
         String botPropertiesPath = null;
 
         try {
@@ -105,7 +105,7 @@ public class PropertiesManager implements BotBean {
 
     private void setPropertiesFromArgv() {
         Options options = getDeclaredOptions();
-        CommandLineParser parser = new GnuParser();
+        CommandLineParser parser = new DefaultParser();
 
         try {
             CommandLine line = parser.parse(options, argv);
